@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library MS - Visitor Portal</title>
+    <link rel="stylesheet" href="CSS/VisitorPortal.css"> 
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="Assets/SystemFiles/Logo.png" alt="Library MS Logo" class="library-logo"> 
+                <div class="logo-text">
+                    <span class="app-name">Library MS</span>
+                    <span class="portal-name">Visitor Portal</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#search-books" class="nav-item active" data-target="search-books-content">
+                    <span class="material-icons-round">search</span>
+                    Search Books
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span class="material-icons-round user-icon">account_circle</span>
+                    <div class="user-details">
+                        <p class="user-role">Guest</p>
+                        <p class="user-id">Not Signed In</p>
+                    </div>
+                </div>
+                <a href="Login.html" class="login-link">
+                    <span class="material-icons-round">login</span>
+                    Sign In / Log In
+                </a>
+            </div>
+            </aside>
+
+        <main class="main-content">
+            
+            <div id="search-books-content" class="content-panel active">
+                <header class="main-header">
+                    <h1>Library Catalog</h1>
+                    <p>Search our collection of books, journals, and other resources.</p>
+                </header>
+
+                <section class="search-panel">
+                    <div class="search-controls">
+                        <div class="search-input-group">
+                            <span class="material-icons-round search-icon">search</span>
+                            <input type="text" placeholder="Search by Title or Author">
+                        </div>
+                        <select class="sort-dropdown">
+                            <option>Sort by Title (A-Z)</option>
+                            <option>Sort by Author</option>
+                            <option>Sort by Date</option>
+                        </select>
+                    </div>
+
+                    <div class="results-table-container">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Cover</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="cover-cell"><img src="Assets/BookCovers/CoverBookTemp.png" alt="The Glass Shore" class="book-cover"></td><td>The Glass Shore</td><td>Miranda Cole</td><td><span class="status-tag tag-available">Available</span></td><td><button class="action-btn open-book-modal-btn">View</button></td></tr>
+                                <tr><td class="cover-cell"><img src="Assets/BookCovers/CoverBookTemp.png" alt="The Quantum Thief" class="book-cover"></td><td>The Quantum Thief</td><td>Elias Romero</td><td><span class="status-tag tag-available">Available</span></td><td><button class="action-btn open-book-modal-btn">View</button></td></tr>
+                                <tr><td class="cover-cell"><img src="Assets/BookCovers/CoverBookTemp.png" alt="Whispers of the Mango Tree" class="book-cover"></td><td>Whispers of the Mango Tree</td><td>Althea Mendoza</td><td><span class="status-tag tag-checkedout">Checked Out</span></td><td><button class="action-btn open-book-modal-btn">View</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <p>Page 1 of 10</p>
+                    </div>
+                </section>
+            </div>
+            </main>
+    </div>
+
+    <div id="book-modal" class="modal-overlay">
+        <div class="modal-content book-modal-content">
+            <div class="book-details-grid">
+                
+                <div class="book-cover-area">
+                    <img src="Assets/BookCovers/CoverBookTemp.png" alt="Book Cover" class="book-detail-cover">
+                </div>
+                
+                <div class="book-info-area">
+                    <h2 class="book-detail-title">The Glass Shore</h2>
+                    
+                    <dl class="book-meta-list">
+                        <dt>Author</dt><dd>Miranda Cole</dd>
+                        <dt>Shelf Location</dt><dd>Fiction – C / Shelf F3</dd>
+                        <dt>ISBN</dt><dd>978-1-56289-932-4</dd>
+                        <dt>Publisher</dt><dd>Silverleaf Press</dd>
+                        <dt>Edition</dt><dd>2nd Edition</dd>
+                        <dt>Description</dt><dd>A poetic literary novel about grief and healing set on a rugged Irish coastline.</dd>
+                    </dl>
+                </div>
+
+                <div class="plot-summary-area">
+                    <h3 class="plot-summary-title">Plot Summary</h3>
+                    <p class="plot-summary-text">After losing her husband, Nora retreats to her late grandmother's seaside cottage, where she unravels family secrets hidden beneath the tides — and finds a way to reclaim her life.</p>
+                </div>
+                
+            </div>
+
+            <div class="modal-footer book-modal-footer">
+                <div class="book-status-info">
+                    <span class="status-indicator">Status:</span>
+                    <span class="status-tag tag-available book-status-tag">Available</span>
+                    <span class="copies-available">3 copies Available</span>
+                </div>
+                
+                <div class="book-actions">
+                    <a href="Login.html" class="action-btn sign-in-btn">Sign In to Borrow</a>
+                    <button id="close-book-modal-btn" class="modal-close-btn close-book-modal-btn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="JS/visitor.js"></script>
+</body>
+</html>

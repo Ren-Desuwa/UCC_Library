@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Rig</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; background: #f9f9f9; color: #333; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 20px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1, h2, h3 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h1 { text-align: center; }
+        fieldset { border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px; padding: 15px; }
+        legend { font-size: 1.2em; font-weight: bold; padding: 0 10px; }
+        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: 500; margin-bottom: 5px; }
+        input[type="text"], input[type="password"], input[type="number"], input[type="date"], select, textarea {
+            width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        button {
+            padding: 10px 15px; font-size: 1em; font-weight: bold; color: #fff; background-color: #007bff;
+            border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s;
+            grid-column: 1 / -1; /* Make button span full width */
+        }
+        button:hover { background-color: #0056b3; }
+        #log-container { margin-top: 30px; }
+        #log-controls { margin-bottom: 10px; display: flex; gap: 10px; }
+        #log-controls button { grid-column: auto; width: auto; font-size: 0.9em; }
+        #clear-log { background-color: #dc3545; }
+        #clear-log:hover { background-color: #a71d2a; }
+        #export-log { background-color: #28a745; }
+        #export-log:hover { background-color: #1e7e34; }
+        #log-output {
+            background: #282c34; color: #abb2bf; padding: 20px; border-radius: 8px;
+            font-family: "Courier New", Courier, monospace; font-size: 0.9em;
+            white-space: pre-wrap; word-wrap: break-word; max-height: 800px; overflow-y: auto;
+        }
+        .log-entry { border-bottom: 1px dashed #555; padding-bottom: 10px; margin-bottom: 10px; }
+        .log-req { color: #61afef; }
+        .log-res-ok { color: #98c379; }
+        .log-res-err { color: #e06c75; }
+        .log-raw { color: #999; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>API Test Rig</h1>
+        <p>This page tests all known API endpoints by calling them directly. Check the log below for request and response details.</p>
+
+        <fieldset>
+            <legend>Auth API (/auth)</legend>
+            <form id="test-login">
+                <h3>POST /auth/login</h3>
+                <div class="form-group"><label for="login-user">Username:</label><input type="text" id="login-user" name="login-user" value="student_pending"></div>
+                <div class="form-group"><label for="login-pass">Password:</label><input type="password" id="login-pass" name="login-pass" value="password123"></div>
+                <button type="submit">Test Login</button>
+            </form>
+            <hr>
+            <form id="test-register">
+                <h3>POST /auth/register</h3>
+                <div class="form-group"><label for="reg-name">Name:</label><input type="text" id="reg-name" name="reg-name" value="Test User"></div>
+                <div class="form-group"><label for="reg-user">Username (Student ID):</label><input type="text" id="reg-user" name="reg-user" value="test_user_123"></div>
+                <div class="form-group"><label for="reg-email">Email:</label><input type="text" id="reg-email" name="reg-email" value="test@user.com"></div>
+                <div class="form-group"><label for="reg-pass">Password:</label><input type="password" id="reg-pass" name="reg-pass" value="password123"></div>
+                <button type="submit">Test Register</button>
+            </form>
+            <hr>
+            <form id="test-forgot">
+                <h3>POST /auth/forgot-password</h3>
+                <div class="form-group"><label for="forgot-user">Username:</label><input type="text" id="forgot-user" name="forgot-user" value="admin"></div>
+                <button type="submit">Test Forgot Password</button>
+            </form>
+            <hr>
+            <form id="test-logout">
+                <h3>POST /auth/logout</h3>
+                <button type="submit">Test Logout</button>
+            </form>
+            <hr>
+            <form id="test-me">
+                <h3>GET /auth/me</h3>
+                <button type="submit">Test Get Current User</button>
+            </form>
+            <hr>
+            <form id="test-check">
+                <h3>GET /auth/check</h3>
+                <button type="submit">Test Check Session</button>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Visitor API (/visitor)</legend>
+            <form id="test-catalog">
+                <h3>GET /visitor/catalog</h3>
+                <div class="form-group"><label for="cat-page">Page:</label><input type="number" id="cat-page" name="cat-page" value="1"></div>
+                <div class="form-group"><label for="cat-limit">Limit:</label><input type="number" id="cat-limit" name="cat-limit" value="5"></div>
+                <button type="submit">Test Get Catalog</button>
+            </form>
+            <hr>
+            <form id="test-search">
+                <h3>GET /visitor/search</h3>
+                <div class="form-group"><label for="search-q">Query (q):</label><input type="text" id="search-q" name="search-q" value="The"></div>
+                <button type="submit">Test Search</button>
+            </form>
+            <hr>
+            <form id="test-book-details">
+                <h3>GET /visitor/books/{id}</h3>
+                <div class="form-group"><label for="book-id">Book ID:</label><input type="number" id="book-id" name="book-id" value="1"></div>
+                <button type="submit">Test Get Book Details</button>
+            </form>
+            <hr>
+            <form id="test-announcements">
+                <h3>GET /visitor/announcements</h3>
+                <button type="submit">Test Get Announcements</button>
+            </form>
+        </fieldset>
+        
+        <fieldset>
+            <legend>Librarian: Book API (/librarian/books)</legend>
+            <form id="test-add-book">
+                <h3>POST /librarian/books</h3>
+                <div class="form-group"><label for="add-title">Title:</label><input type="text" id="add-title" name="add-title" value="Test Rig Book"></div>
+                <div class="form-group"><label for="add-author">Author:</label><input type="text" id="add-author" name="add-author" value="Tester"></div>
+                <div class="form-group"><label for="add-isbn">ISBN:</label><input type="text" id="add-isbn" name="add-isbn" value="1234567890123"></div>
+                <div class="form-group"><label for="add-genre">Genre:</label><input type="text" id="add-genre" name="add-genre" value="Tech"></div>
+                <div class="form-group"><label for="add-copies">Initial Copies:</label><input type="number" id="add-copies" name="add-copies" value="2"></div>
+                <div class="form-group"><label for="add-shelf">Shelf Location:</label><input type="text" id="add-shelf" name="add-shelf" value="A-101"></div>
+                <button type="submit">Test Add Book</button>
+            </form>
+            <hr>
+            <form id="test-edit-book">
+                <h3>PUT /librarian/books/{id}</h3>
+                <div class="form-group"><label for="edit-id">Book ID:</label><input type="number" id="edit-id" name="edit-id" value="1"></div>
+                <div class="form-group"><label for="edit-title">New Title:</label><input type="text" id="edit-title" name="edit-title" value="Updated Title"></div>
+                <div class="form-group"><label for="edit-author">New Author:</label><input type="text" id="edit-author" name="edit-author" value="Updated Author"></div>
+                <button type="submit">Test Edit Book</button>
+            </form>
+            <hr>
+            <form id="test-delete-book">
+                <h3>DELETE /librarian/books/{id}</h3>
+                <div class="form-group"><label for="del-id">Book ID:</label><input type="number" id="del-id" name="del-id" value="999"></div>
+                <button type="submit">Test Delete Book</button>
+            </form>
+            <hr>
+            <form id="test-get-copies">
+                <h3>GET /librarian/books/{id}/copies</h3>
+                <div class="form-group"><label for="get-copies-id">Book ID:</label><input type="number" id="get-copies-id" name="get-copies-id" value="1"></div>
+                <div class="form-group">
+                    <label for="get-copies-status">Status (optional):</label>
+                    <select id="get-copies-status" name="get-copies-status">
+                        <option value="">All</option>
+                        <option value="Available">Available</option>
+                        <option value="Borrowed">Borrowed</option>
+                    </select>
+                </div>
+                <button type="submit">Test Get Copies</button>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Librarian: Copy API (/librarian/copies)</legend>
+            <form id="test-add-copy">
+                <h3>POST /librarian/copies</h3>
+                <div class="form-group"><label for="add-copy-bookid">Book ID:</label><input type="number" id="add-copy-bookid" name="add-copy-bookid" value="1"></div>
+                <div class="form-group"><label for="add-copy-shelf">Shelf Location:</label><input type="text" id="add-copy-shelf" name="add-copy-shelf" value="B-202"></div>
+                <button type="submit">Test Add Copy</button>
+            </form>
+            <hr>
+            <form id="test-delete-copy">
+                <h3>DELETE /librarian/copies/{id}</h3>
+                <div class="form-group"><label for="del-copy-id">Copy ID:</label><input type="number" id="del-copy-id" name="del-copy-id" value="999"></div>
+                <button type="submit">Test Delete Copy</button>
+            </form>
+        </fieldset>
+        
+        <fieldset>
+            <legend>Librarian: User API (/librarian/users)</legend>
+            <form id="test-get-students">
+                <h3>GET /librarian/users</h3>
+                <div class="form-group">
+                    <label for="get-student-status">Status:</label>
+                    <select id="get-student-status" name="get-student-status">
+                        <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+                <button type="submit">Test Get Students</button>
+            </form>
+            <hr>
+            <form id="test-approve-student">
+                <h3>PUT /librarian/users/approve</h3>
+                <div class="form-group"><label for="approve-id">Account ID:</label><input type="number" id="approve-id" name="approve-id" value="1"></div>
+                <button type="submit">Test Approve Student</button>
+            </form>
+            <hr>
+            <form id="test-get-user-details">
+                <h3>GET /librarian/users/{id}</h3>
+                <div class="form-group"><label for="user-details-id">User ID:</label><input type="number" id="user-details-id" name="user-details-id" value="1"></div>
+                <button type="submit">Test Get User Details</button>
+            </form>
+            <hr>
+            <form id="test-get-user-borrowed">
+                <h3>GET /librarian/users/{id}/borrowed</h3>
+                <div class="form-group"><label for="user-borrowed-id">User ID:</label><input type="number" id="user-borrowed-id" name="user-borrowed-id" value="1"></div>
+                <button type="submit">Test Get User Borrowed</button>
+            </form>
+        </fieldset>
+        
+        <fieldset>
+            <legend>Librarian: Transaction API (/librarian/...)</legend>
+            <form id="test-checkout">
+                <h3>POST /librarian/checkout</h3>
+                <div class="form-group"><label for="checkout-user">User ID:</label><input type="number" id="checkout-user" name="checkout-user" value="1"></div>
+                <div class="form-group"><label for="checkout-copies">Copy IDs (comma-sep):</label><input type="text" id="checkout-copies" name="checkout-copies" value="1, 2"></div>
+                <button type="submit">Test Checkout</button>
+            </form>
+            <hr>
+            <form id="test-return">
+                <h3>POST /librarian/return</h3>
+                <div class="form-group"><label for="return-tx-id">Transaction ID:</label><input type="number" id="return-tx-id" name="return-tx-id" value="1"></div>
+                <div class="form-group">
+                    <label for="return-condition">Condition:</label>
+                    <select id="return-condition" name="return-condition">
+                        <option value="Good">Good</option>
+                        <option value="Damaged">Damaged</option>
+                        <option value="Lost">Lost</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="return-notes">Notes:</label><input type="text" id="return-notes" name="return-notes" value="Test return"></div>
+                <button type="submit">Test Return</button>
+            </form>
+            <hr>
+            <form id="test-renew">
+                <h3>POST /librarian/renew</h3>
+                <div class="form-group"><label for="renew-tx-id">Transaction ID:</label><input type="number" id="renew-tx-id" name="renew-tx-id" value="1"></div>
+                <button type="submit">Test Renew</button>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Admin: Account API (/admin/accounts)</legend>
+            <form id="test-admin-create-account">
+                <h3>POST /admin/accounts</h3>
+                <div class="form-group"><label for="admin-create-name">Name:</label><input type="text" id="admin-create-name" name="admin-create-name" value="Test Librarian"></div>
+                <div class="form-group"><label for="admin-create-user">Username:</label><input type="text" id="admin-create-user" name="admin-create-user" value="test_lib_123"></div>
+                <div class="form-group"><label for="admin-create-email">Email:</label><input type="text" id="admin-create-email" name="admin-create-email" value="lib@test.com"></div>
+                <div class="form-group"><label for="admin-create-pass">Password:</label><input type="password" id="admin-create-pass" name="admin-create-pass" value="password123"></div>
+                <div class="form-group">
+                    <label for="admin-create-role">Role:</label>
+                    <select id="admin-create-role" name="admin-create-role">
+                        <option value="Librarian">Librarian</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Student">Student</option>
+                    </select>
+                </div>
+                <button type="submit">Test Create Account</button>
+            </form>
+            <hr>
+            <form id="test-admin-status">
+                <h3>PUT /admin/accounts/status</h3>
+                <div class="form-group"><label for="admin-status-id">Account ID:</label><input type="number" id="admin-status-id" name="admin-status-id" value="1"></div>
+                <div class="form-group">
+                    <label for="admin-status-active">Is Active (Ban?):</label>
+                    <select id="admin-status-active" name="admin-status-active">
+                        <option value="true">True (Unban)</option>
+                        <option value="false">False (Ban)</option>
+                    </select>
+                </div>
+                <button type="submit">Test Update Status</button>
+            </form>
+            <hr>
+            <form id="test-admin-role">
+                <h3>PUT /admin/accounts/role</h3>
+                <div class="form-group"><label for="admin-role-id">Account ID:</label><input type="number" id="admin-role-id" name="admin-role-id" value="1"></div>
+                <div class="form-group">
+                    <label for="admin-role-new">New Role:</label>
+                    <select id="admin-role-new" name="admin-role-new">
+                        <option value="Student">Student</option>
+                        <option value="Librarian">Librarian</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit">Test Update Role</button>
+            </form>
+            <hr>
+            <form id="test-admin-delete-account">
+                <h3>DELETE /admin/accounts/{id}</h3>
+                <div class="form-group"><label for="admin-del-id">Account ID:</label><input type="number" id="admin-del-id" name="admin-del-id" value="999"></div>
+                <button type="submit">Test Delete Account</button>
+            </form>
+        </fieldset>
+        
+        <fieldset>
+            <legend>Admin: Password Reset API (/admin/...)</legend>
+            <form id="test-get-pending-resets">
+                <h3>GET /admin/password-requests</h3>
+                <button type="submit">Test Get Pending Resets</button>
+            </form>
+            <hr>
+            <form id="test-admin-reset-pass">
+                <h3>POST /admin/accounts/reset-password</h3>
+                <div class="form-group"><label for="admin-reset-id">Account ID:</label><input type="number" id="admin-reset-id" name="admin-reset-id" value="1"></div>
+                <div class="form-group"><label for="admin-reset-pass">New Password:</label><input type="password" id="admin-reset-pass" name="admin-reset-pass" value="newpass123"></div>
+                <button type="submit">Test Reset Password</button>
+            </form>
+            <hr>
+            <form id="test-admin-resolve-reset">
+                <h3>POST /admin/password-requests/resolve</h3>
+                <div class="form-group"><label for="admin-resolve-id">Request ID:</label><input type="number" id="admin-resolve-id" name="admin-resolve-id" value="1"></div>
+                <button type="submit">Test Resolve Request</button>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Admin: System Health API (/admin/...)</legend>
+            <form id="test-get-stats">
+                <h3>GET /admin/statistics</h3>
+                <button type="submit">Test Get Statistics</button>
+            </form>
+            <hr>
+            <form id="test-get-logs">
+                <h3>GET /admin/logs</h3>
+                <div class="form-group"><label for="logs-limit">Limit:</label><input type="number" id="logs-limit" name="logs-limit" value="10"></div>
+                <div class="form-group">
+                    <label for="logs-severity">Severity:</label>
+                    <select id="logs-severity" name="logs-severity">
+                        <option value="">All</option>
+                        <option value="Info">Info</option>
+                        <option value="Warning">Warning</option>
+                        <option value="Error">Error</option>
+                    </select>
+                </div>
+                <button type="submit">Test Get System Logs</button>
+            </form>
+            <hr>
+            <form id="test-get-user-logs">
+                <h3>GET /admin/logs/user/{id}</h3>
+                <div class="form-group"><label for="user-logs-id">Account ID:</label><input type="number" id="user-logs-id" name="user-logs-id" value="1"></div>
+                <div class="form-group"><label for="user-logs-limit">Limit:</label><input type="number" id="user-logs-limit" name="user-logs-limit" value="5"></div>
+                <button type="submit">Test Get User Logs</button>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Admin: System Settings API (/admin/system-settings)</legend>
+            <form id="test-get-settings">
+                <h3>GET /admin/system-settings</h3>
+                <button type="submit">Test Get Settings</button>
+            </form>
+            <hr>
+            <form id="test-save-settings">
+                <h3>PUT /admin/system-settings</h3>
+                <div class="form-group">
+                    <label for="settings-json">Settings JSON:</label>
+                    <textarea id="settings-json" name="settings-json">{
+    "borrowingRules": {
+        "maxBooks": 7,
+        "loanDuration": 21
+    },
+    "overduePolicy": {
+        "finePerDay": 0.5,
+        "penaltyThreshold": 5
+    }
+}</textarea>
+                </div>
+                <button type="submit">Test Save Settings</button>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Student API (/student)</legend>
+            <form id="test-student-borrowed">
+                <h3>GET /student/borrowed-books</h3>
+                <button type="submit">Test Get My Borrowed</button>
+            </form>
+            <hr>
+            <form id="test-student-history">
+                <h3>GET /student/history</h3>
+                <button type="submit">Test Get My History</button>
+            </form>
+            <hr>
+            <form id="test-student-account-get">
+                <h3>GET /student/account</h3>
+                <button type="submit">Test Get My Account</button>
+            </form>
+            <hr>
+            <form id="test-student-account-put">
+                <h3>PUT /student/account</h3>
+                <div class="form-group"><label for="student-email">New Email:</label><input type="text" id="student-email" name="student-email" value="new@email.com"></div>
+                <button type="submit">Test Update My Account</button>
+            </form>
+            <hr>
+            <form id="test-student-pass">
+                <h3>POST /student/change-password</h3>
+                <div class="form-group"><label for="student-curr-pass">Current Password:</label><input type="password" id="student-curr-pass" name="student-curr-pass" value="password123"></div>
+                <div class="form-group"><label for="student-new-pass">New Password:</label><input type="password" id="student-new-pass" name="student-new-pass" value="newpassword123"></div>
+                <button type="submit">Test Change My Password</button>
+            </form>
+            <hr>
+            <form id="test-student-delete-notif">
+                <h3>DELETE /student/notifications/{id}</h3>
+                <div class="form-group"><label for="student-notif-id">Notification ID:</label><input type="number" id="student-notif-id" name="student-notif-id" value="1"></div>
+                <button type="submit">Test Delete Notification</button>
+            </form>
+        </fieldset>
+
+        <div id="log-container">
+            <h2>Test Log</h2>
+            <div id="log-controls">
+                <button id="clear-log">Clear Log</button>
+                <button id="export-log">Export Log</button>
+            </div>
+            <pre id="log-output"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        // This script is self-contained and does not import from your JS files.
+        // It directly tests the PHP API endpoints.
+
+        const API_BASE_URL = '/Library-Management-Sys/BackEnd/Api/index.php'; //
+        const logOutput = document.getElementById('log-output');
+
+        function log(entry) {
+            logOutput.innerHTML += `<div class="log-entry">${entry}</div>`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        document.getElementById('clear-log').addEventListener('click', () => {
+            logOutput.innerHTML = '';
+        });
+
+        // --- NEW EXPORT FUNCTION ---
+        document.getElementById('export-log').addEventListener('click', () => {
+            const logContent = logOutput.innerText; // Use innerText to get plain text with line breaks
+            if (!logContent) {
+                alert("Log is empty. Nothing to export.");
+                return;
+            }
+
+            // Create a filename with a timestamp
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
+            const filename = `api_test_log_${timestamp}.txt`;
+
+            // Create a blob and download link
+            const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            
+            // Append, click, and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        /**
+         * A custom API client for testing that logs raw requests and responses.
+         */
+        async function testApiClient(endpoint, method = 'GET', data = null) {
+            const url = `${API_BASE_URL}/${endpoint}`;
+            const logId = Date.now();
+            
+            // Create a text-based log entry for export
+            let logText = `[${new Date().toLocaleTimeString()}] - ID: ${logId}\nREQUEST: ${method} ${url}\n`;
+            
+            // Create an HTML log entry for display
+            let logHtml = `[${new Date().toLocaleTimeString()}] - ID: ${logId}\n<span class="log-req">REQUEST: ${method} ${url}</span>\n`;
+            
+            const options = {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+            };
+
+            if (data) {
+                options.body = JSON.stringify(data);
+                const payloadString = `PAYLOAD: ${JSON.stringify(data, null, 2)}\n`;
+                logText += payloadString;
+                //.replace(/\n/g, '<br>')
+                logHtml += `<span class="log-req">${payloadString.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</span>\n`;
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const rawText = await response.text();
+
+                const statusClass = response.ok ? 'log-res-ok' : 'log-res-err';
+                const statusString = `RESPONSE: ${response.status} ${response.statusText}\n`;
+                logText += statusString;
+                logHtml += `<span class="${statusClass}">${statusString}</span>\n`;
+
+                const rawBodyString = `RAW BODY:\n${rawText || '(No Body)'}\n`;
+                logText += rawBodyString;
+                logHtml += `<span class="log-raw">${rawBodyString.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</span>\n`;
+
+
+                try {
+                    const jsonResponse = JSON.parse(rawText);
+                    const jsonString = `PARSED JSON:\n${JSON.stringify(jsonResponse, null, 2)}`;
+                    logText += jsonString;
+                    //.replace(/\n/g, '<br>')
+                    logHtml += `<span class="${statusClass}">${jsonString.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</span>`;
+                } catch (e) {
+                    const parseErr = `RAW BODY: Not valid JSON.`;
+                    logText += parseErr;
+                    logHtml += `<span class="log-res-err">${parseErr}</span>`;
+                }
+                
+                log(logHtml); // Log the HTML version to the page
+                return JSON.parse(rawText); // Return parsed JSON for potential chaining
+            } catch (error) {
+                const errorString = `NETWORK ERROR: ${error.message}`;
+                logText += errorString;
+                logHtml += `<span class="log-res-err">${errorString}</span>`;
+                log(logHtml);
+            }
+        }
+
+        // --- Attach All Event Listeners ---
+
+        function attachListener(formId, callback) {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    // *** THIS IS THE FIX ***
+                    // Manually get all form elements, not just the form itself
+                    const elements = form.elements;
+                    const data = {};
+                    for (let i = 0; i < elements.length; i++) {
+                        const item = elements.item(i);
+                        // Only include named elements that are not submit buttons
+                        if (item.name && item.type !== 'submit') { 
+                            data[item.name] = item.value;
+                        }
+                    }
+                    // This 'data' object will now be correctly populated
+                    await callback(data);
+                });
+            } else {
+                console.error(`Form with ID "${formId}" not found.`);
+            }
+        }
+        
+        // --- Re-Attach All Event Listeners (using the corrected attachListener) ---
+
+        // Auth
+        attachListener('test-login', data => testApiClient('auth/login', 'POST', { username: data['login-user'], password: data['login-pass'] }));
+        attachListener('test-register', data => testApiClient('auth/register', 'POST', { Name: data['reg-name'], Username: data['reg-user'], Email: data['reg-email'], Password: data['reg-pass'] }));
+        attachListener('test-forgot', data => testApiClient('auth/forgot-password', 'POST', { username: data['forgot-user'] }));
+        attachListener('test-logout', () => testApiClient('auth/logout', 'POST'));
+        attachListener('test-me', () => testApiClient('auth/me', 'GET'));
+        attachListener('test-check', () => testApiClient('auth/check', 'GET'));
+
+        // Visitor
+        attachListener('test-catalog', data => testApiClient(`visitor/catalog?page=${data['cat-page']}&limit=${data['cat-limit']}`, 'GET'));
+        attachListener('test-search', data => testApiClient(`visitor/search?q=${encodeURIComponent(data['search-q'])}`, 'GET'));
+        attachListener('test-book-details', data => testApiClient(`visitor/books/${data['book-id']}`, 'GET'));
+        attachListener('test-announcements', () => testApiClient('visitor/announcements', 'GET'));
+        
+        // Librarian: Book
+        attachListener('test-add-book', data => testApiClient('librarian/books', 'POST', {
+            Title: data['add-title'], Author: data['add-author'], ISBN: data['add-isbn'], Genre: data['add-genre'],
+            InitialCopies: parseInt(data['add-copies']), ShelfLocation: data['add-shelf']
+        }));
+        attachListener('test-edit-book', data => testApiClient(`librarian/books/${data['edit-id']}`, 'PUT', {
+            Title: data['edit-title'], Author: data['edit-author']
+        }));
+        attachListener('test-delete-book', data => testApiClient(`librarian/books/${data['del-id']}`, 'DELETE'));
+        attachListener('test-get-copies', data => {
+            let endpoint = `librarian/books/${data['get-copies-id']}/copies`;
+            if (data['get-copies-status']) {
+                endpoint += `?status=${data['get-copies-status']}`;
+            }
+            return testApiClient(endpoint, 'GET');
+        });
+
+        // Librarian: Copy
+        attachListener('test-add-copy', data => testApiClient('librarian/copies', 'POST', {
+            BookID: parseInt(data['add-copy-bookid']), ShelfLocation: data['add-copy-shelf']
+        }));
+        attachListener('test-delete-copy', data => testApiClient(`librarian/copies/${data['del-copy-id']}`, 'DELETE'));
+
+        // Librarian: User
+        attachListener('test-get-students', data => testApiClient(`librarian/users?status=${data['get-student-status']}`, 'GET'));
+        attachListener('test-approve-student', data => testApiClient('librarian/users/approve', 'PUT', { account_id: parseInt(data['approve-id']) }));
+        attachListener('test-get-user-details', data => testApiClient(`librarian/users/${data['user-details-id']}`, 'GET'));
+        attachListener('test-get-user-borrowed', data => testApiClient(`librarian/users/${data['user-borrowed-id']}/borrowed`, 'GET'));
+
+        // Librarian: Transaction
+        attachListener('test-checkout', data => {
+            const copyIds = data['checkout-copies'].split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+            return testApiClient('librarian/checkout', 'POST', { user_id: parseInt(data['checkout-user']), copy_ids: copyIds });
+        });
+        attachListener('test-return', data => testApiClient('librarian/return', 'POST', {
+            transaction_id: parseInt(data['return-tx-id']),
+            condition: data['return-condition'],
+            notes: data['return-notes']
+        }));
+        attachListener('test-renew', data => testApiClient('librarian/renew', 'POST', { transaction_id: parseInt(data['renew-tx-id']) }));
+
+        // Admin: Account
+        attachListener('test-admin-create-account', data => testApiClient('admin/accounts', 'POST', {
+            Name: data['admin-create-name'], Username: data['admin-create-user'], Email: data['admin-create-email'],
+            Password: data['admin-create-pass'], Role: data['admin-create-role']
+        }));
+        attachListener('test-admin-status', data => testApiClient('admin/accounts/status', 'PUT', {
+            account_id: parseInt(data['admin-status-id']), is_active: data['admin-status-active'] === 'true'
+        }));
+        attachListener('test-admin-role', data => testApiClient('admin/accounts/role', 'PUT', {
+            account_id: parseInt(data['admin-role-id']), role: data['admin-role-new']
+        }));
+        attachListener('test-admin-delete-account', data => testApiClient(`admin/accounts/${data['admin-del-id']}`, 'DELETE'));
+
+        // Admin: Password Reset
+        attachListener('test-get-pending-resets', () => testApiClient('admin/password-requests?status=pending', 'GET'));
+        attachListener('test-admin-reset-pass', data => testApiClient('admin/accounts/reset-password', 'POST', {
+            account_id: parseInt(data['admin-reset-id']), new_password: data['admin-reset-pass']
+        }));
+        attachListener('test-admin-resolve-reset', data => testApiClient('admin/password-requests/resolve', 'POST', {
+            request_id: parseInt(data['admin-resolve-id'])
+        }));
+        
+        // Admin: System Health
+        attachListener('test-get-stats', () => testApiClient('admin/statistics', 'GET'));
+        attachListener('test-get-logs', data => {
+            let endpoint = `admin/logs?limit=${data['logs-limit']}`;
+            if (data['logs-severity']) {
+                endpoint += `&severity=${data['logs-severity']}`;
+            }
+            return testApiClient(endpoint, 'GET');
+        });
+        attachListener('test-get-user-logs', data => testApiClient(`admin/logs/user/${data['user-logs-id']}?limit=${data['user-logs-limit']}`, 'GET'));
+        
+        // Admin: System Settings
+        attachListener('test-get-settings', () => testApiClient('admin/system-settings', 'GET'));
+        attachListener('test-save-settings', data => {
+            try {
+                // *** FIX: data['settings-json'] is the correct key ***
+                const settings = JSON.parse(data['settings-json']); 
+                return testApiClient('admin/system-settings', 'PUT', settings);
+            } catch (e) {
+                log(`<div class="log-entry"><span class="log-res-err">Error parsing settings JSON: ${e.message}</span></div>`);
+            }
+        });
+
+        // Student
+        attachListener('test-student-borrowed', () => testApiClient('student/borrowed-books', 'GET'));
+        attachListener('test-student-history', () => testApiClient('student/history', 'GET'));
+        attachListener('test-student-account-get', () => testApiClient('student/account', 'GET'));
+        attachListener('test-student-account-put', data => testApiClient('student/account', 'PUT', { Email: data['student-email'] }));
+        attachListener('test-student-pass', data => testApiClient('student/change-password', 'POST', {
+            current_password: data['student-curr-pass'], new_password: data['student-new-pass']
+        }));
+        attachListener('test-student-delete-notif', data => testApiClient(`student/notifications/${data['student-notif-id']}`, 'DELETE'));
+
+
+    </script>
+</body>
+</html>

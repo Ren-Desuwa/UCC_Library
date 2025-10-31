@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library MS - Admin Control</title>
+    <link rel="stylesheet" href="CSS/AdminPortal.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        /* Basic Modal Styles (can be moved to CSS file) */
+        .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; padding: 25px; border-radius: 8px; max-width: 500px; width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-title { font-size: 1.25rem; font-weight: 600; }
+        .modal-close-btn { background: #e5e7eb; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500;}
+        .modal-body .form-group { margin-bottom: 15px; }
+        .modal-body label { display: block; margin-bottom: 5px; font-weight: 500; color: #374151; }
+        .modal-body input[type="password"], .modal-body input[type="text"] { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
+        .modal-footer { margin-top: 25px; text-align: right; }
+        .confirm-reset-btn { background-color: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-left: 10px;}
+        /* Styling for Account Management Panel */
+        .pending-requests-section { margin-top: 20px; }
+        .card-title-new { font-size: 1.25rem; font-weight: 600; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;}
+        /* Form options layout */
+        .form-options { display: flex; justify-content: space-between; align-items: center; margin-top: 10px;}
+        .checkbox-wrapper { display: flex; align-items: center; }
+        .checkbox-wrapper input[type="checkbox"] { margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="Assets/SystemFiles/Logo.png" alt="Library MS Logo" class="library-logo">
+                <div class="logo-text">
+                    <span class="app-name">Library MS</span>
+                    <span class="portal-name">Admin Control</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-target="dashboard-content">
+                    <span class="material-icons-round">dashboard</span>
+                    Dashboard
+                </a>
+                <a href="#staff-management" class="nav-item" data-target="staff-management-content">
+                    <span class="material-icons-round">group_add</span>
+                    Staff Management
+                </a>
+                <a href="#data-management" class="nav-item" data-target="data-management-content">
+                    <span class="material-icons-round">folder_open</span>
+                    Data Management
+                </a>
+                <a href="#system-logs" class="nav-item" data-target="system-logs-content">
+                    <span class="material-icons-round">dvr</span>
+                    System Logs
+                </a>
+                <a href="#system-settings" class="nav-item" data-target="system-settings-content">
+                    <span class="material-icons-round">settings</span>
+                    System Settings
+                </a>
+                <a href="#account-management" class="nav-item" data-target="account-management-content">
+                    <span class="material-icons-round">manage_accounts</span>
+                    Account Management
+                </a>
+                <a href="#account-settings" class="nav-item" data-target="account-settings-content">
+                    <span class="material-icons-round">account_circle</span>
+                    Account Settings
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span class="material-icons-round user-icon">person</span>
+                    <div class="user-details">
+                        <p class="user-role">Administrator</p>
+                        <p class="user-id">ADMIN-01</p> </div>
+                </div>
+                <a href="Login.html" class="logout-link"> <span class="material-icons-round">logout</span>
+                    Log out
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div id="dashboard-content" class="content-panel active">
+                 <header class="main-header">
+                    <h1>Hello, Administrator.</h1>
+                    <p>System overview, key statistics, and quick actions.</p>
+                </header>
+
+                <section class="stats-grid">
+                    <div class="stat-card card-blue">
+                        <div class="stat-content">
+                            <p class="stat-title">Total Librarian Accounts</p>
+                            <span class="stat-number">--</span> </div>
+                        <span class="material-icons-round stat-icon">people_alt</span>
+                    </div>
+
+                    <div class="stat-card card-orange">
+                        <div class="stat-content">
+                            <p class="stat-title">Total Students</p>
+                            <span class="stat-number">--</span> </div>
+                        <span class="material-icons-round stat-icon">group</span>
+                    </div>
+
+                    <div class="stat-card card-green">
+                        <div class="stat-content">
+                            <p class="stat-title">Total Database Size</p>
+                            <span class="stat-number">-- GB</span> </div>
+                        <span class="material-icons-round stat-icon">storage</span>
+                    </div>
+                </section>
+
+                <section class="quick-admin-actions">
+                    <h2 class="card-title">Quick Actions</h2>
+                    <div class="report-filter-card">
+                        <div class="quick-action-grid">
+                            <button class="action-btn primary-btn" style="background-color: #3B82F6;">Perform Full Backup</button>
+                            <button class="action-btn primary-btn open-account-modal-btn" style="background-color: #10B981;">Add New Account +</button>
+                            <button class="action-btn primary-btn" style="background-color: #3B82F6;">View Detailed System Logs</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="report-visuals-grid">
+                    <div class="report-chart-card chart-medium">
+                        <h3 class="card-title">System Activity Trend (Last 30 Days)</h3>
+                        <div class="chart-placeholder">Line Chart Placeholder</div>
+                    </div>
+                    <div class="report-chart-card chart-small">
+                        <h3 class="card-title">Staff Activity Breakdown</h3>
+                        <div class="chart-placeholder">Pie Chart Placeholder</div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="staff-management-content" class="content-panel">
+                 <header class="main-header">
+                    <h1>Staff Management</h1>
+                    <p>Create, modify, or deactivate librarian and administrator accounts.</p>
+                </header>
+
+                <section class="search-panel">
+                    <div class="search-controls">
+                        <div class="search-input-group">
+                            <span class="material-icons-round search-icon">search</span>
+                            <input type="text" placeholder="Search by Staff ID or name">
+                        </div>
+                        <button class="action-btn primary-btn open-account-modal-btn" style="background-color: #10B981;">Add New Account +</button>
+                        <select class="sort-dropdown">
+                            <option>Filter by Role (All)</option>
+                            <option>Librarian</option>
+                            <option>Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="results-table-container">
+                        <table class="results-table" id="staff-management-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">Staff ID (Username)</th>
+                                    <th>Name</th>
+                                    <th style="width: 150px;">Role</th>
+                                    <th style="width: 150px;">Last Login</th> <th style="width: 100px;">Status</th>
+                                    <th style="width: 100px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                 <tr><td colspan="6" style="text-align: center; padding: 20px;">Loading staff accounts...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <p>Page 1 of 3</p> </div>
+                </section>
+            </div>
+
+            <div id="data-management-content" class="content-panel">
+                <header class="main-header">
+                    <h1>Data Management</h1>
+                    <p>Manage system backups, restore points, and data retention policies.</p>
+                </header>
+
+                <section class="report-generator-section">
+                    <h2 class="card-title-new" style="border-bottom: none; padding-bottom: 0;">Backup & Restore</h2>
+                    <div class="report-filter-card">
+                        <div class="info-group-grid report-filter-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                            <div class="info-group">
+                                <label for="backup-type" class="info-label">Action Type</label>
+                                <select id="backup-type" class="info-input report-select">
+                                    <option>Perform Full Backup</option>
+                                    <option>Restore from Backup Point</option>
+                                </select>
+                            </div>
+                            <div class="info-group">
+                                <label for="backup-name" class="info-label">Name/Identifier</label>
+                                <input type="text" id="backup-name" placeholder="e.g., Q4_2025_Final" class="info-input report-date-input">
+                            </div>
+                            <div class="info-group">
+                                <label for="restore-point" class="info-label">Restore Point</label>
+                                <select id="restore-point" class="info-input report-select">
+                                    <option>Latest Backup</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="info-actions report-actions">
+                            <button class="settings-btn primary-btn" style="background-color: #3B82F6; color: white;">Execute Data Action</button>
+                            <button class="settings-btn secondary-btn" style="background-color: #E5E7EB; color: #4B5563;">Clear Form</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="last-transactions-section">
+                    <h3 class="card-title">Recent Backup History</h3>
+                    <div class="results-table-container">
+                        <table class="results-table" style="min-width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 180px;">Date/Time</th>
+                                    <th>Type</th>
+                                    <th>Identifier</th>
+                                    <th>Status</th>
+                                    <th style="width: 100px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" style="text-align: center; padding: 20px;">Loading backup history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="system-logs-content" class="content-panel">
+                 <header class="main-header">
+                    <h1>System Logs</h1>
+                    <p>View detailed activity records, errors, and access history.</p>
+                </header>
+                <section class="search-panel">
+                    <div class="search-controls" style="max-width: none;">
+                        <div class="search-input-group" style="max-width: 400px;">
+                            <span class="material-icons-round search-icon">search</span>
+                            <input type="text" placeholder="Filter by User, Module, or Event">
+                        </div>
+                        <select class="sort-dropdown">
+                            <option>Log Level (All)</option>
+                            <option>Error</option>
+                            <option>Warning</option>
+                            <option>Info</option>
+                        </select>
+                        <select class="sort-dropdown">
+                            <option>Date Range (Last 7 Days)</option>
+                            <option>Last 24 Hours</option>
+                        </select>
+                        <button class="action-btn" style="background-color: #3B82F6; color: white;">Export Logs</button>
+                    </div>
+                    <div class="results-table-container">
+                        <table class="results-table" id="system-logs-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">Timestamp</th>
+                                    <th style="width: 100px;">Level</th>
+                                    <th style="width: 120px;">User ID</th>
+                                    <th style="width: 120px;">Action</th>
+                                    <th>Details</th>
+                                    <th style="width: 80px;">IP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="6" style="text-align: center; padding: 20px;">Loading system logs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination"><p>Page 1 of 50</p></div>
+                </section>
+            </div>
+
+            <div id="system-settings-content" class="content-panel">
+                 <header class="main-header">
+                    <h1>System Settings</h1>
+                    <p>Configure borrowing rules, overdue policies, and system parameters.</p>
+                </header>
+
+                <section class="settings-card policy-card">
+                    <h2 class="card-title">Borrowing Rules</h2>
+                    <div class="info-group-grid">
+                        <div class="info-group">
+                            <label for="max-books" class="info-label">Max Books per User</label>
+                            <input type="number" id="max-books" value="5" readonly class="info-input">
+                        </div>
+                        <div class="info-group">
+                            <label for="borrow-period" class="info-label">Standard Period (Days)</label>
+                            <input type="number" id="borrow-period" value="14" readonly class="info-input">
+                        </div>
+                    </div>
+                    <div class="info-actions">
+                        <button id="edit-borrow-btn" class="settings-btn secondary-btn edit-btn">Edit</button>
+                        <button id="save-borrow-btn" class="settings-btn primary-btn save-btn" style="display: none;">Save</button>
+                    </div>
+                </section>
+
+                <section class="settings-card policy-card">
+                    <h2 class="card-title">Overdue Policy (Restrictions & Fines)</h2> <div class="info-group-grid" style="grid-template-columns: repeat(3, 1fr);"> <div class="info-group">
+                            <label for="restriction-days" class="info-label">Days Overdue to Trigger Restriction</label>
+                            <input type="number" id="restriction-days" value="3" readonly class="info-input">
+                        </div>
+                        <div class="info-group">
+                            <label for="restriction-duration" class="info-label">Restriction Duration (Days)</label>
+                            <input type="number" id="restriction-duration" value="7" readonly class="info-input">
+                        </div>
+                         <div class="info-group">
+                            <label for="fine-per-day" class="info-label">Fine Per Day ($)</label>
+                            <input type="number" step="0.01" id="fine-per-day" value="1.00" readonly class="info-input">
+                        </div>
+                    </div>
+                    <div class="info-actions">
+                        <button id="edit-policy-btn" class="settings-btn secondary-btn edit-btn">Edit</button>
+                        <button id="save-policy-btn" class="settings-btn primary-btn save-btn" style="display: none;">Save</button>
+                    </div>
+                </section>
+            </div>
+
+            <div id="account-management-content" class="content-panel">
+                <header class="main-header">
+                    <h1>Account Management</h1>
+                    <p>Manage pending password reset requests and other account actions.</p>
+                </header>
+
+                <section class="pending-requests-section search-panel">
+                     <h2 class="card-title-new">Pending Password Resets</h2>
+                     <div class="results-table-container">
+                        <table class="results-table" id="pending-resets-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">Request Time</th>
+                                    <th>Username</th>
+                                    <th>Account Name</th>
+                                    <th style="width: 150px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading pending requests...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <p>Showing all pending requests.</p>
+                    </div>
+                </section>
+                </div>
+
+            <div id="account-settings-content" class="content-panel">
+                <header class="main-header">
+                    <h1>Account Settings</h1>
+                    <p>Manage your account security and update your profile information.</p>
+                </header>
+                 <section class="settings-card account-info-card">
+                    <h2 class="card-title">Account Information</h2>
+                    <div class="info-group-grid settings-account-grid">
+                        <div class="info-group account-info-group">
+                            <label for="admin-name" class="info-label">Name (Username)</label> <input type="text" id="admin-name" value="Administrator" readonly class="info-input">
+                        </div>
+                        <div class="info-group account-info-group">
+                            <label for="admin-contact-no" class="info-label">Contact No.</label>
+                            <input type="tel" id="admin-contact-no" value="" readonly class="info-input" placeholder="Not set">
+                        </div>
+                        <div class="info-group account-info-group">
+                            <label for="admin-email" class="info-label">Email</label>
+                            <input type="email" id="admin-email" value="" readonly class="info-input" placeholder="Not set">
+                        </div>
+                    </div>
+                    <div class="info-actions account-info-actions">
+                        <button id="edit-account-btn" class="action-btn">Edit</button>
+                        <button id="save-account-btn" class="action-btn primary-btn" style="display: none; background-color: #10B981; color: white;">Save</button>
+                    </div>
+                </section>
+                <section class="settings-card password-card">
+                    <h2 class="card-title">Change Password</h2>
+                    <div class="info-group-grid settings-password-grid">
+                        <div class="info-group password-group">
+                            <label for="current-password" class="info-label">Current Password</label>
+                            <input type="password" id="current-password" placeholder="Enter current password" class="info-input" required>
+                        </div>
+                        <div class="info-group password-group">
+                            <label for="new-password" class="info-label">New Password</label>
+                            <input type="password" id="new-password" placeholder="Enter new password (min 6 chars)" class="info-input" required>
+                        </div>
+                        <div class="info-group password-group">
+                            <label for="confirm-password" class="info-label">Confirm Password</label>
+                            <input type="password" id="confirm-password" placeholder="Re-enter new password" class="info-input" required>
+                        </div>
+                        <div class="password-checkbox-group"> <input type="checkbox" id="show-password-admin">
+                            <label for="show-password-admin">Show Passwords</label>
+                        </div>
+                    </div>
+                    <div class="info-actions password-actions">
+                        <button id="confirm-password-btn" class="action-btn confirm-change-btn">Confirm Change</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="account-form-modal" class="modal-overlay"> <div class="modal-content" style="max-width: 550px;"> <div class="modal-header">
+                <h2 class="modal-title" id="account-modal-title">Create New Account</h2> </div>
+            <div class="modal-body">
+                 <form class="account-form" id="account-form"> <div class="form-group">
+                        <label for="account-role">Role</label>
+                        <select id="account-role" name="Role" class="info-input" required>
+                            <option value="Student">Student</option>
+                            <option value="Librarian">Librarian</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                     </div>
+                     <div class="form-group">
+                        <label for="account-name">Name</label>
+                        <input type="text" id="account-name" name="Name" placeholder="Enter full name" required class="info-input">
+                     </div>
+                     <div class="form-group">
+                        <label for="account-username">Student/Staff ID (Username)</label>
+                        <input type="text" id="account-username" name="Username" placeholder="Enter unique ID" required class="info-input">
+                     </div>
+                      <div class="form-group">
+                        <label for="account-email">Email</label>
+                        <input type="email" id="account-email" name="Email" placeholder="Enter email address" required class="info-input">
+                     </div>
+                     <div class="form-group">
+                        <label for="account-password">Password</label>
+                        <input type="password" id="account-password" name="Password" placeholder="Min 6 characters" required class="info-input">
+                     </div>
+                     <div class="modal-footer"> <button type="button" class="modal-close-btn" id="close-account-modal-btn">CANCEL</button>
+                        <button type="submit" class="action-btn confirm-btn" style="background-color: #10B981;">CONFIRM</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="resolve-reset-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Reset Password for <span id="reset-username-display"></span></h2>
+            </div>
+            <div class="modal-body">
+                <form id="resolve-reset-form">
+                    <input type="hidden" id="reset-request-id">
+                    <input type="hidden" id="reset-account-id">
+                    <div class="form-group">
+                        <label for="reset-new-password">New Password</label>
+                        <input type="password" id="reset-new-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reset-confirm-password">Confirm New Password</label>
+                        <input type="password" id="reset-confirm-password" required>
+                    </div>
+                     <div class="form-options"> <div class="checkbox-wrapper">
+                            <input type="checkbox" id="reset-show-password">
+                            <label for="reset-show-password">Show Password</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="close-resolve-modal-btn" type="button" class="modal-close-btn">Cancel</button>
+                <button id="confirm-reset-btn" type="button" class="confirm-reset-btn">Confirm Reset</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module" src="JS/admin.js"></script>
+    </body>
+</html>
