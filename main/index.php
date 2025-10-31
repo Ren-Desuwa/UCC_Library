@@ -1,5 +1,5 @@
 <?php
-  include 'php/db_connect.php'; // 1. Connect to the database
+  include '../php/db_connect.php'; // 1. Connect to the database
 ?>
 <!DOCTYPE html>
 <html>
@@ -20,7 +20,7 @@
         while($row = $result->fetch_assoc()) {
             echo "<li>" . $row["title"];
             // 4. Display the cover image from your assets folder
-            echo " <img src='assets/covers/" . $row["cover_url"] . "' width='50'></li>";
+            echo " <img src='../assets/covers/" . $row["cover_url"] . "' width='50'></li>";
         }
         } else {
         echo "0 results found in database.";
