@@ -1,0 +1,65 @@
+/* ================== 6. SHARED RESPONSIVE DESIGN ================== */
+
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    /* Standard responsive sidebar adjustments */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 0;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .sidebar-header {
+        padding: 15px 20px;
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .sidebar-nav { display: none; }
+    .sidebar-footer { display: none; }
+    /* --- End responsive sidebar --- */
+
+    
+    .main-content {
+        padding: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .sort-dropdown {
+        min-width: 100%;
+    }
+
+    .modal-content {
+        max-width: 95%; 
+    }
+
+    /* Settings Page Mobile Fixes */
+    .settings-card {
+        padding: 20px;
+    }
+    .info-group {
+        grid-template-columns: 1fr; /* Stack label and input vertically */
+        max-width: 100%;
+        gap: 5px 0;
+    }
+    .info-label {
+        margin-bottom: 5px;
+    }
+}

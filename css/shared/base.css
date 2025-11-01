@@ -1,0 +1,32 @@
+/* Import Poppins for general text and Material Icons for the icons */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #F4F7FC; /* Light background for the main area */
+    min-height: 100vh;
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #1A202C; /* Dark background for the border around the sidebar */
+}
+
+/* ================== DYNAMIC CONTENT SWITCHING STYLES (SPA) ================== */
+.content-panel {
+    display: none;
+    opacity: 0; 
+    transition: opacity 0.3s ease-in-out; 
+}
+
+.content-panel.active {
+    display: block;
+    opacity: 1;
+}

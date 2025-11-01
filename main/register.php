@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Management System - Register</title>
-    <link rel="stylesheet" href="CSS/Register.css">
+    <!-- Updated to use the modular auth CSS -->
+    <link rel="stylesheet" href="../css/pages/auth.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 </head>
 <body>
+
+    <!-- <?php include 'includes/_navbar_visitor.php'; ?> - REMOVED as requested -->
+
     <div class="register-container">
         <div class="register-card">
             <div class="left-panel">
@@ -18,17 +23,24 @@
             </div>
             
             <div class="right-panel">
+                <!-- UPDATED LOGO CONTAINER -->
                 <div class="logo-container">
-                    <img src="../Assets/SystemFiles/LibraryMS_Logo.png" alt="Library Logo">
+                    <!-- This is now a simple link with button behavior -->
+                    <a href="index.php" class="logo-link" aria-label="Go to Visitor Home">
+                        <img src="../assets/icons/LibraryMS_Logo.png" alt="Library Logo">
+                    </a>
                 </div>
+                <!-- END UPDATED LOGO CONTAINER -->
                 
                 <div class="form-wrapper">
                     <h2 class="form-title">Student Registration</h2>
                     <p class="form-subtitle">Enter your details to create an account</p>
                     
-                    <form class="registration-form">
+                    <!-- Updated form with ID and name attributes for JS -->
+                    <form class="registration-form" id="register-form">
                         
                         <div class="form-section-title">Personal Details</div>
+                        <!-- NOTE: Added 'name' attributes to all inputs -->
                         <div class="form-group-triple">
                             <div class="form-group">
                                 <label for="firstName">First Name</label>
@@ -45,8 +57,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="studentId">Student ID</label>
-                            <input type="text" id="studentId" name="studentId" placeholder="e.g., 20240131-C">
+                            <!-- NOTE: id/name is 'username' to match auth logic -->
+                            <label for="username">Student ID (Username)</label>
+                            <input type="text" id="username" name="username" placeholder="e.g., 20240131-C">
                         </div>
                         
                         <div class="form-section-title">Contact Details</div>
@@ -81,7 +94,8 @@
                         
                         <button type="submit" class="register-button">Register Account</button>
                         
-                        <a href="Sign_In_Page.html" class="signin-link">Already have an account? Sign In</a>
+                        <!-- Updated link to login.php -->
+                        <a href="login.php" class="signin-link">Already have an account? Sign In</a>
                     </form>
                 </div>
             </div>
@@ -90,3 +104,4 @@
     <script type="module" src="JS/auth.js"></script>
 </body>
 </html>
+

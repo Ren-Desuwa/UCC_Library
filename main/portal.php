@@ -1,13 +1,9 @@
 <?php
-    // 1. Start the session to find out who is logged in
     session_start();
-    
-    // 2. Determine the user's role. Default to 'Visitor'
     $role = $_SESSION['role'] ?? 'Visitor';
     
-    // 3. If a visitor (not logged in) tries to access, send them to the index.
     if ($role == 'Visitor') {
-        header('Location: index.php');
+        header('Location: login.php'); // Send visitors to login
         exit;
     }
 ?>
@@ -16,48 +12,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Management System</title>
-    
+    <title>Library Portal</title>
+
+    <link rel="stylesheet" href="../css/shared/base.css">
+    <link rel="stylesheet" href="../css/shared/sidebar.css">
+    <link rel="stylesheet" href="../css/shared/main.css">
+    <link rel="stylesheet" href="../css/shared/tables.css">
+    <link rel="stylesheet" href="../css/shared/modals.css">
+    <link rel="stylesheet" href="../css/shared/forms.css">
+    <link rel="stylesheet" href="../css/shared/responsive.css">
+
     <?php
         if ($role == 'Student') {
-            echo '<link rel="stylesheet" href="CSS/StudentPortal.css">';
+            echo '<link rel="stylesheet" href="../css/pages/student.css">';
         } else if ($role == 'Librarian') {
-            echo '<link rel="stylesheet" href="CSS/LibrarianPortal.css">';
+            // Assuming you create this file from my previous instructions
+            echo '<link rel="stylesheet" href="../css/pages/librarian.css">';
         } else if ($role == 'Admin') {
-            echo '<link rel="stylesheet" href="CSS/AdminPortal.css">';
+            echo '<link rel="stylesheet" href="../css/pages/admin.css">';
         }
     ?>
+    
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 </head>
 <body>
-    <div class="dashboard-container">
-
-        <?php
-            // 5. Use PHP 'include' to insert the correct sidebar
-            // We will create these "partial" files in Step 2.
-            if ($role == 'Student') {
-                include 'includes/_sidebar_student.php';
-            } else if ($role == 'Librarian') {
-                include 'includes/_sidebar_librarian.php';
-            } else if ($role == 'Admin') {
-                include 'includes/_sidebar_admin.php';
-            }
-        ?>
-
-        <main class="main-content">
-            </main>
-
-    </div> <?php
-        // 7. Include ALL modal skeletons your app might need.
-        // They are all hidden by default. No more copy-pasting!
-        include 'includes/_modals_common.php'; // (e.g., book details modal)
-        
+    
+    <?php
         if ($role == 'Student') {
-            include 'includes/_modals_student.php'; // (e.g., history receipt modal)
+            include 'includes/_navbar_student.php';
         } else if ($role == 'Librarian') {
-            include 'includes/_modals_librarian.php'; // (e.g., add book, select copy)
+            include 'includes/_navbar_librarian.php';
         } else if ($role == 'Admin') {
-            include 'includes/_modals_admin.php'; // (e.g., create account, resolve password)
+            include 'includes/_navbar_admin.php';
+        }
+    ?>
+
+    <main class="main-content">
+        </main>
+
+    <?php
+        include 'includes/_modals_common.php';
+        if ($role == 'Student') {
+            include 'includes/_modals_student.php';
+        } else if ($role == 'Librarian') {
+            include 'includes/_modals_librarian.php';
+        } else if ($role == 'Admin') {
+            include 'includes/_modals_admin.php';
         }
     ?>
 
