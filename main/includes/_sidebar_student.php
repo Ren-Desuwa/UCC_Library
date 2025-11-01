@@ -1,16 +1,28 @@
 <aside class="sidebar">
     <div class="sidebar-header">
-        <img src="Assets/SystemFiles/Logo.png" alt="Library MS Logo" class="library-logo"> 
+        <img src="../assets/icons/Logo.png" alt="Library MS Logo" class="library-logo"> 
         <div class="logo-text">
             <span class="app-name">Library MS</span>
             <span class="portal-name">Student Portal</span>
         </div>
     </div>
     <nav class="sidebar-nav">
-        <a href="#dashboard" class="nav-item active" data-target="dashboard-content">...</a>
-        <a href="#search-books" class="nav-item" data-target="search-books-content">...</a>
-        <a href="#history" class="nav-item" data-target="history-content">...</a>
-        <a href="#settings" class="nav-item" data-target="settings-content">...</a>
+        <a href="#dashboard" class="nav-item active" data-target="dashboard-content">
+            <span class="material-icons-round">dashboard</span>
+            Dashboard
+        </a>
+        <a href="#search-books" class="nav-item" data-target="search-books-content">
+            <span class="material-icons-round">search</span>
+            Search Books
+        </a>
+        <a href="#history" class="nav-item" data-target="history-content">
+            <span class="material-icons-round">history</span>
+            My History
+        </a>
+        <a href="#settings" class="nav-item" data-target="settings-content">
+            <span class="material-icons-round">settings</span>
+            Settings
+        </a>
     </nav>
     <div class="sidebar-footer">
         <div class="user-info">

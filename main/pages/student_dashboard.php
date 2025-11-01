@@ -1,4 +1,4 @@
-<?php session_start(); // We need the session to get the user's name ?>
+<?php // We need the session to get the user's name ?>
 <div id="dashboard-content" class="content-panel">
     <header class="main-header">
         <h1>Hello, <?php echo htmlspecialchars($_SESSION['name']); ?></h1>

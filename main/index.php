@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="../css/shared/responsive.css">
 
     <link rel="stylesheet" href="../css/pages/visitor.css">
-    
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 </head>
 <body>
@@ -73,7 +73,7 @@
                     <div class="search-controls">
                         <div class="search-input-group">
                             <span class="material-icons-round search-icon">search</span>
-                            <input type="text" placeholder="Search by Title or Author">
+                            <input type="text" id="catalogue-search-input" placeholder="Search by Title, Author, or Genre">
                         </div>
                         <select class="sort-dropdown">
                             <option>Sort by Title (A-Z)</option>
@@ -88,23 +88,26 @@
                                 <tr>
                                     <th>Cover</th>
                                     <th>Title</th>
-                                    <th>Author</th>
+                                    <th>Author(s)</th>
+                                    <th>Genre(s)</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="catalogue-table-body">
                                 <?php if (empty($books)): ?>
-                                    <tr><td colspan="5" style="text-align: center;">No books found in the catalogue.</td></tr>
+                                    <tr><td colspan="6" style="text-align: center;">No books found in the catalogue.</td></tr>
                                 <?php else: ?>
                                     <?php foreach ($books as $book): ?>
                                         <tr>
                                             <td class="cover-cell">
-                                                <img src="assets/covers/<?php echo htmlspecialchars($book['cover_url']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
+                                                <img src="../assets/covers/<?php echo htmlspecialchars($book['cover_url']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
                                             </td>
                                             <td><?php echo htmlspecialchars($book['title']); ?></td>
                                             
-                                            <td>Author Name</td> 
+                                            <td><?php echo htmlspecialchars($book['author_names'] ?? 'N/A'); ?></td> 
+                                            <td><?php echo htmlspecialchars($book['genre_names'] ?? 'N/A'); ?></td> 
+                                            
                                             <td><span class="status-tag tag-available">Available</span></td>
                                             
                                             <td><button class="action-btn open-book-modal-btn" data-book-id="<?php echo $book['book_id']; ?>">View</button></td>
@@ -127,6 +130,6 @@
             </div>
     </div>
     
-    <script type="module" src="JS/visitor.js"></script>
+    <script type="module" src="../js/pages/visitor.js"></script>
 </body>
 </html>

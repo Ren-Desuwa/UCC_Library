@@ -1,7 +1,11 @@
 <?php
     session_start();
     $role = $_SESSION['role'] ?? 'Visitor';
-    
+    // ADD THIS TO DEBUG
+    echo '<pre style="background: #eee; padding: 20px;">';
+    var_dump($_SESSION);
+    echo '</pre>';
+    // ------------------
     if ($role == 'Visitor') {
         header('Location: login.php'); // Send visitors to login
         exit;
@@ -26,7 +30,6 @@
         if ($role == 'Student') {
             echo '<link rel="stylesheet" href="../css/pages/student.css">';
         } else if ($role == 'Librarian') {
-            // Assuming you create this file from my previous instructions
             echo '<link rel="stylesheet" href="../css/pages/librarian.css">';
         } else if ($role == 'Admin') {
             echo '<link rel="stylesheet" href="../css/pages/admin.css">';
@@ -38,36 +41,64 @@
 <body>
     
     <?php
+        // === TOP NAVBAR ===
         if ($role == 'Student') {
             include 'includes/_navbar_student.php';
         } else if ($role == 'Librarian') {
             include 'includes/_navbar_librarian.php';
         } else if ($role == 'Admin') {
-            include 'includes/_navbar_admin.php';
+            // include 'includes/_navbar_admin.php'; 
+        }
+    ?>
+
+    <?php
+        // === SIDEBAR NAVIGATION ===
+        if ($role == 'Student') {
+            include 'includes/_sidebar_student.php';
+        } else if ($role == 'Librarian') {
+            include 'includes/_sidebar_librarian.php';
+        } else if ($role == 'Admin') {
+            // include 'includes/_sidebar_admin.php';
         }
     ?>
 
     <main class="main-content">
-        </main>
+        <?php
+            // === CONTENT PAGES (MODIFIED) ===
+            // This was empty for students, now it's fixed.
+            if ($role == 'Student') {
+                include 'pages/student_dashboard.php';
+                include 'pages/student_search.php'; // (New File)
+                include 'pages/student_history.php';
+                // include 'pages/student_settings.php'; // (To be created)
+            } else if ($role == 'Librarian') {
+                include 'pages/librarian_dashboard.php';
+                include 'pages/librarian_circulation.php';
+                include 'pages/librarian_catalog.php';
+                include 'pages/librarian_users.php';
+            }
+        ?>
+    </main>
 
     <?php
-        include 'includes/_modals_common.php';
+        // include 'includes/_modals_common.php'; 
         if ($role == 'Student') {
-            include 'includes/_modals_student.php';
+            // include 'includes/_modals_student.php';
         } else if ($role == 'Librarian') {
             include 'includes/_modals_librarian.php';
         } else if ($role == 'Admin') {
-            include 'includes/_modals_admin.php';
+            // include 'includes/_modals_admin.php';
         }
     ?>
 
     <?php
         if ($role == 'Student') {
-            echo '<script type="module" src="JS/student.js"></script>';
+            // This file is new
+            echo '<script type="module" src="../js/pages/student.js"></script>';
         } else if ($role == 'Librarian') {
-            echo '<script type="module" src="JS/librarian.js"></script>';
+            echo '<script type="module" src="../js/pages/librarian.js"></script>';
         } else if ($role == 'Admin') {
-            echo '<script type="module" src="JS/admin.js"></script>';
+            // echo '<script type="module" src="../js/pages/admin.js"></script>';
         }
     ?>
 </body>

@@ -38,20 +38,37 @@ class BookDAO {
     }
 
     /**
-     * Searches for books by title (with pagination).
+     * Searches for books by title, author, or genre (with pagination).
      * @param string $searchTerm
      * @param int $limit
      * @param int $offset
      * @return array An array of matching books.
      */
     public function searchBooksByTitle($searchTerm, $limit = 20, $offset = 0) {
-        // --- THIS IS THE CORRECTED QUERY ---
-        $sql = "SELECT * FROM books WHERE title LIKE ? ORDER BY title LIMIT ? OFFSET ?";
+        // --- UPDATED QUERY ---
+        // Joins authors AND genres, and searches against all three.
+        $sql = "SELECT 
+                    b.*, 
+                    GROUP_CONCAT(DISTINCT a.name ORDER BY a.name SEPARATOR ', ') AS author_names,
+                    GROUP_CONCAT(DISTINCT g.name ORDER BY g.name SEPARATOR ', ') AS genre_names
+                FROM books b
+                LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+                LEFT JOIN authors a ON ba.author_id = a.author_id
+                LEFT JOIN book_genres bg ON b.book_id = bg.book_id
+                LEFT JOIN genres g ON bg.genre_id = g.genre_id
+                WHERE 
+                    b.title LIKE ? 
+                    OR a.name LIKE ? 
+                    OR g.name LIKE ?
+                GROUP BY b.book_id
+                ORDER BY b.title
+                LIMIT ? OFFSET ?";
+                
         $stmt = $this->conn->prepare($sql);
         $likeTerm = "%" . $searchTerm . "%";
         
-        // Bind 3 parameters now: string, int, int
-        $stmt->bind_param("sii", $likeTerm, $limit, $offset); 
+        // Bind 5 parameters now: string, string, string, int, int
+        $stmt->bind_param("sssii", $likeTerm, $likeTerm, $likeTerm, $limit, $offset); 
         
         $stmt->execute();
         $result = $stmt->get_result();

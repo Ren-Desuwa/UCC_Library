@@ -7,13 +7,13 @@ class AuthService {
     private $conn;
     private $accountDAO;
     private $sessionDAO;
-    private $userOtpDAO; // This was declared but not set
+    private $userOtpDAO; 
 
     public function __construct($conn) {
         $this->conn = $conn;
         $this->accountDAO = new AccountDAO($conn);
         $this->sessionDAO = new SessionDAO($conn);
-        $this->userOtpDAO = new UserOtpDAO($conn); // FIXED: Added this line
+        $this->userOtpDAO = new UserOtpDAO($conn);
     }
 
     /**
@@ -60,7 +60,7 @@ class AuthService {
         $account = $this->accountDAO->getAccountByUsername($username);
 
         if (!$account || !$this->accountDAO->verifyPassword($password, $account['password_hash'])) {
-            throw new Exception("Invalid username or password.");
+            throw new Exception("Invalid username or password." . $account["password_hash"] . " must match '" . $password . "' = " . hash('sha256', $password));
         }
         if (!$account['is_active']) {
             throw new Exception("Your account is deactivated.");
@@ -70,7 +70,7 @@ class AuthService {
         // 1. Create secure token
         $token = bin2hex(random_bytes(32));
         $tokenHash = hash('sha256', $token); // Store the hash, not the token
-        $expiresAt = (new DateTime())->add(new DateInterval("P7D"))->format('Y-m-d H:i:s'); // 7-day session
+        $expiresAt = (new DateTime())->add(new DateInterval("PT30M"))->format('Y-m-d H:i:s'); // 30mins session
 
         // 2. Use the DAO to save the session
         $this->sessionDAO->createSession($account['account_id'], $tokenHash, $expiresAt);
@@ -89,6 +89,9 @@ class AuthService {
         $_SESSION['account_id'] = $account['account_id'];
         $_SESSION['role'] = $account['role'];
         $_SESSION['name'] = $account['name'];
+        // --- THIS IS THE FIX ---
+        $_SESSION['username'] = $account['username']; 
+        // -------------------------
 
         return $account;
     }

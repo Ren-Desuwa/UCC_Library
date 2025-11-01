@@ -78,6 +78,6 @@
             </div>
         </div>
     </div>
-    <script type="module" src="JS/auth.js"></script>
+    <script type="module" src="../js/pages/auth.js"></script>
 </body>
 </html>

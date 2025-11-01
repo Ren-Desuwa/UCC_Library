@@ -5,6 +5,7 @@
     padding: 40px;
     background-color: #F4F7FC;
     min-width: 0;
+    margin-left: 250px; /* <-- ADD THIS LINE */
 }
 
 /* Header */
