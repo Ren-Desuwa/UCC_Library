@@ -12,7 +12,7 @@ class TransactionDAO {
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("iissi", $accountId, $copyId, $type, $dateDue, $status);
         if (!$stmt->execute()) {
-            throw new Exception("DAO Error: Failed to create transaction: " . $stmt->error);
+            throw new Exception("DAO Error: Failed to create transaction: "." - ".$stmt->error);
         }
         return $this->conn->insert_id;
     }
@@ -23,28 +23,21 @@ class TransactionDAO {
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("sdi", $status, $fine, $transactionId);
         if (!$stmt->execute()) {
-            throw new Exception("DAO Error: Failed to update transaction: " . $stmt->error);
+            throw new Exception("DAO Error: Failed to update transaction: "." - ".$stmt->error);
         }
         return $stmt->affected_rows > 0;
     }
     
-    /**
-     * NEW: This method was missing for the AccountManagementService.
-     * Manually sets or waives a fine for a transaction.
-     */
     public function setFine($transactionId, $fineAmount) {
         $sql = "UPDATE transactions SET fine = ? WHERE transaction_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("di", $fineAmount, $transactionId);
          if (!$stmt->execute()) {
-            throw new Exception("DAO Error: Failed to set fine: " . $stmt->error);
+            throw new Exception("DAO Error: Failed to set fine: "." - ".$stmt->error);
         }
         return $stmt->affected_rows > 0;
     }
 
-    /**
-     * Gets a count of active loans for a user.
-     */
     public function getActiveTransactionCountForUser($accountId) {
         $sql = "SELECT COUNT(*) as count FROM transactions 
                 WHERE account_id = ? AND status IN ('Active', 'Overdue')";
@@ -55,9 +48,6 @@ class TransactionDAO {
         return $result->fetch_assoc()['count'];
     }
 
-    /**
-     * Fetches a transaction by its ID.
-     */
     public function getTransactionById($transactionId) {
         $sql = "SELECT * FROM transactions WHERE transaction_id = ?";
         $stmt = $this->conn->prepare($sql);
@@ -66,26 +56,16 @@ class TransactionDAO {
         return $stmt->get_result()->fetch_assoc();
     }
 
-    /**
-     * NEW: This method was missing for AccountManagementService.
-     * Adds an amount to an existing fine.
-     */
     public function addFine($transactionId, $amountToAdd) {
         $sql = "UPDATE transactions SET fine = fine + ? WHERE transaction_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("di", $amountToAdd, $transactionId);
          if (!$stmt->execute()) {
-            throw new Exception("DAO Error: Failed to add to fine: " . $stmt->error);
+            throw new Exception("DAO Error: Failed to add to fine: "." - ".$stmt->error);
         }
         return $stmt->affected_rows > 0;
     }
 
-    
-
-    /**
-     * NEW: This method was missing for StudentProfileService.
-     * Fetches all active borrowed books for a specific user.
-     */
     public function getActiveTransactionsForUser($accountId) {
         $sql = "SELECT t.*, b.title, b.cover_url FROM transactions t
                 JOIN book_copies c ON t.copy_id = c.copy_id
@@ -98,6 +78,28 @@ class TransactionDAO {
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
     }
-
     
+    /**
+     * NEW: Fetches full details for a single transaction.
+     * This is for the student history modal.
+     */
+    public function getTransactionDetailsById($transactionId, $accountId) {
+        $sql = "SELECT 
+                    t.*, 
+                    b.title, b.cover_url, b.description, b.publisher, b.isbn,
+                    c.shelf_location,
+                    GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS author_names
+                FROM transactions t
+                LEFT JOIN book_copies c ON t.copy_id = c.copy_id
+                LEFT JOIN books b ON c.book_id = b.book_id
+                LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+                LEFT JOIN authors a ON ba.author_id = a.author_id
+                WHERE t.transaction_id = ? AND t.account_id = ?
+                GROUP BY t.transaction_id";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $transactionId, $accountId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
 }

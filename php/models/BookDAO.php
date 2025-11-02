@@ -38,15 +38,18 @@ class BookDAO {
     }
 
     /**
-     * Searches for books by title, author, or genre (with pagination).
-     * @param string $searchTerm
+     * UPDATED: Searches for books by specific criteria (title, author, genre).
+     * @param string $searchTerm (for title)
+     * @param string $author (for author name)
+     * @param string $genre (for genre name)
      * @param int $limit
      * @param int $offset
      * @return array An array of matching books.
      */
-    public function searchBooksByTitle($searchTerm, $limit = 20, $offset = 0) {
-        // --- UPDATED QUERY ---
-        // Joins authors AND genres, and searches against all three.
+    public function searchBooks($searchTerm, $author, $genre, $limit = 20, $offset = 0) {
+        // --- THIS IS THE NEW DYNAMIC QUERY ---
+        
+        // Base query
         $sql = "SELECT 
                     b.*, 
                     GROUP_CONCAT(DISTINCT a.name ORDER BY a.name SEPARATOR ', ') AS author_names,
@@ -55,20 +58,96 @@ class BookDAO {
                 LEFT JOIN book_authors ba ON b.book_id = ba.book_id
                 LEFT JOIN authors a ON ba.author_id = a.author_id
                 LEFT JOIN book_genres bg ON b.book_id = bg.book_id
-                LEFT JOIN genres g ON bg.genre_id = g.genre_id
-                WHERE 
-                    b.title LIKE ? 
-                    OR a.name LIKE ? 
-                    OR g.name LIKE ?
-                GROUP BY b.book_id
-                ORDER BY b.title
-                LIMIT ? OFFSET ?";
+                LEFT JOIN genres g ON bg.genre_id = g.genre_id";
+        
+        $whereClauses = [];
+        $params = [];
+        $types = "";
+
+        if (!empty($searchTerm)) {
+            $whereClauses[] = "b.title LIKE ?";
+            $params[] = "%" . $searchTerm . "%";
+            $types .= "s";
+        }
+        
+        if (!empty($author)) {
+            $whereClauses[] = "a.name LIKE ?";
+            $params[] = "%" . $author . "%";
+            $types .= "s";
+        }
+        
+        if (!empty($genre)) {
+            $whereClauses[] = "g.name LIKE ?";
+            $params[] = "%" . $genre . "%";
+            $types .= "s";
+        }
+
+        // Build the WHERE clause
+        if (!empty($whereClauses)) {
+            // Use 'HAVING' for aggregated columns, 'WHERE' for others
+            // For simplicity in this case, we can add a WHERE clause
+            // but must also GROUP BY book_id *before* filtering (as a subquery)
+            // A simpler way for *this* specific use case is to just use HAVING,
+            // but a more robust way is to filter before grouping.
+            
+            // Let's stick to a robust method. We'll filter joins in a subquery.
+            // MODIFICATION: We must use HAVING for fields that are part of GROUP_CONCAT
+            // or we must filter before grouping.
+            
+            // Re-simplifying: The old query had a flaw. It would find a book if *any*
+            // author matched, even if the title didn't. We need to filter rows
+            // that match ALL criteria.
+            
+            // We'll use WHERE for title and HAVING for the aggregated author/genre
+            $whereClauses = [];
+            $havingClauses = [];
+            $params = [];
+            $types = "";
+
+            if (!empty($searchTerm)) {
+                $whereClauses[] = "b.title LIKE ?";
+                $params[] = "%" . $searchTerm . "%";
+                $types .= "s";
+            }
+            if (!empty($author)) {
+                $havingClauses[] = "author_names LIKE ?";
+                $params[] = "%" . $author . "%";
+                $types .= "s";
+            }
+            if (!empty($genre)) {
+                $havingClauses[] = "genre_names LIKE ?";
+                $params[] = "%" . $genre . "%";
+                $types .= "s";
+            }
+
+            if (!empty($whereClauses)) {
+                $sql .= " WHERE " . implode(" AND ", $whereClauses);
+            }
+            
+            $sql .= " GROUP BY b.book_id"; // Group first
+
+            if (!empty($havingClauses)) {
+                $sql .= " HAVING " . implode(" AND ", $havingClauses); // Then filter groups
+            }
+
+        } else {
+            // No search terms, just group
+            $sql .= " GROUP BY b.book_id";
+        }
+        
+        $sql .= " ORDER BY b.title LIMIT ? OFFSET ?";
+        
+        // Add limit and offset to params
+        $params[] = $limit;
+        $params[] = $offset;
+        $types .= "ii";
                 
         $stmt = $this->conn->prepare($sql);
-        $likeTerm = "%" . $searchTerm . "%";
         
-        // Bind 5 parameters now: string, string, string, int, int
-        $stmt->bind_param("sssii", $likeTerm, $likeTerm, $likeTerm, $limit, $offset); 
+        // Bind parameters dynamically
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
         
         $stmt->execute();
         $result = $stmt->get_result();

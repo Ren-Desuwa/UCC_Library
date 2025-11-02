@@ -8,16 +8,16 @@
     </div>
     <nav class="sidebar-nav">
         <a href="#dashboard" class="nav-item active" data-target="dashboard-content">
-            <span class="material-icons-round">dashboard</span>
+            <span class="material-icons-round">bar_chart</span>
             Dashboard
         </a>
         <a href="#search-books" class="nav-item" data-target="search-books-content">
-            <span class="material-icons-round">search</span>
-            Search Books
+            <span class="material-icons-round">menu_book</span>
+            Catalogue
         </a>
         <a href="#history" class="nav-item" data-target="history-content">
             <span class="material-icons-round">history</span>
-            My History
+            History
         </a>
         <a href="#settings" class="nav-item" data-target="settings-content">
             <span class="material-icons-round">settings</span>

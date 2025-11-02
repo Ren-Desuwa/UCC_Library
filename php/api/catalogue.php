@@ -14,7 +14,8 @@ header('Content-Type: text/html');
 require_once __DIR__ . '/../db_connect.php';
 require_once __DIR__ . '/../services/CatalogueService.php';
 
-$action = $_GET['action'] ?? null;
+// Use $_REQUEST to handle both GET (for book details) and POST (for search)
+$action = $_REQUEST['action'] ?? null;
 $responseHTML = '';
 
 try {
@@ -23,8 +24,6 @@ try {
     switch ($action) {
         /**
          * --- GET BOOK DETAILS ---
-         * Fetches all details for a book and formats it as HTML
-         * for the visitor modal, matching the styles in visitor.css.
          * Expects: $_GET['id']
          */
         case 'getBookDetails':
@@ -37,12 +36,9 @@ try {
             $book = $catalogueService->getBookDetails($bookId);
             
             // --- Helper data ---
-            // Combine author names into a string
             $authors = implode(", ", array_map(fn($a) => htmlspecialchars($a['name']), $book['authors']));
-            // Combine genre names into a string
             $genres = implode(", ", array_map(fn($g) => htmlspecialchars($g['name']), $book['genres']));
             
-            // Calculate available copies
             $availableCopies = 0;
             foreach ($book['copies'] as $copy) {
                 if ($copy['status'] == 'Available') {
@@ -53,7 +49,6 @@ try {
             $statusColor = $availableCopies > 0 ? "#059669" : "#DC2626"; // Green or Red
 
             // --- Generate HTML response based on visitor.css ---
-            // This structure matches the .book-details-grid styles
             $responseHTML .= '
                 <div class="book-details-grid">
                     <div class="book-cover-area">
@@ -102,34 +97,32 @@ try {
             break;
 
         /**
-         * --- SEARCH BOOKS (NEW) ---
-         * Performs a search and returns only the HTML <tr> rows
-         * for the catalogue table body.
-         * Expects: $_GET['term']
+         * --- SEARCH BOOKS (FIXED) ---
+         * This handles searches from visitor.js and student.js
+         * Expects: $_POST['term'], $_POST['author'], $_POST['genre']
          */
         case 'searchBooks':
-            $searchTerm = $_GET['term'] ?? "";
+            $searchTerm = $_POST['term'] ?? ($_GET['term'] ?? ""); // Handle old GET request from visitor.js
+            $author = $_POST['author'] ?? "";
+            $genre = $_POST['genre'] ?? "";
             
-            // Use the existing service method
-            $books = $catalogueService->searchBooks($searchTerm, 20, 0); 
+            // FIXED: Use the new function signature
+            $books = $catalogueService->searchBooks($searchTerm, $author, $genre, 20, 0); 
             
             if (empty($books)) {
-                // UPDATED: Colspan is now 6
                 $responseHTML = '<tr><td colspan="6" style="text-align: center;">No books found in the catalogue.</td></tr>';
             } else {
                 foreach ($books as $book) {
+                    // NOTE: This assumes 'Available' status, which is fine for the public view
                     $responseHTML .= '
                         <tr>
                             <td class="cover-cell">
                                 <img src="../assets/covers/' . htmlspecialchars($book['cover_url']) . '" alt="' . htmlspecialchars($book['title']) . '" class="book-cover">
                             </td>
                             <td>' . htmlspecialchars($book['title']) . '</td>
-                            
                             <td>' . htmlspecialchars($book['author_names'] ?? 'N/A') . '</td>
                             <td>' . htmlspecialchars($book['genre_names'] ?? 'N/A') . '</td>
-                            
                             <td><span class="status-tag tag-available">Available</span></td>
-                            
                             <td><button class="action-btn open-book-modal-btn" data-book-id="' . $book['book_id'] . '">View</button></td>
                         </tr>
                     ';
@@ -141,15 +134,13 @@ try {
             throw new Exception("Invalid catalogue action.");
     }
 } catch (Exception $e) {
-    // Send an error message HTML if something goes wrong
-    // UPDATED: Colspan is now 6
+    // Send an error message HTML
     $responseHTML = '
         <tr><td colspan="6" style="text-align: center; color: red;">
             An error occurred: ' . htmlspecialchars($e->getMessage()) . '
         </td></tr>
     ';
     
-    // For modal action, provide the full modal error
     if ($action == 'getBookDetails') {
         $responseHTML = '
             <div class="modal-header"><h2>Error</h2></div>

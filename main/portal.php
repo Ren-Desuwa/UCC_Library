@@ -1,11 +1,7 @@
 <?php
     session_start();
     $role = $_SESSION['role'] ?? 'Visitor';
-    // ADD THIS TO DEBUG
-    echo '<pre style="background: #eee; padding: 20px;">';
-    var_dump($_SESSION);
-    echo '</pre>';
-    // ------------------
+    
     if ($role == 'Visitor') {
         header('Location: login.php'); // Send visitors to login
         exit;
@@ -41,17 +37,6 @@
 <body>
     
     <?php
-        // === TOP NAVBAR ===
-        if ($role == 'Student') {
-            include 'includes/_navbar_student.php';
-        } else if ($role == 'Librarian') {
-            include 'includes/_navbar_librarian.php';
-        } else if ($role == 'Admin') {
-            // include 'includes/_navbar_admin.php'; 
-        }
-    ?>
-
-    <?php
         // === SIDEBAR NAVIGATION ===
         if ($role == 'Student') {
             include 'includes/_sidebar_student.php';
@@ -64,13 +49,12 @@
 
     <main class="main-content">
         <?php
-            // === CONTENT PAGES (MODIFIED) ===
-            // This was empty for students, now it's fixed.
+            // === CONTENT PAGES ===
             if ($role == 'Student') {
                 include 'pages/student_dashboard.php';
-                include 'pages/student_search.php'; // (New File)
+                include 'pages/student_search.php';
                 include 'pages/student_history.php';
-                // include 'pages/student_settings.php'; // (To be created)
+                include 'pages/student_settings.php'; // (New File)
             } else if ($role == 'Librarian') {
                 include 'pages/librarian_dashboard.php';
                 include 'pages/librarian_circulation.php';
@@ -83,7 +67,7 @@
     <?php
         // include 'includes/_modals_common.php'; 
         if ($role == 'Student') {
-            // include 'includes/_modals_student.php';
+            include 'includes/_modals_student.php'; // (New File)
         } else if ($role == 'Librarian') {
             include 'includes/_modals_librarian.php';
         } else if ($role == 'Admin') {
@@ -93,7 +77,7 @@
 
     <?php
         if ($role == 'Student') {
-            // This file is new
+            // This file is now updated with all the modal/settings JS
             echo '<script type="module" src="../js/pages/student.js"></script>';
         } else if ($role == 'Librarian') {
             echo '<script type="module" src="../js/pages/librarian.js"></script>';

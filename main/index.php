@@ -3,10 +3,9 @@
     require_once __DIR__ . '/../php/db_connect.php';
     require_once __DIR__ . '/../php/services/CatalogueService.php';
     
-    // Use your CatalogueService to get books for the catalogue
     $catalogueService = new CatalogueService($conn);
-    // We use searchBooks with an empty query to get all books
-    $books = $catalogueService->searchBooks("", 20, 0); 
+    // FIXED: Updated to use the new function signature
+    $books = $catalogueService->searchBooks("", "", "", 20, 0); 
 ?>
 <!DOCTYPE html>
 <html lang="en">

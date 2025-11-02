@@ -39,10 +39,9 @@ class CatalogueService {
     /**
      * Searches for books. Read-only, no transaction.
      */
-    public function searchBooks($searchTerm, $limit = 20, $offset = 0) {
-        // You could add complex logic here, like searching authors
-        // and genres, but for now we just use the BookDAO method.
-        return $this->bookDAO->searchBooksByTitle($searchTerm, $limit, $offset);
+    public function searchBooks($searchTerm, $author, $genre, $limit = 20, $offset = 0) {
+        // Call the updated DAO method
+        return $this->bookDAO->searchBooks($searchTerm, $author, $genre, $limit, $offset);
     }
     
     /**

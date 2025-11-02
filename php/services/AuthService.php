@@ -89,9 +89,7 @@ class AuthService {
         $_SESSION['account_id'] = $account['account_id'];
         $_SESSION['role'] = $account['role'];
         $_SESSION['name'] = $account['name'];
-        // --- THIS IS THE FIX ---
         $_SESSION['username'] = $account['username']; 
-        // -------------------------
 
         return $account;
     }
