@@ -20,7 +20,7 @@ class AuthService {
      * Registers a new student account.
      * This is a transactional operation.
      */
-    public function registerStudent($username, $email, $name, $password) {
+    public function registerStudent($username, $email, $contactNumber, $name, $password) {
         // Start the transaction
         $this->conn->begin_transaction();
 
@@ -29,8 +29,11 @@ class AuthService {
             if ($this->accountDAO->getAccountByUsername($username)) {
                 throw new Exception("Username already taken.");
             }
-            if ($this->accountDAO->getAccountByEmail($email)) {
+            if ($email && $this->accountDAO->getAccountByEmail($email)) {
                 throw new Exception("Email already in use.");
+            }
+            if ($contactNumber && $this->accountDAO->getAccountByContactNumber($contactNumber)) {
+                throw new Exception("Contact number already in use.");
             }
 
             // 2. Business Logic: Hash password (Your schema uses SHA-256)
@@ -39,7 +42,7 @@ class AuthService {
 
             // 3. Data Operation: Use the DAO to create the account
             $role = 'Student';
-            $accountId = $this->accountDAO->createAccount($username, $passwordHash, $role, $name, $email);
+            $accountId = $this->accountDAO->createAccount($username, $passwordHash, $role, $name, $email, $contactNumber); 
 
             // If everything is successful, commit the transaction
             $this->conn->commit();
@@ -60,7 +63,7 @@ class AuthService {
         $account = $this->accountDAO->getAccountByUsername($username);
 
         if (!$account || !$this->accountDAO->verifyPassword($password, $account['password_hash'])) {
-            throw new Exception("Invalid username or password." . $account["password_hash"] . " must match '" . $password . "' = " . hash('sha256', $password));
+            throw new Exception("Invalid username or password.");
         }
         if (!$account['is_active']) {
             throw new Exception("Your account is deactivated.");

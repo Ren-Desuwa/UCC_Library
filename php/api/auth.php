@@ -42,7 +42,6 @@ try {
 
             // The login method starts the session and sets cookies on success
             $account = $authService->login($username, $password);
-            
             $response['success'] = true;
             $response['message'] = "Login successful. Redirecting...";
             $response['role'] = $account['role']; // Send role back to JS
@@ -56,7 +55,14 @@ try {
         case 'register':
             // Get all required fields from the registration form
             $username = $_POST['username'] ?? '';
-            $email = $_POST['email'] ?? '';
+            $email = $_POST['email'] ?? null;
+            if ($email === '') {
+            $email = null;
+            }
+            $contactNumber = $_POST['contactNumber'] ?? null;
+            if ($contactNumber === '') {
+            $contactNumber = null;
+            }
             $password = $_POST['password'] ?? '';
             $confirmPassword = $_POST['confirmPassword'] ?? '';
             
@@ -66,7 +72,7 @@ try {
             $name = trim($firstName . ' ' . $lastName);
 
             // --- Server-Side Validation ---
-            if (empty($username) || empty($email) || empty($name) || empty($password)) {
+            if (empty($username) || (empty($email) && empty($contactNumber)) || empty($name) || empty($password)) {
                 throw new Exception("Please fill out all required fields.");
             }
             if ($password !== $confirmPassword) {
@@ -75,12 +81,12 @@ try {
             if (strlen($password) < 8) {
                 throw new Exception("Password must be at least 8 characters long.");
             }
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new Exception("Invalid email format.");
             }
 
             // Call the registerStudent method
-            $accountId = $authService->registerStudent($username, $email, $name, $password);
+            $accountId = $authService->registerStudent($username, $email, $contactNumber, $name, $password);
 
             $response['success'] = true;
             $response['message'] = "Registration successful! You can now log in.";
@@ -110,4 +116,4 @@ try {
 }
 
 // Finally, encode the $response array as JSON and send it back to auth.js
-echo json_encode($response);
+echo json_encode($response); 

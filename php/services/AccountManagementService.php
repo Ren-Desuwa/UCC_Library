@@ -19,7 +19,7 @@ class AccountManagementService {
     /**
      * Creates a new Librarian account (implements 'librarian_account' request).
      */
-    public function createLibrarianAccount($username, $email, $name, $password) {
+    public function createLibrarianAccount($username, $email, $name, $password, $contactNumber) {
         // This uses the same logic as AuthService::registerStudent
         // but sets the role to 'Librarian'.
         $this->conn->begin_transaction();
@@ -28,7 +28,7 @@ class AccountManagementService {
                 throw new Exception("Username already taken.");
             }
             $passwordHash = hash('sha256', $password);
-            $accountId = $this->accountDAO->createAccount($username, $passwordHash, 'Librarian', $name, $email);
+            $accountId = $this->accountDAO->createAccount($username, $passwordHash, 'Librarian', $name, $email, $contactNumber);
             $this->conn->commit();
             return $accountId;
         } catch (Exception $e) {

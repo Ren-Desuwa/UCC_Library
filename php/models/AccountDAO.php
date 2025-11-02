@@ -22,16 +22,24 @@ class AccountDAO {
         return $stmt->get_result()->fetch_assoc();
     }
 
+    public function getAccountbyContactNumber($contactNumber) {
+        $sql = "SELECT * FROM accounts WHERE contact_number = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $contactNumber);
+        $stmt->execute();
+    }  
+
     public function verifyPassword($plainTextPassword, $passwordHash) {
         $hashed_password_to_check = hash('sha256', $plainTextPassword);
         return hash_equals($passwordHash, $hashed_password_to_check);
     }
 
-    public function createAccount($username, $passwordHash, $role, $name, $email) {
-        $sql = "INSERT INTO accounts (username, password_hash, role, name, email, is_active) 
-                VALUES (?, ?, ?, ?, ?, 1)";
+    public function createAccount($username, $passwordHash, $role, $name, $email, $contactNumber) {
+        $sql = "INSERT INTO accounts (username, password_hash, role, name, email, contact_number, is_active) 
+                VALUES (?, ?, ?, ?, ?, ?, 1)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssss", $username, $passwordHash, $role, $name, $email);
+        $stmt->bind_param("ssssss", $username, $passwordHash, $role, $name, $email, $contactNumber);
+        
         if (!$stmt->execute()) {
              throw new Exception("DAO Error: Failed to create account: " . $stmt->error);
         }

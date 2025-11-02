@@ -70,13 +70,16 @@ async function handleLogin(e) {
         });
 
         const result = await response.json();
-
+        
         if (result.success) {
             // Success! Redirect to the main portal.
             window.location.href = "portal.php";
+            document.getElementById("login-form").reset();
         } else {
             // Show error message from the server
-            alert(`Login Failed: ${result.message}`);
+            alert(`Login Failed: invalid username or password.`);
+            //alert(`Login Failed: ${result.message}`);
+
         }
     } catch (error) {
         console.error("Login error:", error);
@@ -127,6 +130,7 @@ async function handleRegister(e) {
             // Success! Redirect to the login page.
             alert("Registration successful! You can now log in.");
             window.location.href = "login.php";
+
         } else {
             // Show error message from the server
             alert(`Registration Failed: ${result.message}`);
@@ -134,6 +138,7 @@ async function handleRegister(e) {
     } catch (error) {
         console.error("Registration error:", error);
         alert("An error occurred during registration. Please try again. test");
+        
         alert(error.message);
     } finally {
         setButtonState(button, "Register Account", false);
