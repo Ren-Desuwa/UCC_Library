@@ -20,8 +20,27 @@ class GenreDAO {
         if ($stmt->execute()) {
             return $this->conn->insert_id;
         } else {
-            return $stmt->error;
+            // Handle unique constraint violation (genre already exists)
+            if ($this->conn->errno == 1062) { 
+                $existing = $this->findGenreByName($name);
+                return $existing['genre_id'];
+            }
+            throw new Exception("DAO Error: Failed to create genre: " . $stmt->error);
         }
+    }
+    
+    /**
+     * NEW: Finds a genre by its exact name.
+     * @param string $name
+     * @return array|null
+     */
+    public function findGenreByName($name) {
+        $sql = "SELECT * FROM genres WHERE name = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $name);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
 
     /**

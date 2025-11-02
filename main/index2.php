@@ -5,13 +5,12 @@
     
     $catalogueService = new CatalogueService($conn);
     
-    // Fetch books for different shelves
-    $recommendedBooks = $catalogueService->searchBooks("", 10, 0); // All books
-    $thrillerBooks = $catalogueService->searchBooks("Thriller", 10, 0); // Thriller/Mystery
-    $fantasyBooks = $catalogueService->searchBooks("Fantasy", 10, 0); // Fantasy
-    $classicBooks = $catalogueService->searchBooks("Classic", 10, 0); // Classics
-    $romanceBooks = $catalogueService->searchBooks("Romance", 10, 0); // Romance
-
+    // FIXED: Updated all calls to match the new function signature (6 arguments)
+    $recommendedBooks = $catalogueService->searchBooks("", "", "", "", "", "", 10, 0); // All books
+    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", "", "", "", 10, 0); // Thriller/Mystery
+    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", "", "", "", 10, 0); // Fantasy
+    $classicBooks = $catalogueService->searchBooks("", "", "Classic", "", "", "", 10, 0); // Classics
+    $romanceBooks = $catalogueService->searchBooks("", "", "Romance", "", "", "", 10, 0); // Romance
     /**
      * Helper function to render a single "book shelf" carousel.
      */

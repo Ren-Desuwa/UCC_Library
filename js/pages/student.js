@@ -213,62 +213,69 @@ document.addEventListener('DOMContentLoaded', () => {
     if(logoutButton) logoutButton.addEventListener("click", handleLogout);
     if(logoutLink) logoutLink.addEventListener("click", handleLogout);
 
-    // --- 5. NEW CATALOGUE PAGE LOGIC ---
+    // --- 5. NEW CATALOGUE PAGE LOGIC (REPLACED) ---
     initCataloguePage();
 });
 
 
-/**
- * Initializes all logic for the new catalogue page.
- */
 function initCataloguePage() {
     const searchInput = document.getElementById("student-search-input");
-    const searchBar = document.getElementById("search-bar-advanced");
     const gridView = document.getElementById("catalogue-grid-view");
     const tableView = document.getElementById("catalogue-table-view");
     const tableBody = document.getElementById("student-search-table-body");
-    const filterBtn = document.getElementById("filter-btn");
-    const filterDropdown = document.getElementById("filter-dropdown");
+    const filterBtn = document.getElementById("filter-btn"); // <-- RE-ADDED
+    const filterDropdown = document.getElementById("filter-dropdown"); // <-- RE-ADDED
 
     if (!searchInput || !gridView || !tableView || !tableBody || !filterBtn || !filterDropdown) {
-        return; 
+        return; // Elements are missing
     }
 
-    // --- Filter Dropdown Logic ---
+    // --- RE-ADDED: Filter Dropdown Logic ---
     filterBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
+        e.stopPropagation(); // Prevent document click from closing it
         filterDropdown.classList.toggle("active");
     });
-    filterDropdown.addEventListener("click", (e) => {
-        e.preventDefault();
-        const filterType = e.target.dataset.filterType;
-        if (filterType) {
-            addFilterChip(filterType);
-            filterDropdown.classList.remove("active");
-        }
-    });
+
     document.addEventListener("click", () => {
-        filterDropdown.classList.remove("active");
+        filterDropdown.classList.remove("active"); // Close on any click outside
     });
 
-    // --- Search Bar / View Switching Logic ---
-    // --- Search Bar / View Switching Logic (UPDATED) ---
+    // UPDATED: This now adds keywords to the search input
+    filterDropdown.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const filterType = e.target.dataset.filterType;
+        if (filterType) {
+            // Add a space if the input isn't empty
+            if (searchInput.value.length > 0 && !searchInput.value.endsWith(' ')) {
+                searchInput.value += ' ';
+            }
+            // Add the keyword
+            searchInput.value += `${filterType}:`;
+            
+            filterDropdown.classList.remove("active");
+            searchInput.focus(); // Focus the input so the user can type
+        }
+    });
+
+    // --- Search Logic ---
     const debouncedSearch = debounce(async (searchQuery) => {
         try {
             tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Searching...</td></tr>';
             
-            // --- UPDATED to use POST and FormData ---
             const formData = new FormData();
             formData.append('action', 'searchBooks');
             formData.append('term', searchQuery.term);
             formData.append('author', searchQuery.author);
             formData.append('genre', searchQuery.genre);
+            formData.append('year_from', searchQuery.year_from);
+            formData.append('year_to', searchQuery.year_to);
+            formData.append('status', searchQuery.status);
 
             const response = await fetch(`../php/api/catalogue.php`, {
                 method: 'POST',
                 body: formData
             });
-            // --- END UPDATE ---
 
             if (!response.ok) throw new Error("Search request failed");
 
@@ -286,11 +293,13 @@ function initCataloguePage() {
         }
     }, 300);
 
-    searchInput.addEventListener("keyup", (e) => {
+    // This function triggers the search
+    const performSearch = () => {
         const query = buildSearchQuery();
         
-        // Check if any search field has value
-        if (query.term.trim() !== "" || query.author.trim() !== "" || query.genre.trim() !== "") {
+        const hasQuery = Object.values(query).some(val => val.trim() !== "");
+        
+        if (hasQuery) {
             gridView.style.display = "none";
             tableView.style.display = "block";
             debouncedSearch(query); // Pass the whole query object
@@ -298,63 +307,78 @@ function initCataloguePage() {
             gridView.style.display = "block";
             tableView.style.display = "none";
         }
-    });
+    };
 
-    // --- Filter Chip Logic ---
-    function addFilterChip(type) {
-        searchBar.querySelector(`.filter-chip[data-type="${type}"]`)?.remove();
-        const chip = document.createElement("span");
-        chip.className = "filter-chip";
-        chip.dataset.type = type;
-        chip.innerHTML = `
-            <span class="chip-label">${type.charAt(0).toUpperCase() + type.slice(1)}:</span>
-            <span class="chip-close material-icons-round">close</span>
-        `;
-        searchBar.insertBefore(chip, searchInput);
-        searchInput.focus();
-        
-        // Add click event to remove chip
-        chip.querySelector(".chip-close").addEventListener("click", () => {
-            chip.remove();
-            searchInput.value = ''; // Clear text input when a chip is removed
-            searchInput.dispatchEvent(new Event('keyup')); // Trigger a new search
-        });
-
-        // Trigger a new search when a chip is added
-        searchInput.dispatchEvent(new Event('keyup'));
-    }
+    // Trigger search on keyup in the main input
+    searchInput.addEventListener("keyup", performSearch);
     
     /**
-     * UPDATED: This now builds a query *object*
+     * This "Discord-style" parser function remains the same
      */
     function buildSearchQuery() {
-        const authorChip = searchBar.querySelector('.filter-chip[data-type="author"]');
-        const genreChip = searchBar.querySelector('.filter-chip[data-type="genre"]');
+        let text = searchInput.value;
+        let query = {
+            term: "",
+            author: "",
+            genre: "",
+            year_from: "",
+            year_to: "",
+            status: ""
+        };
         
-        let freeText = searchInput.value;
-        let authorQuery = '';
-        let genreQuery = '';
-        let termQuery = '';
+        const extract = (key) => {
+            const regex = new RegExp(`${key}:(?:("([^"]+)")|(\\S+))`, 'i');
+            const match = text.match(regex);
+            if (match) {
+                text = text.replace(regex, ''); 
+                return (match[2] || match[3]).trim();
+            }
+            return '';
+        };
 
-        // If a chip is active, the free text applies *to that chip*
-        if (authorChip) {
-            authorQuery = freeText;
-        } else if (genreChip) {
-            genreQuery = freeText;
-        } else {
-            termQuery = freeText; // No chip, so search by title
+        query.author = extract("author");
+        query.genre = extract("genre");
+        
+        const statusMatch = text.match(/(available|is|status):(\S+)/i);
+        if (statusMatch) {
+            query.status = statusMatch[2].trim().toLowerCase();
+            text = text.replace(statusMatch[0], '');
+        }
+
+        const fromMatch = text.match(/from:(\d{4})/i);
+        const toMatch = text.match(/to:(\d{4})/i);
+        if (fromMatch) {
+            query.year_from = fromMatch[1];
+            text = text.replace(fromMatch[0], '');
+        }
+        if (toMatch) {
+            query.year_to = toMatch[1];
+            text = text.replace(toMatch[0], '');
+        }
+        if (!query.year_from && !query.year_to) {
+            const rangeMatch = text.match(/year:(\d{4})\s*[-to\s]+\s*(\d{4})/i);
+            if (rangeMatch) {
+                query.year_from = rangeMatch[1];
+                query.year_to = rangeMatch[2];
+                text = text.replace(rangeMatch[0], '');
+            }
+        }
+        if (!query.year_from && !query.year_to) {
+            const yearMatch = text.match(/year:(\d{4})/i);
+            if (yearMatch) {
+                query.year_from = yearMatch[1];
+                query.year_to = yearMatch[1]; 
+                text = text.replace(yearMatch[0], '');
+            }
         }
         
-        return {
-            term: termQuery,
-            author: authorQuery,
-            genre: genreQuery
-        };
+        query.term = text.trim();
+        
+        return query;
     }
 }
-
 /**
- * Debounce function (copied from visitor.js)
+ * Debounce function
  */
 function debounce(func, delay) {
     let timeoutId;

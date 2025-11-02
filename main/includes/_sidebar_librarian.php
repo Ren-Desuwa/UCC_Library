@@ -20,6 +20,10 @@
             <span class="material-icons-round">menu_book</span>
             Catalog Management
         </a>
+        <a href="#archive" class="nav-item" data-target="librarian-archive-content">
+            <span class="material-icons-round">archive</span>
+            Archive
+        </a>
         <a href="#users" class="nav-item" data-target="librarian-users-content">
             <span class="material-icons-round">people</span>
             User Management

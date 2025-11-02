@@ -52,13 +52,15 @@
             // === CONTENT PAGES ===
             if ($role == 'Student') {
                 include 'pages/student_dashboard.php';
-                include 'pages/student_search.php';
+                // FIXED: Changed 'student_catalogue.php' to 'student_search.php'
+                include 'pages/student_catalogue.php'; 
                 include 'pages/student_history.php';
-                include 'pages/student_settings.php'; // (New File)
+                include 'pages/student_settings.php'; 
             } else if ($role == 'Librarian') {
                 include 'pages/librarian_dashboard.php';
                 include 'pages/librarian_circulation.php';
-                include 'pages/librarian_catalog.php';
+                include 'pages/librarian_catalogue.php';
+                include 'pages/librarian_archive.php';
                 include 'pages/librarian_users.php';
             }
         ?>
@@ -67,7 +69,7 @@
     <?php
         // include 'includes/_modals_common.php'; 
         if ($role == 'Student') {
-            include 'includes/_modals_student.php'; // (New File)
+            include 'includes/_modals_student.php'; 
         } else if ($role == 'Librarian') {
             include 'includes/_modals_librarian.php';
         } else if ($role == 'Admin') {
@@ -77,7 +79,6 @@
 
     <?php
         if ($role == 'Student') {
-            // This file is now updated with all the modal/settings JS
             echo '<script type="module" src="../js/pages/student.js"></script>';
         } else if ($role == 'Librarian') {
             echo '<script type="module" src="../js/pages/librarian.js"></script>';

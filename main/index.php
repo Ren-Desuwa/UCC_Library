@@ -4,8 +4,36 @@
     require_once __DIR__ . '/../php/services/CatalogueService.php';
     
     $catalogueService = new CatalogueService($conn);
-    // FIXED: Updated to use the new function signature
-    $books = $catalogueService->searchBooks("", "", "", 20, 0); 
+    
+    // ADDED: Logic from student_search.php to load shelves
+    $recommendedBooks = $catalogueService->searchBooks("", "", "", "", "", "", 10, 0); 
+    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", "", "", "", 10, 0);
+    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", "", "", "", 10, 0);
+
+    /**
+     * ADDED: Helper function to render a single "book shelf" carousel.
+     */
+    function renderBookShelf($title, $books) {
+        if (empty($books)) return; 
+
+        echo '<section class="book-shelf-student">';
+        echo '<div class="shelf-header-student">';
+        echo "<h2>{$title}</h2>";
+        echo '<a href="#" class="see-all-link-student">See All <span class="material-icons-round">arrow_forward_ios</span></a>';
+        echo '</div>';
+        echo '<div class="shelf-carousel-student">';
+        
+        foreach ($books as $book) {
+            echo '<a href="#" class="book-card-student open-book-modal-btn" data-book-id="' . htmlspecialchars($book['book_id']) . '">';
+            echo '<img src="../assets/covers/' . htmlspecialchars($book['cover_url']) . '" alt="' . htmlspecialchars($book['title']) . '">';
+            echo '<h3>' . htmlspecialchars($book['title']) . '</h3>';
+            echo '<p class="book-card-author-student">' . htmlspecialchars($book['author_names'] ?? 'N/A') . '</p>';
+            echo '</a>';
+        }
+        
+        echo '</div>'; 
+        echo '</section>';
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,6 +51,7 @@
     <link rel="stylesheet" href="../css/shared/responsive.css">
 
     <link rel="stylesheet" href="../css/pages/visitor.css">
+    <link rel="stylesheet" href="../css/pages/student.css">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 </head>
@@ -65,62 +94,62 @@
             <div id="search-books-content" class="content-panel active">
                 <header class="main-header">
                     <h1>Library Catalogue</h1>
-                    <p>Search our collection of books, journals, and other resources.</p>
+                    <p>Browse our collection or search for something specific.</p>
                 </header>
 
                 <section class="search-panel">
-                    <div class="search-controls">
-                        <div class="search-input-group">
+        
+                    <div class="search-controls-advanced">
+                        <div class="search-bar-advanced" id="search-bar-advanced">
                             <span class="material-icons-round search-icon">search</span>
-                            <input type="text" id="catalogue-search-input" placeholder="Search by Title, Author, or Genre">
+                            <input type="text" id="catalogue-search-input" class="search-input-flex" placeholder="Search... e.g., author:Rowling year:2012-2015 Harry Potter">
                         </div>
-                        <select class="sort-dropdown">
-                            <option>Sort by Title (A-Z)</option>
-                            <option>Sort by Author</option>
-                            <option>Sort by Date</option>
-                        </select>
+                        <div class="filter-container">
+                            <button class="filter-btn" id="filter-btn">
+                                <span class="material-icons-round">filter_list</span>
+                                Filter
+                            </button>
+                            <div class="filter-dropdown" id="filter-dropdown">
+                                <a href="#" data-filter-type="author">Author</a>
+                                <a href="#" data-filter-type="genre">Genre</a>
+                                <a href="#" data-filter-type="year">Year</a>
+                                <a href="#" data-filter-type="status">Status</a>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="results-table-container">
-                        <table class="results-table">
-                            <thead>
-                                <tr>
-                                    <th>Cover</th>
-                                    <th>Title</th>
-                                    <th>Author(s)</th>
-                                    <th>Genre(s)</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="catalogue-table-body">
-                                <?php if (empty($books)): ?>
-                                    <tr><td colspan="6" style="text-align: center;">No books found in the catalogue.</td></tr>
-                                <?php else: ?>
-                                    <?php foreach ($books as $book): ?>
-                                        <tr>
-                                            <td class="cover-cell">
-                                                <img src="../assets/covers/<?php echo htmlspecialchars($book['cover_url']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
-                                            </td>
-                                            <td><?php echo htmlspecialchars($book['title']); ?></td>
-                                            
-                                            <td><?php echo htmlspecialchars($book['author_names'] ?? 'N/A'); ?></td> 
-                                            <td><?php echo htmlspecialchars($book['genre_names'] ?? 'N/A'); ?></td> 
-                                            
-                                            <td><span class="status-tag tag-available">Available</span></td>
-                                            
-                                            <td><button class="action-btn open-book-modal-btn" data-book-id="<?php echo $book['book_id']; ?>">View</button></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
+                    <div id="catalogue-grid-view">
+                        <?php
+                            renderBookShelf("Recommended", $recommendedBooks);
+                            renderBookShelf("Thrillers & Mystery", $thrillerBooks);
+                            renderBookShelf("Fantasy & Adventure", $fantasyBooks);
+                        ?>
+                    </div>
+
+                    <div id="catalogue-table-view" style="display: none;">
+                        <div class="results-table-container">
+                            <table class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cover</th>
+                                        <th>Title</th>
+                                        <th>Author(s)</th>
+                                        <th>Genre(s)</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="catalogue-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination">
+                            <p>Page 1 of 10</p>
+                        </div>
                     </div>
                     
-                    <div class="pagination">
-                        <p>Page 1 of 1</p> </div>
                 </section>
-            </div>
+                </div>
         </main>
     </div>
 

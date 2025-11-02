@@ -54,6 +54,8 @@ CREATE TABLE `accounts` (
   KEY `role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- (Find the `CREATE TABLE \`books\`` section and replace it with this)
+
 -- -----------------------------------------------------
 -- Table structure for `books`
 -- (NOTE: `author` and `genre` columns are removed)
@@ -66,9 +68,11 @@ CREATE TABLE `books` (
   `year_published` int(11) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `cover_url` varchar(255) DEFAULT NULL,
+  `is_archived` tinyint(1) NOT NULL DEFAULT 0,  -- <<< NEW COLUMN
   PRIMARY KEY (`book_id`),
   UNIQUE KEY `isbn` (`isbn`),
-  KEY `title` (`title`)
+  KEY `title` (`title`),
+  KEY `idx_is_archived` (`is_archived`)  -- <<< NEW INDEX
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- -----------------------------------------------------

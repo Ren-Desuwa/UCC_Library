@@ -31,7 +31,7 @@ class CatalogueService {
         
         $book['authors'] = $this->bookDAO->getAuthorsForBook($bookId);
         $book['genres'] = $this->bookDAO->getGenresForBook($bookId);
-        $book['copies'] = $this->bookCopyDAO->getCopiesForBook($bookId); // (You'd add this method to BookCopyDAO)
+        $book['copies'] = $this->bookCopyDAO->getCopiesForBook($bookId);
         
         return $book;
     }
@@ -39,22 +39,65 @@ class CatalogueService {
     /**
      * Searches for books. Read-only, no transaction.
      */
-    public function searchBooks($searchTerm, $author, $genre, $limit = 20, $offset = 0) {
+    public function searchBooks($searchTerm, $author, $genre, $year_from, $year_to, $status, $limit = 20, $offset = 0) {
         // Call the updated DAO method
-        return $this->bookDAO->searchBooks($searchTerm, $author, $genre, $limit, $offset);
+        return $this->bookDAO->searchBooks($searchTerm, $author, $genre, $year_from, $year_to, $status, $limit, $offset);
     }
     
     /**
-     * Adds a new book to the catalogue.
-     * THIS is where the transaction logic from BookDAO belongs.
+     * UPDATED: Adds a new book to the catalogue.
+     * This now accepts comma-separated strings for authors and genres
+     * and handles the logic of finding/creating them.
      */
-    public function addBook($title, $isbn, $publisher, $year, $desc, $coverUrl, $authorIds, $genreIds) {
+    public function addBook($title, $isbn, $publisher, $year, $desc, $coverUrl, $authorNamesString, $genreNamesString) {
         $this->conn->begin_transaction();
         try {
-            // Use the simpler DAO methods
+            // 1. Create the main book entry
             $bookId = $this->bookDAO->createBook($title, $isbn, $publisher, $year, $desc, $coverUrl);
-            $this->bookDAO->linkAuthorsToBook($bookId, $authorIds);
-            $this->bookDAO->linkGenresToBook($bookId, $genreIds);
+
+            // 2. Process Authors
+            $authorIds = [];
+            $authorNames = explode(',', $authorNamesString);
+            foreach ($authorNames as $authorName) {
+                $name = trim($authorName);
+                if (empty($name)) continue;
+
+                $author = $this->authorDAO->findAuthorByName($name);
+                if ($author) {
+                    $authorIds[] = $author['author_id'];
+                } else {
+                    $newAuthorId = $this->authorDAO->createAuthor($name);
+                    $authorIds[] = $newAuthorId;
+                }
+            }
+            // Remove duplicates
+            $authorIds = array_unique($authorIds);
+
+            // 3. Process Genres
+            $genreIds = [];
+            $genreNames = explode(',', $genreNamesString);
+            foreach ($genreNames as $genreName) {
+                $name = trim($genreName);
+                if (empty($name)) continue;
+
+                $genre = $this->genreDAO->findGenreByName($name);
+                if ($genre) {
+                    $genreIds[] = $genre['genre_id'];
+                } else {
+                    $newGenreId = $this->genreDAO->createGenre($name);
+                    $genreIds[] = $newGenreId;
+                }
+            }
+            // Remove duplicates
+            $genreIds = array_unique($genreIds);
+
+            // 4. Link authors and genres
+            if (!empty($authorIds)) {
+                $this->bookDAO->linkAuthorsToBook($bookId, $authorIds);
+            }
+            if (!empty($genreIds)) {
+                $this->bookDAO->linkGenresToBook($bookId, $genreIds);
+            }
             
             $this->conn->commit();
             return $bookId;

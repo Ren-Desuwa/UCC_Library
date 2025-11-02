@@ -20,8 +20,27 @@ class AuthorDAO {
         if ($stmt->execute()) {
             return $this->conn->insert_id;
         } else {
-            return $stmt->error;
+            // Handle unique constraint violation (author already exists)
+            if ($this->conn->errno == 1062) {
+                $existing = $this->findAuthorByName($name);
+                return $existing['author_id'];
+            }
+            throw new Exception("DAO Error: Failed to create author: " . $stmt->error);
         }
+    }
+    
+    /**
+     * NEW: Finds an author by their exact name.
+     * @param string $name
+     * @return array|null
+     */
+    public function findAuthorByName($name) {
+        $sql = "SELECT * FROM authors WHERE name = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $name);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
 
     /**

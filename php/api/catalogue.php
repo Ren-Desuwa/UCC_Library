@@ -102,18 +102,27 @@ try {
          * Expects: $_POST['term'], $_POST['author'], $_POST['genre']
          */
         case 'searchBooks':
-            $searchTerm = $_POST['term'] ?? ($_GET['term'] ?? ""); // Handle old GET request from visitor.js
+            // Read from POST
+            $searchTerm = $_POST['term'] ?? ($_GET['term'] ?? ""); // Keep backward compatibility
             $author = $_POST['author'] ?? "";
             $genre = $_POST['genre'] ?? "";
+            $year_from = $_POST['year_from'] ?? ""; 
+            $year_to = $_POST['year_to'] ?? "";
+            $status = $_POST['status'] ?? ""; // New field
             
-            // FIXED: Use the new function signature
-            $books = $catalogueService->searchBooks($searchTerm, $author, $genre, 20, 0); 
+            // Use the updated service method
+            $books = $catalogueService->searchBooks($searchTerm, $author, $genre, $year_from, $year_to, $status, 20, 0); 
             
             if (empty($books)) {
-                $responseHTML = '<tr><td colspan="6" style="text-align: center;">No books found in the catalogue.</td></tr>';
+                $responseHTML = '<tr><td colspan="6" style="text-align: center;">No books found matching your criteria.</td></tr>';
             } else {
                 foreach ($books as $book) {
-                    // NOTE: This assumes 'Available' status, which is fine for the public view
+                    // We can now show the *actual* availability
+                    $statusTag = '<span class="status-tag tag-checkedout">Unavailable</span>';
+                    if (isset($book['available_copies_count']) && $book['available_copies_count'] > 0) {
+                        $statusTag = '<span class="status-tag tag-available">Available</span>';
+                    }
+
                     $responseHTML .= '
                         <tr>
                             <td class="cover-cell">
@@ -122,7 +131,7 @@ try {
                             <td>' . htmlspecialchars($book['title']) . '</td>
                             <td>' . htmlspecialchars($book['author_names'] ?? 'N/A') . '</td>
                             <td>' . htmlspecialchars($book['genre_names'] ?? 'N/A') . '</td>
-                            <td><span class="status-tag tag-available">Available</span></td>
+                            <td>' . $statusTag . '</td>
                             <td><button class="action-btn open-book-modal-btn" data-book-id="' . $book['book_id'] . '">View</button></td>
                         </tr>
                     ';

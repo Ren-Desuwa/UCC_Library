@@ -39,25 +39,20 @@
 
 
 /* === BOOK & HISTORY MODAL FIXES === */
-
 .book-modal-content, .history-modal-content {
     max-width: 950px; 
     padding: 30px; 
 }
-
-/* 1. BOOK MODAL FIX: Added grid-template-areas from visitor.css */
 .book-details-grid {
     display: grid;
     grid-template-columns: 200px 1fr;
-    grid-template-areas: "cover info" "summary summary"; /* <-- This was missing */
+    grid-template-areas: "cover info" "summary summary"; 
     gap: 20px 40px;
     padding-bottom: 25px;
     border-bottom: 1px solid #E5E7EB;
     margin-bottom: 25px;
     width: 100%; 
 }
-
-/* 2. HISTORY MODAL: Separated from book-details-grid */
 .history-details-grid {
     display: grid;
     grid-template-columns: 200px 1fr;
@@ -69,7 +64,6 @@
     margin-bottom: 25px;
     width: 100%;
 }
-
 .book-cover-area { grid-area: cover; display: flex; justify-content: center; }
 .book-detail-cover {
     width: 100%; max-width: 180px; height: auto; border-radius: 4px;
@@ -83,12 +77,9 @@
 }
 .book-meta-list dt { font-weight: 600; color: #6B7280; text-align: right; }
 .book-meta-list dd { font-weight: 400; color: #2D3748; margin-left: 0; }
-
-/* 3. BOOK MODAL FIX: Added plot-summary styles from visitor.css */
 .plot-summary-area { grid-area: summary; padding-top: 15px; }
 .plot-summary-title { font-size: 1.2rem; font-weight: 700; color: #2D3748; margin-bottom: 10px; }
 .plot-summary-text { font-size: 0.95rem; color: #4B5563; line-height: 1.6; }
-
 .book-modal-footer { padding: 0; display: flex; justify-content: space-between; align-items: center; border-top: none; }
 .book-status-info { display: flex; align-items: center; font-size: 1rem; font-weight: 500; }
 .status-indicator { color: #2D3748; margin-right: 5px; }
@@ -108,7 +99,7 @@
 .receipt-list dt { font-weight: 600; color: #2D3748; text-align: left; }
 .receipt-list dd { font-weight: 400; color: #2D3748; margin-left: 0; }
 .receipt-status-text { font-weight: 700; }
-.notes-area { grid-area: notes; } /* Removed negative margin */
+.notes-area { grid-area: notes; } 
 .notes-box {
     background-color: #F7F7F7; border: 1px solid #E5E7EB; border-radius: 8px;
     padding: 15px; font-size: 0.95rem; color: #4B5563; line-height: 1.4; min-height: 80px; 
@@ -119,7 +110,7 @@
 .show-password-check {
     display: flex; align-items: center; margin-top: 10px;
     margin-bottom: 25px; font-size: 0.9rem; color: #4B5563;
-    margin-left: 150px; /* Align checkbox under the input fields */
+    margin-left: 150px; 
 }
 .show-password-check input { margin-right: 8px; }
 .password-actions { text-align: right; }
@@ -127,7 +118,6 @@
 .confirm-btn:hover { background-color: #DC2626; }
 
 /* ================== NEW CATALOGUE STYLES ================== */
-
 /* --- Advanced Search Bar --- */
 .search-controls-advanced {
     display: flex;
@@ -137,6 +127,7 @@
 .search-bar-advanced {
     flex-grow: 1;
     display: flex;
+    flex-wrap: wrap; 
     align-items: center;
     gap: 5px;
     background-color: white;
@@ -147,35 +138,19 @@
 .search-bar-advanced .search-icon {
     color: #6B7280;
     font-size: 1.5rem;
+    padding: 5px 0;
 }
-.search-bar-advanced input {
+.search-input-flex {
     border: none;
     outline: none;
     font-size: 1rem;
     padding: 10px 5px;
     flex-grow: 1;
+    min-width: 150px; 
     background: transparent;
 }
-.filter-chip {
-    display: flex;
-    align-items: center;
-    background-color: #e0e7ff;
-    color: #4338ca;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-.filter-chip .chip-label {
-    color: #6b7280;
-    font-weight: 400;
-    margin-right: 4px;
-}
-.filter-chip .chip-close {
-    font-size: 1rem;
-    cursor: pointer;
-    margin-left: 5px;
-}
+
+/* --- RE-ADDED: Filter Button & Dropdown --- */
 .filter-container {
     position: relative;
     flex-shrink: 0;
@@ -191,6 +166,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    height: 100%; /* Match height of search bar */
 }
 .filter-dropdown {
     display: none;
@@ -219,7 +195,6 @@
 .filter-dropdown a:hover {
     background-color: #F4F7FC;
 }
-
 
 /* --- Book Shelf (Light Theme) --- */
 .book-shelf-student {
@@ -312,7 +287,7 @@
 @media (max-width: 768px) {
     .book-details-grid {
         grid-template-columns: 1fr; 
-        grid-template-areas: "cover" "info" "summary"; /* FIX: Added summary */
+        grid-template-areas: "cover" "info" "summary"; 
         gap: 15px;
     }
     .history-details-grid {
@@ -320,7 +295,7 @@
         grid-template-areas: "cover" "info" "receipt" "notes";
         gap: 15px;
     }
-    .notes-area { margin-left: 0; } /* FIX: Removed negative margin for mobile */
+    .notes-area { margin-left: 0; } 
     .book-detail-title { text-align: center; }
     .book-modal-footer, .history-modal-footer {
         flex-direction: column; align-items: flex-start; gap: 15px; padding-top: 15px;
@@ -331,7 +306,6 @@
     }
     .show-password-check { margin-left: 0; justify-content: center; }
 
-    /* New Catalogue Responsive */
     .search-controls-advanced {
         flex-direction: column;
     }

@@ -5,16 +5,16 @@
     
     $catalogueService = new CatalogueService($conn);
     
-    // FIXED: Updated all calls to match the new function signature
-    $recommendedBooks = $catalogueService->searchBooks("", "", "", 10, 0); 
-    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", 10, 0);
-    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", 10, 0);
+    // UPDATED: Fixed calls to match new 6-argument signature
+    $recommendedBooks = $catalogueService->searchBooks("", "", "", "", "", "", 10, 0); 
+    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", "", "", "", 10, 0);
+    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", "", "", "", 10, 0);
 
     /**
      * Helper function to render a single "book shelf" carousel.
      */
     function renderBookShelf($title, $books) {
-        if (empty($books)) return; // Don't show empty shelves
+        if (empty($books)) return; 
 
         echo '<section class="book-shelf-student">';
         echo '<div class="shelf-header-student">';
@@ -24,7 +24,6 @@
         echo '<div class="shelf-carousel-student">';
         
         foreach ($books as $book) {
-            // Use 'open-book-modal-btn' class for JS hook
             echo '<a href="#" class="book-card-student open-book-modal-btn" data-book-id="' . htmlspecialchars($book['book_id']) . '">';
             echo '<img src="../assets/covers/' . htmlspecialchars($book['cover_url']) . '" alt="' . htmlspecialchars($book['title']) . '">';
             echo '<h3>' . htmlspecialchars($book['title']) . '</h3>';
@@ -32,8 +31,8 @@
             echo '</a>';
         }
         
-        echo '</div>'; // end shelf-carousel
-        echo '</section>'; // end book-shelf
+        echo '</div>'; 
+        echo '</section>';
     }
 ?>
 
@@ -48,7 +47,7 @@
         <div class="search-controls-advanced">
             <div class="search-bar-advanced" id="search-bar-advanced">
                 <span class="material-icons-round search-icon">search</span>
-                <input type="text" id="student-search-input" placeholder="Search by Title, Author, or Genre...">
+                <input type="text" id="student-search-input" class="search-input-flex" placeholder="Search... e.g., author:Rowling year:2012-2015 Harry Potter">
             </div>
             <div class="filter-container">
                 <button class="filter-btn" id="filter-btn">
@@ -58,6 +57,8 @@
                 <div class="filter-dropdown" id="filter-dropdown">
                     <a href="#" data-filter-type="author">Author</a>
                     <a href="#" data-filter-type="genre">Genre</a>
+                    <a href="#" data-filter-type="year">Year</a>
+                    <a href="#" data-filter-type="status">Status</a>
                 </div>
             </div>
         </div>
