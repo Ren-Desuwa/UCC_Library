@@ -191,6 +191,32 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // TODO: Add event listener for delete/archive buttons
+    if (catalogTableBody) {
+        catalogTableBody.addEventListener("click", (e) => {
+            const deleteBtn = e.target.closest(".delete-action-btn");
+            if (deleteBtn) {
+                const bookId = deleteBtn.dataset.bookId;
+                if (confirm(`Are you sure you want to archive Book ID ${bookId}?`)) {
+                    // TODO: Implement archiveBook(bookId) function
+                    // async function archiveBook(bookId) {
+                    //    const formData = new FormData();
+                    //    formData.append('action', 'archiveBook');
+                    //    formData.append('book_id', bookId);
+                    //    const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                    //    const result = await response.json();
+                    //    if (result.success) {
+                    //        loadCatalog();
+                    //    } else {
+                    //        alert(result.message);
+                    //    }
+                    // }
+                    console.log("TODO: Archive book", bookId);
+                }
+            }
+        });
+    }
+
     // ===========================================
     // 4. CIRCULATION LOGIC (New)
     // ===========================================

@@ -79,12 +79,15 @@ class BookTransactionService {
             throw $e;
         }
      }
-     /**
+
+    /**
      * Creates a reservation for a book that is currently borrowed.
      */
     /**
      * Creates a reservation for a book that is currently borrowed.
      */
+     // START: REMOVED BROKEN FUNCTION
+     /*
     public function reserveBook($accountId, $bookId) {
         // 1. Check if any copy of this book is available
         $copies = $this->bookCopyDAO->getCopiesForBook($bookId);
@@ -102,11 +105,13 @@ class BookTransactionService {
         try {
             // Note: copy_id is NULL because no specific copy is assigned yet.
             $transactionId = $this->transactionDAO->createTransaction($accountId, null, 'Reservation', null, 'Pending');
-            $this->conn->commit(); // FIXED: Changed $this. to $this->
+            $this.conn->commit(); // FIXED: Changed $this. to $this->
             return $transactionId;
         } catch (Exception $e) {
             $this->conn->rollback();
             throw $e;
         }
     }
+    */
+    // END: REMOVED BROKEN FUNCTION
 }

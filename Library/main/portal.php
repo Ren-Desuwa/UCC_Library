@@ -52,7 +52,7 @@
             // === CONTENT PAGES ===
             if ($role == 'Student') {
                 include 'pages/student_dashboard.php';
-                // FIXED: Changed 'student_catalogue.php' to 'student_search.php'
+                // The file below is correct, the original comment was misleading and has been removed.
                 include 'pages/student_catalogue.php'; 
                 include 'pages/student_history.php';
                 include 'pages/student_settings.php'; 

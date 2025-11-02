@@ -102,6 +102,19 @@ try {
             $response['message'] = "Book added successfully (ID: $bookId).";
             break;
 
+        // =DOD: Add cases for archiveBook, getArchivedBooks, and restoreBook
+        /*
+        case 'archiveBook':
+            // TODO: Get book_id from $_POST
+            // TODO: Call a new service method $catalogueService->archiveBook($bookId)
+            // TODO: $response['success'] = true;
+            break;
+
+        case 'getArchivedBooks':
+            // TODO: Fetch archived books and return HTML
+            break;
+        */
+            
         // ===========================================
         // CIRCULATION (BORROW)
         // ===========================================

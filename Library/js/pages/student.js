@@ -2,9 +2,15 @@
  * student.js
  * Handles SPA navigation and logic for the Student portal.
  */
+
+// Import shared logic
+import { initCataloguePage, openBookModal, closeBookModal, debounce } from '../shared/catalogue.js';
+
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- 1. SPA NAVIGATION LOGIC ---
+    // ... (SPA Navigation logic remains the same) ...
     const sidebar = document.querySelector(".sidebar-nav");
     const mainContent = document.querySelector(".main-content");
     const navbar = document.querySelector(".navbar-links");
@@ -115,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const bookId = bookButton.dataset.bookId;
                 if (bookId) {
+                    // Use the shared modal function, but add a customization step
                     await openStudentBookModal(bookId, bookModal);
                 }
             }
@@ -124,12 +131,14 @@ document.addEventListener('DOMContentLoaded', () => {
         bookModal.addEventListener('click', (e) => {
             // Close if clicking overlay OR button with the class .modal-close-btn
             if (e.target === bookModal || e.target.closest('.modal-close-btn')) {
-                bookModal.classList.remove('active');
+                // Use the shared modal function
+                closeBookModal(bookModal);
             }
         });
     }
 
     // History Modal (FIXED LOGIC)
+    // ... (This logic is unique to student.js, so it stays) ...
     const historyPanel = document.getElementById('history-content');
     if (historyPanel && historyModal) {
         // Listen for clicks to OPEN the modal
@@ -155,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. SETTINGS PANEL LOGIC ---
-    // (Settings logic remains the same)
+    // ... (Settings logic remains the same) ...
     const editBtn = document.getElementById('edit-account-btn');
     const saveBtn = document.getElementById('save-account-btn');
     const infoInputs = document.querySelectorAll('.account-info-card .info-input');
@@ -190,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // --- 4. LOGOUT LOGIC ---
-    // (Logout logic remains the same)
+    // ... (Logout logic remains the same) ...
     const logoutButton = document.getElementById("logout-button");
     const logoutLink = document.getElementById("logout-link");
     const handleLogout = async (e) => {
@@ -214,220 +223,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if(logoutLink) logoutLink.addEventListener("click", handleLogout);
 
     // --- 5. NEW CATALOGUE PAGE LOGIC (REPLACED) ---
-    initCataloguePage();
+    // Initialize the shared catalogue logic
+    initCataloguePage({
+        searchInputId: "student-search-input",
+        gridViewId: "catalogue-grid-view",
+        tableViewId: "catalogue-table-view",
+        tableBodyId: "student-search-table-body",
+        filterBtnId: "filter-btn",
+        filterDropdownId: "filter-dropdown"
+    });
 });
 
 
-function initCataloguePage() {
-    const searchInput = document.getElementById("student-search-input");
-    const gridView = document.getElementById("catalogue-grid-view");
-    const tableView = document.getElementById("catalogue-table-view");
-    const tableBody = document.getElementById("student-search-table-body");
-    const filterBtn = document.getElementById("filter-btn"); // <-- RE-ADDED
-    const filterDropdown = document.getElementById("filter-dropdown"); // <-- RE-ADDED
-
-    if (!searchInput || !gridView || !tableView || !tableBody || !filterBtn || !filterDropdown) {
-        return; // Elements are missing
-    }
-
-    // --- RE-ADDED: Filter Dropdown Logic ---
-    filterBtn.addEventListener("click", (e) => {
-        e.stopPropagation(); // Prevent document click from closing it
-        filterDropdown.classList.toggle("active");
-    });
-
-    document.addEventListener("click", () => {
-        filterDropdown.classList.remove("active"); // Close on any click outside
-    });
-
-    // UPDATED: This now adds keywords to the search input
-    filterDropdown.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const filterType = e.target.dataset.filterType;
-        if (filterType) {
-            // Add a space if the input isn't empty
-            if (searchInput.value.length > 0 && !searchInput.value.endsWith(' ')) {
-                searchInput.value += ' ';
-            }
-            // Add the keyword
-            searchInput.value += `${filterType}:`;
-            
-            filterDropdown.classList.remove("active");
-            searchInput.focus(); // Focus the input so the user can type
-        }
-    });
-
-    // --- Search Logic ---
-    const debouncedSearch = debounce(async (searchQuery) => {
-        try {
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Searching...</td></tr>';
-            
-            const formData = new FormData();
-            formData.append('action', 'searchBooks');
-            formData.append('term', searchQuery.term);
-            formData.append('author', searchQuery.author);
-            formData.append('genre', searchQuery.genre);
-            formData.append('year_from', searchQuery.year_from);
-            formData.append('year_to', searchQuery.year_to);
-            formData.append('status', searchQuery.status);
-
-            const response = await fetch(`../php/api/catalogue.php`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) throw new Error("Search request failed");
-
-            const html = await response.text();
-            
-            if (html.trim() === "") {
-                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No books found matching your criteria.</td></tr>';
-            } else {
-                tableBody.innerHTML = html;
-            }
-
-        } catch (error) {
-            console.error("Search error:", error);
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error loading results.</td></tr>';
-        }
-    }, 300);
-
-    // This function triggers the search
-    const performSearch = () => {
-        const query = buildSearchQuery();
-        
-        const hasQuery = Object.values(query).some(val => val.trim() !== "");
-        
-        if (hasQuery) {
-            gridView.style.display = "none";
-            tableView.style.display = "block";
-            debouncedSearch(query); // Pass the whole query object
-        } else {
-            gridView.style.display = "block";
-            tableView.style.display = "none";
-        }
-    };
-
-    // Trigger search on keyup in the main input
-    searchInput.addEventListener("keyup", performSearch);
-    
-    /**
-     * This "Discord-style" parser function remains the same
-     */
-    function buildSearchQuery() {
-        let text = searchInput.value;
-        let query = {
-            term: "",
-            author: "",
-            genre: "",
-            year_from: "",
-            year_to: "",
-            status: ""
-        };
-        
-        const extract = (key) => {
-            const regex = new RegExp(`${key}:(?:("([^"]+)")|(\\S+))`, 'i');
-            const match = text.match(regex);
-            if (match) {
-                text = text.replace(regex, ''); 
-                return (match[2] || match[3]).trim();
-            }
-            return '';
-        };
-
-        query.author = extract("author");
-        query.genre = extract("genre");
-        
-        const statusMatch = text.match(/(available|is|status):(\S+)/i);
-        if (statusMatch) {
-            query.status = statusMatch[2].trim().toLowerCase();
-            text = text.replace(statusMatch[0], '');
-        }
-
-        const fromMatch = text.match(/from:(\d{4})/i);
-        const toMatch = text.match(/to:(\d{4})/i);
-        if (fromMatch) {
-            query.year_from = fromMatch[1];
-            text = text.replace(fromMatch[0], '');
-        }
-        if (toMatch) {
-            query.year_to = toMatch[1];
-            text = text.replace(toMatch[0], '');
-        }
-        if (!query.year_from && !query.year_to) {
-            const rangeMatch = text.match(/year:(\d{4})\s*[-to\s]+\s*(\d{4})/i);
-            if (rangeMatch) {
-                query.year_from = rangeMatch[1];
-                query.year_to = rangeMatch[2];
-                text = text.replace(rangeMatch[0], '');
-            }
-        }
-        if (!query.year_from && !query.year_to) {
-            const yearMatch = text.match(/year:(\d{4})/i);
-            if (yearMatch) {
-                query.year_from = yearMatch[1];
-                query.year_to = yearMatch[1]; 
-                text = text.replace(yearMatch[0], '');
-            }
-        }
-        
-        query.term = text.trim();
-        
-        return query;
-    }
-}
-/**
- * Debounce function
- */
-function debounce(func, delay) {
-    let timeoutId;
-    return (...args) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            func.apply(this, args);
-        }, delay);
-    };
-}
+// All of the duplicated catalogue logic is gone.
+// We just need to keep the student-specific modal functions.
 
 /**
  * Fetches book details for the student modal
  */
 async function openStudentBookModal(bookId, bookModal) {
-    const bookModalContent = bookModal.querySelector(".modal-content");
-    
-    try {
-        bookModalContent.innerHTML = '<p style="padding: 30px; text-align: center;">Loading...</p>';
-        bookModal.classList.add("active");
+    // This function customizes the HTML *after* it's fetched.
+    const customizeHTML = (html) => {
+        // Create a temporary div to parse the HTML string
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
 
-        const response = await fetch(`../php/api/catalogue.php?action=getBookDetails&id=${bookId}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const html = await response.text();
-        bookModalContent.innerHTML = html;
-        
-        const footer = bookModalContent.querySelector('.book-modal-footer');
-        const actions = footer.querySelector('.book-actions');
-        
-        const signInBtn = actions.querySelector('.sign-in-btn');
+        // Find the "Sign In" button and change it to "Place Hold"
+        const signInBtn = tempDiv.querySelector('.sign-in-btn');
         if (signInBtn) {
             signInBtn.textContent = "Place Hold";
             signInBtn.classList.remove("sign-in-btn");
             signInBtn.classList.add("place-hold-btn");
-            signInBtn.href = `#hold-${bookId}`; 
+            signInBtn.href = `#hold-${bookId}`; // Make it a hold link
         }
+        return tempDiv.innerHTML;
+    };
 
-    } catch (error) {
-        console.error("Error fetching book details:", error);
-        bookModalContent.innerHTML = `
-            <div class="modal-header"><h2>Error</h2></div>
-            <div class="modal-body"><p>Could not load book details. Please try again later.</p></div>
-            <div class="modal-footer"><button type="button" class="modal-close-btn">Close</button></div>`;
-    }
+    // Call the shared openBookModal function, passing our customization function
+    await openBookModal(bookId, bookModal, customizeHTML);
 }
 
 /**
  * Fetches history details for the student modal
+ * (This is unique to student.js and remains unchanged)
  */
 async function openHistoryModal(transactionId, historyModal) {
     const historyModalContent = historyModal.querySelector(".modal-content");

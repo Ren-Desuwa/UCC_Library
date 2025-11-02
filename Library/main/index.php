@@ -16,18 +16,19 @@
     function renderBookShelf($title, $books) {
         if (empty($books)) return; 
 
-        echo '<section class="book-shelf-student">';
-        echo '<div class="shelf-header-student">';
+        // UPDATED: Renamed classes to -visitor
+        echo '<section class="book-shelf-visitor">';
+        echo '<div class="shelf-header-visitor">';
         echo "<h2>{$title}</h2>";
-        echo '<a href="#" class="see-all-link-student">See All <span class="material-icons-round">arrow_forward_ios</span></a>';
+        echo '<a href="#" class="see-all-link-visitor">See All <span class="material-icons-round">arrow_forward_ios</span></a>';
         echo '</div>';
-        echo '<div class="shelf-carousel-student">';
+        echo '<div class="shelf-carousel-visitor">';
         
         foreach ($books as $book) {
-            echo '<a href="#" class="book-card-student open-book-modal-btn" data-book-id="' . htmlspecialchars($book['book_id']) . '">';
+            echo '<a href="#" class="book-card-visitor open-book-modal-btn" data-book-id="' . htmlspecialchars($book['book_id']) . '">';
             echo '<img src="../assets/covers/' . htmlspecialchars($book['cover_url']) . '" alt="' . htmlspecialchars($book['title']) . '">';
             echo '<h3>' . htmlspecialchars($book['title']) . '</h3>';
-            echo '<p class="book-card-author-student">' . htmlspecialchars($book['author_names'] ?? 'N/A') . '</p>';
+            echo '<p class="book-card-author-visitor">' . htmlspecialchars($book['author_names'] ?? 'N/A') . '</p>';
             echo '</a>';
         }
         
@@ -51,8 +52,6 @@
     <link rel="stylesheet" href="../css/shared/responsive.css">
 
     <link rel="stylesheet" href="../css/pages/visitor.css">
-    <link rel="stylesheet" href="../css/pages/student.css">
-
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 </head>
 <body>
