@@ -84,3 +84,19 @@
         </div>
     </div>
 </div>
+
+<div id="see-all-modal" class="modal-overlay">
+    <div class="modal-content see-all-modal-content">
+        <div class="modal-header">
+            <h2 id="see-all-modal-title">All Books</h2>
+        </div>
+        
+        <div class="modal-body" id="see-all-modal-body">
+            <p style="padding: 30px; text-align: center;">Loading...</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="modal-close-btn" data-target="#see-all-modal">Close</button>
+        </div>
+    </div>
+</div>

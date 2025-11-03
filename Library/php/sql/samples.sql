@@ -37,7 +37,7 @@ TRUNCATE TABLE `user_otp`;
 -- 'password123' -> ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f
 INSERT INTO `accounts` (`account_id`, `username`, `password_hash`, `role`, `name`, `email`, `birthday`, `contact_number`, `is_active`) VALUES
 (1, 'admin', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Admin', 'Admin User', 'admin@imlibrary.com', '1990-01-01', '09170000001', 1),
-(2, 'alex', '93f18139c11d4b32f9d985a11631f406691a89c89c8558448a08d23a6c4b9167', 'Student', 'Alex Reyes', 'alex@imlibrary.com', '2002-05-15', '09170000002', 1),
+(2, 'alex', '703b0a3d6ad75b649a28adde7d83c6251da457549263bc7ff45ec709b0a8448b', 'Student', 'Alex Reyes', 'alex@imlibrary.com', '2002-05-15', '09170000002', 1),
 (3, 'mary', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'Librarian', 'Mary Jane', 'mary@imlibrary.com', '2002-05-15', '09170000003', 1);
 
 -- Populate `authors`

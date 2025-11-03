@@ -71,3 +71,27 @@
 .modal-close-btn:hover {
     background-color: #4B5563;
 }
+
+/* === NEW "SEE ALL" MODAL STYLES === */
+
+/* Make this modal wider to fit more books */
+.see-all-modal-content {
+    max-width: 1200px;
+}
+
+/* Create a grid for the book cards */
+.see-all-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center; /* Center the cards */
+    padding: 10px;
+}
+
+/* Style for book cards inside the modal (uses visitor/student styles) */
+.see-all-grid .book-card-student,
+.see-all-grid .book-card-visitor {
+    flex: 0 0 160px; /* (matches shelf card width) */
+}
+
+/* === END NEW STYLES === */

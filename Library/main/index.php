@@ -5,22 +5,45 @@
     
     $catalogueService = new CatalogueService($conn);
     
-    // ADDED: Logic from student_search.php to load shelves
-    $recommendedBooks = $catalogueService->searchBooks("", "", "", "", "", "", 10, 0); 
-    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", "", "", "", 10, 0);
-    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", "", "", "", 10, 0);
+    // UPDATED: Fetch 11 books (one more than the display limit)
+    $shelfLimit = 10;
+    $fetchLimit = $shelfLimit + 1;
+    
+    // UPDATED: Added "Classics" and "Romance"
+    $recommendedBooks = $catalogueService->searchBooks("", "", "", "", "", "", $fetchLimit, 0); 
+    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", "", "", "", $fetchLimit, 0);
+    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", "", "", "", $fetchLimit, 0);
+    $classicBooks = $catalogueService->searchBooks("", "", "Classic", "", "", "", $fetchLimit, 0);
+    $romanceBooks = $catalogueService->searchBooks("", "", "Romance", "", "", "", $fetchLimit, 0);
 
     /**
      * ADDED: Helper function to render a single "book shelf" carousel.
      */
-    function renderBookShelf($title, $books) {
+    function renderBookShelf($title, $books, $displayLimit = 10) {
         if (empty($books)) return; 
+
+        // --- NEW LOGIC START ---
+        // Check if the number of books exceeds the display limit
+        $bookCount = count($books);
+        $hasMoreBooks = $bookCount > $displayLimit;
+
+        if ($hasMoreBooks) {
+            // Remove the extra book so we only display the limit
+            array_pop($books);
+        }
+        // --- NEW LOGIC END ---
 
         // UPDATED: Renamed classes to -visitor
         echo '<section class="book-shelf-visitor">';
         echo '<div class="shelf-header-visitor">';
         echo "<h2>{$title}</h2>";
-        echo '<a href="#" class="see-all-link-visitor">See All <span class="material-icons-round">arrow_forward_ios</span></a>';
+        
+        // UPDATED: Only show the link if $hasMoreBooks is true
+        if ($hasMoreBooks) {
+            // ADDED: class="open-see-all-modal-btn" and data-genre attribute
+            echo '<a href="#" class="see-all-link-visitor open-see-all-modal-btn" data-genre="' . htmlspecialchars($title) . '">See All <span class="material-icons-round">arrow_forward_ios</span></a>';
+        }
+
         echo '</div>';
         echo '<div class="shelf-carousel-visitor">';
         
@@ -119,9 +142,12 @@
 
                     <div id="catalogue-grid-view">
                         <?php
-                            renderBookShelf("Recommended", $recommendedBooks);
-                            renderBookShelf("Thrillers & Mystery", $thrillerBooks);
-                            renderBookShelf("Fantasy & Adventure", $fantasyBooks);
+                            // UPDATED: Pass the $shelfLimit to the function
+                            renderBookShelf("Recommended", $recommendedBooks, $shelfLimit);
+                            renderBookShelf("Thrillers & Mystery", $thrillerBooks, $shelfLimit);
+                            renderBookShelf("Fantasy & Adventure", $fantasyBooks, $shelfLimit);
+                            renderBookShelf("Classics", $classicBooks, $shelfLimit);
+                            renderBookShelf("Romance", $romanceBooks, $shelfLimit);
                         ?>
                     </div>
 
@@ -156,7 +182,21 @@
         <div class="modal-content book-modal-content">
             </div>
     </div>
-    
+    <div id="see-all-modal" class="modal-overlay">
+        <div class="modal-content see-all-modal-content">
+            <div class="modal-header">
+                <h2 id="see-all-modal-title">All Books</h2>
+            </div>
+            
+            <div class="modal-body" id="see-all-modal-body">
+                <p style="padding: 30px; text-align: center;">Loading...</p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="modal-close-btn" data-target="#see-all-modal">Close</button>
+            </div>
+        </div>
+    </div>
     <script type="module" src="../js/pages/visitor.js"></script>
 </body>
 </html>

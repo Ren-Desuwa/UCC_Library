@@ -138,6 +138,46 @@ try {
                 }
             }
             break;
+        case 'getGenreShelf':
+            $genreTitle = $_GET['genre'] ?? 'Recommended';
+            $searchGenre = '';
+
+            // Map the display title to the search term
+            if ($genreTitle == 'Thrillers & Mystery') $searchGenre = 'Thriller';
+            if ($genreTitle == 'Fantasy & Adventure') $searchGenre = 'Fantasy';
+            if ($genreTitle == 'Classics') $searchGenre = 'Classic';
+            if ($genreTitle == 'Romance') $searchGenre = 'Romance';
+            // "Recommended" stays as ''
+
+            // Fetch up to 50 books for this genre
+            $books = $catalogueService->searchBooks("", "", $searchGenre, "", "", "", 50, 0); 
+            
+            if (empty($books)) {
+                $responseHTML = '<p style="text-align: center; padding: 20px;">No books found for this category.</p>';
+            } else {
+                // Use the student card style by default, visitor style is compatible
+                $cardClass = 'book-card-student'; 
+                $authorClass = 'book-card-author-student';
+
+                // Check if this is a visitor or student
+                if (!isset($_SESSION['role'])) { // Visitor
+                    $cardClass = 'book-card-visitor';
+                    $authorClass = 'book-card-author-visitor';
+                }
+
+                $responseHTML = '<div class="see-all-grid">';
+                foreach ($books as $book) {
+                    $responseHTML .= '
+                        <a href="#" class="' . $cardClass . ' open-book-modal-btn" data-book-id="' . htmlspecialchars($book['book_id']) . '">
+                            <img src="../assets/covers/' . htmlspecialchars($book['cover_url']) . '" alt="' . htmlspecialchars($book['title']) . '">
+                            <h3>' . htmlspecialchars($book['title']) . '</h3>
+                            <p class="' . $authorClass . '">' . htmlspecialchars($book['author_names'] ?? 'N/A') . '</p>
+                        </a>
+                    ';
+                }
+                $responseHTML .= '</div>';
+            }
+            break;
             
         default:
             throw new Exception("Invalid catalogue action.");

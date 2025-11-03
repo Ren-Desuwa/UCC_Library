@@ -110,11 +110,73 @@ class CatalogueService {
     /**
      * Updates an existing book's details.
      */
-    public function updateBook($bookId, $title, $isbn, $publisher, $year, $desc) {
-        // You would add a 'updateBook' method to your BookDAO
-        return $this->bookDAO->updateBook($bookId, $title, $isbn, $publisher, $year, $desc);
+    /**
+     * UPDATED: Updates an existing book's details, authors, and genres.
+     * This is now a transactional operation.
+     */
+    public function updateBook($bookId, $title, $isbn, $publisher, $year, $desc, $coverUrl, $authorNamesString, $genreNamesString) {
+        $this->conn->begin_transaction();
+        try {
+            // 1. Update the main book entry (and clear old links)
+            // We pass coverUrl in case it was updated (e.g., from file upload)
+            $this->bookDAO->updateBook($bookId, $title, $isbn, $publisher, $year, $desc, $coverUrl);
+
+            // 2. Process Authors (Same logic as addBook)
+            $authorIds = [];
+            $authorNames = explode(',', $authorNamesString);
+            foreach ($authorNames as $authorName) {
+                $name = trim($authorName);
+                if (empty($name)) continue;
+                $author = $this->authorDAO->findAuthorByName($name);
+                $authorIds[] = $author ? $author['author_id'] : $this->authorDAO->createAuthor($name);
+            }
+
+            // 3. Process Genres (Same logic as addBook)
+            $genreIds = [];
+            $genreNames = explode(',', $genreNamesString);
+            foreach ($genreNames as $genreName) {
+                $name = trim($genreName);
+                if (empty($name)) continue;
+                $genre = $this->genreDAO->findGenreByName($name);
+                $genreIds[] = $genre ? $genre['genre_id'] : $this->genreDAO->createGenre($name);
+            }
+
+            // 4. Link new authors and genres
+            if (!empty($authorIds)) {
+                $this->bookDAO->linkAuthorsToBook($bookId, array_unique($authorIds));
+            }
+            if (!empty($genreIds)) {
+                $this->bookDAO->linkGenresToBook($bookId, array_unique($genreIds));
+            }
+            
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            throw new Exception("Service Error: Could not update book. " . $e->getMessage());
+        }
+    }
+
+    /**
+     * NEW: Archives a book.
+     */
+    public function archiveBook($bookId) {
+        return $this->bookDAO->archiveBook($bookId);
+    }
+
+    /**
+     * NEW: Unarchives (restores) a book.
+     */
+    public function unarchiveBook($bookId) {
+        return $this->bookDAO->unarchiveBook($bookId);
     }
     
+    /**
+     * NEW: Gets all data needed for the edit form.
+     */
+    public function getBookForEdit($bookId) {
+        return $this->bookDAO->getBookWithRelations($bookId);
+    }
     /**
      * Gets all authors (e.g., for an admin dropdown).
      */

@@ -38,7 +38,7 @@
                         <td>3 Available</td>
                         <td>
                             <button class="action-btn edit-action-btn" data-book-id="1">Edit</button>
-                            <button class="action-btn delete-action-btn" data-book-id="1">Delete</button>
+                            <button class="action-btn archive-action-btn" data-book-id="1">Archive</button>
                         </td>
                     </tr>
                     </tbody>

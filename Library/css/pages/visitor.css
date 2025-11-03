@@ -198,3 +198,85 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* === START: ADD THESE MISSING STYLES === */
+
+/* --- Advanced Search Bar --- */
+.search-controls-advanced {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+.search-bar-advanced {
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap; 
+    align-items: center;
+    gap: 5px;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 5px 15px;
+}
+.search-bar-advanced .search-icon {
+    color: #6B7280;
+    font-size: 1.5rem;
+    padding: 5px 0;
+}
+.search-input-flex {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    padding: 10px 5px;
+    flex-grow: 1;
+    min-width: 150px; 
+    background: transparent;
+}
+
+/* --- Filter Button & Dropdown --- */
+.filter-container {
+    position: relative;
+    flex-shrink: 0;
+}
+.filter-btn {
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    color: #4B5563;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 100%; /* Match height of search bar */
+}
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: 5px;
+    width: 180px;
+    overflow: hidden;
+}
+.filter-dropdown.active {
+    display: block;
+}
+.filter-dropdown a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #2D3748;
+    font-size: 0.95rem;
+}
+.filter-dropdown a:hover {
+    background-color: #F4F7FC;
+}
+
+/* === END: ADD THESE MISSING STYLES === */

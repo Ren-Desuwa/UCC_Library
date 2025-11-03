@@ -63,7 +63,8 @@ class BookDAO {
                 LEFT JOIN genres g ON bg.genre_id = g.genre_id
                 LEFT JOIN book_copies c ON b.book_id = c.book_id"; // <-- NEW JOIN
         
-        $whereClauses = [];
+        // --- MODIFIED: Always filter out archived books ---
+        $whereClauses = ["b.is_archived = 0"];
         $havingClauses = [];
         $params = [];
         $types = "";
@@ -90,9 +91,8 @@ class BookDAO {
             $types .= "i";
         }
 
-        if (!empty($whereClauses)) {
-            $sql .= " WHERE " . implode(" AND ", $whereClauses);
-        }
+        // Always implode, as we now have at least one clause
+        $sql .= " WHERE " . implode(" AND ", $whereClauses);
         
         $sql .= " GROUP BY b.book_id"; // Group first
 
@@ -134,6 +134,29 @@ class BookDAO {
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * NEW: Fetches a book and its related authors/genres as strings
+     * This is used to populate the "Edit Book" form.
+     */
+    public function getBookWithRelations($bookId) {
+        $sql = "SELECT 
+                    b.*, 
+                    GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS authors,
+                    GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genres
+                FROM books b
+                LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+                LEFT JOIN authors a ON ba.author_id = a.author_id
+                LEFT JOIN book_genres bg ON b.book_id = bg.book_id
+                LEFT JOIN genres g ON bg.genre_id = g.genre_id
+                WHERE b.book_id = ?
+                GROUP BY b.book_id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $bookId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
 
     /**
@@ -216,18 +239,77 @@ class BookDAO {
         }
     }
 
-    /**
-     * NEW: This method was missing for CatalogueService.
-     * Updates the core details of a book.
+   /**
+     * UPDATED: This method now fully updates a book, its authors, and its genres.
+     * This requires a transaction, which should be handled in the *Service* layer.
      */
-    public function updateBook($bookId, $title, $isbn, $publisher, $yearPublished, $description) {
-        $sql = "UPDATE books SET title = ?, isbn = ?, publisher = ?, year_published = ?, description = ?
+    public function updateBook($bookId, $title, $isbn, $publisher, $yearPublished, $description, $coverUrl) {
+        // Update core book details
+        $sql = "UPDATE books SET 
+                    title = ?, 
+                    isbn = ?, 
+                    publisher = ?, 
+                    year_published = ?, 
+                    description = ?,
+                    cover_url = ?
                 WHERE book_id = ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssisi", $title, $isbn, $publisher, $yearPublished, $description, $bookId);
+        $stmt->bind_param("sssissi", $title, $isbn, $publisher, $yearPublished, $description, $coverUrl, $bookId);
         if (!$stmt->execute()) {
-             throw new Exception("DAO Error: Failed to update book: "." - ".$stmt->error);
+             throw new Exception("DAO Error: Failed to update book: " . $stmt->error);
+        }
+
+        // Clear existing author and genre links
+        $this->conn->query("DELETE FROM book_authors WHERE book_id = $bookId");
+        $this->conn->query("DELETE FROM book_genres WHERE book_id = $bookId");
+        
+        return $stmt->affected_rows > 0;
+    }
+    /**
+     * NEW: Sets the is_archived flag to 1 (true).
+     */
+    public function archiveBook($bookId) {
+        $sql = "UPDATE books SET is_archived = 1 WHERE book_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $bookId);
+        if (!$stmt->execute()) {
+             throw new Exception("DAO Error: Failed to archive book: " . $stmt->error);
         }
         return $stmt->affected_rows > 0;
+    }
+
+    /**
+     * NEW: Sets the is_archived flag to 0 (false).
+     */
+    public function unarchiveBook($bookId) {
+        $sql = "UPDATE books SET is_archived = 0 WHERE book_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $bookId);
+        if (!$stmt->execute()) {
+             throw new Exception("DAO Error: Failed to unarchive book: " . $stmt->error);
+        }
+        return $stmt->affected_rows > 0;
+    }
+    
+    /**
+     * NEW: Fetches all archived books for the archive page.
+     */
+    public function getArchivedBooks($limit = 100, $offset = 0) {
+        $sql = "SELECT 
+                    b.*, 
+                    GROUP_CONCAT(DISTINCT a.name ORDER BY a.name SEPARATOR ', ') AS author_names
+                FROM books b
+                LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+                LEFT JOIN authors a ON ba.author_id = a.author_id
+                WHERE b.is_archived = 1
+                GROUP BY b.book_id
+                ORDER BY b.title
+                LIMIT ? OFFSET ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $limit, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 }

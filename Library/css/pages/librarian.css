@@ -63,8 +63,254 @@
     width: 100%; min-height: 80px; border: 1px solid #D1D5DB;
     border-radius: 6px; padding: 10px; font-size: 0.95rem; resize: vertical; margin-top: 8px;
 }
+/* Librarian Modals */
+.modal-content.student-modal-content,
+.modal-content.manage-announcements-content { max-width: 800px; }
+.modal-content.receipt-modal-content { max-width: 450px; }
+.modal-content.book-form-content { max-width: 900px; padding: 0; }
+.modal-content.transaction-history-content { max-width: 1400px; }
 
+/* Book Form Modal */
+.book-form-body { padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+.book-form-grid { display: grid; grid-template-columns: 250px 1fr; gap: 30px; }
+.book-form-image-area { grid-column: 1 / 2; display: flex; flex-direction: column; }
 /* Responsive */
 @media (max-width: 768px) {
     .borrow-return-grid { grid-template-columns: 1fr; }
 }
+/* -- STYLES FOR NEW IMAGE PREVIEW -- */
+
+.book-form-image-area .info-label {
+    font-weight: 500;
+    color: #4B5563;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.image-preview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* When the new preview is active, show the grid */
+.image-preview-grid.show-new {
+    display: grid;
+}
+
+/* When it's not active, just show the current image */
+.image-preview-grid:not(.show-new) {
+    display: block;
+}
+.image-preview-grid:not(.show-new) #book-cover-preview-current {
+    width: 100%; /* Make current image full-width */
+}
+
+
+.image-preview-box {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.image-preview-box .preview-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6B7280;
+    background-color: #F9FAFB;
+    padding: 4px 8px;
+    text-align: center;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.image-preview-box img {
+    width: 100%;
+    height: 180px; /* Give previews a fixed height */
+    object-fit: contain; /* Use 'contain' to see the whole image */
+    padding: 5px;
+    background-color: #F4F7FC;
+}
+
+/* Make the original preview image fill its container */
+#book-cover-preview {
+    width: 100%;
+    height: auto; /* Let it scale */
+    max-width: 250px;
+    padding: 0;
+    object-fit: cover;
+}
+
+.image-preview-grid:not(.show-new) #book-cover-preview {
+     height: 350px; /* Taller height when it's the only one */
+}
+
+
+.image-upload-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.image-upload-actions .action-btn,
+.image-upload-actions .modal-close-btn {
+    flex-grow: 1;
+    text-align: center;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+}
+/* =========== NEW MODAL TAB STYLES =========== */
+.modal-tabs {
+    display: flex;
+    background-color: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 10px 30px 0 30px;
+    gap: 20px;
+}
+.modal-tab-item {
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6B7280;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px; /* Overlaps the border-bottom */
+}
+.modal-tab-item:hover {
+    color: #374151;
+}
+.modal-tab-item.active {
+    color: #A03A3A;
+    border-bottom-color: #A03A3A;
+}
+.modal-tab-item.disabled {
+    color: #D1D5DB;
+    pointer-events: none;
+    background-color: #F9FAFB;
+}
+
+.modal-tab-pane {
+    display: none; /* Hide all panes by default */
+}
+.modal-tab-pane.active {
+    display: block; /* Show only the active one */
+}
+/* =========== END NEW MODAL TAB STYLES =========== */
+
+
+/* =========== COPIES MANAGER STYLES (MOVED) =========== */
+/* These styles are now wrapped inside the tab pane */
+#book-copies-pane {
+    /* This pane has its own internal padding */
+    padding: 25px 30px;
+}
+
+.book-copies-manager {
+    /* remove padding from here */
+}
+.copies-manager-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2D3748;
+    margin-bottom: 20px;
+}
+.copies-table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.copies-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.copies-table thead th {
+    background-color: #F9FAFB;
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 0.85rem;
+    color: #6B7280;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+.copies-table tbody td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+.copies-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.copies-table .copy-id-cell {
+    font-weight: 600;
+    color: #4B5563;
+}
+.copies-table .action-cell {
+    display: flex;
+    gap: 5px;
+}
+.copies-table select,
+.copies-table input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+.copies-table select:disabled {
+    background-color: #F9FAFB;
+    color: #6B7280;
+    border-color: #E5E7EB;
+}
+.copy-action-btn {
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 0.2s;
+}
+.copy-action-btn .material-icons-round {
+    font-size: 1.25rem;
+}
+.save-copy-btn { color: #3B82F6; }
+.save-copy-btn:hover { background-color: #DBEAFE; }
+.delete-copy-btn { color: #EF4444; }
+.delete-copy-btn:hover { background-color: #FEE2E2; }
+
+.add-copy-form {
+    border-top: 1px dashed #E5E7EB;
+    padding-top: 20px;
+}
+.add-copy-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4B5563;
+    margin-bottom: 10px;
+}
+.add-copy-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+}
+.add-copy-inputs select,
+.add-copy-inputs input {
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+}
+.add-copy-btn {
+    padding: 0 12px;
+}
+.add-copy-btn .material-icons-round {
+    font-size: 1.4rem;
+}
+/* =========== END COPIES MANAGER STYLES =========== */

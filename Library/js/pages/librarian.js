@@ -13,56 +13,212 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===========================================
-    // 1. SPA NAVIGATION LOGIC (Original)
+    // 3. CATALOG & MODAL LOGIC (Declarations moved up)
     // ===========================================
 
-    // Function to switch content panels
+    const catalogTableBody = document.getElementById("catalog-table-body");
+    const bookModal = document.getElementById("book-form-modal");
+    const bookForm = document.getElementById("book-form");
+    const openBookModalBtn = document.getElementById("add-new-book-btn");
+    
+    // --- Image Preview Elements ---
+    const bookCoverUpload = document.getElementById("book-cover-upload");
+    const triggerUploadBtn = document.getElementById("trigger-upload-btn");
+    const cancelUploadBtn = document.getElementById("cancel-upload-btn");
+    const previewGrid = document.querySelector(".image-preview-grid");
+    const currentPreviewBox = document.getElementById("book-cover-preview-current");
+    const newPreviewBox = document.getElementById("book-cover-preview-new");
+    const newPreviewImg = document.getElementById("book-cover-new-preview");
+
+    // --- Archive Page Elements ---
+    const archiveTableBody = document.getElementById("archive-table-body");
+    
+    // --- Book Copies Manager Elements ---
+    const copiesManagerSection = document.getElementById("book-copies-manager");
+    const copiesListBody = document.getElementById("book-copies-list");
+    const addCopyForm = document.getElementById("add-copy-form");
+
+    // --- NEW: Modal Tab Elements ---
+    const modalTabsContainer = bookModal ? bookModal.querySelector(".modal-tabs") : null;
+    const modalTabPanes = bookModal ? bookModal.querySelectorAll(".modal-tab-pane") : [];
+    const copiesTabButton = modalTabsContainer ? modalTabsContainer.querySelector('a[data-pane="book-copies-pane"]') : null;
+
+
+    // ===========================================
+    // 4. CIRCULATION LOGIC (Declarations moved up)
+    // ===========================================
+    // ... (circulation declarations remain unchanged) ...
+    const borrowForm = document.getElementById("borrow-form");
+    const userSearchInput = document.getElementById("borrow-user-search");
+    const userNameDiv = document.getElementById("borrow-user-name");
+    const bookSearchInput = document.getElementById("borrow-book-search");
+    const bookTitleDiv = document.getElementById("borrow-book-title");
+    const returnForm = document.getElementById("return-form");
+    const returnSearchInput = document.getElementById("return-book-search");
+    const returnDetailsDiv = document.getElementById("return-details");
+    let currentBorrowUser = null;
+    let currentBorrowCopy = null;
+    let currentReturnTransaction = null;
+
+
+    // ===========================================
+    // FUNCTION DEFINITIONS (MOVED UP)
+    // ===========================================
+
+    /**
+     * Function to load the main catalog
+     */
+    const loadCatalog = async () => {
+        // ... (function remains unchanged) ...
+        if (!catalogTableBody) return;
+        catalogTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading books...</td></tr>';
+        try {
+            const response = await fetch("../php/api/librarian.php?action=getBooks");
+            if (!response.ok) throw new Error("Network response was not ok");
+            const html = await response.text();
+            catalogTableBody.innerHTML = html;
+        } catch (error) {
+            console.error("Failed to load catalog:", error);
+            catalogTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error loading books.</td></tr>';
+        }
+    };
+
+    /**
+     * Function to load the archive
+     */
+    const loadArchive = async () => {
+        // ... (function remains unchanged) ...
+        if (!archiveTableBody) return;
+        archiveTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading archived books...</td></tr>';
+        try {
+            const response = await fetch("../php/api/librarian.php?action=getArchivedBooks");
+            if (!response.ok) throw new Error("Network response was not ok");
+            const html = await response.text();
+            archiveTableBody.innerHTML = html;
+        } catch (error) {
+            console.error("Failed to load archive:", error);
+            archiveTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error loading archived books.</td></tr>';
+        }
+    };
+
+    /**
+     * Function to reset the image preview
+     */
+    const resetImagePreview = () => {
+        // ... (function remains unchanged) ...
+        if (bookCoverUpload) bookCoverUpload.value = null;
+        if (newPreviewImg) newPreviewImg.src = "#";
+        if (previewGrid) previewGrid.classList.remove("show-new");
+        if (newPreviewBox) newPreviewBox.style.display = "none";
+        if (cancelUploadBtn) cancelUploadBtn.style.display = "none";
+        if (currentPreviewBox) currentPreviewBox.style.display = "block";
+    };
+
+    /**
+     * Function to load book copies into the modal
+     */
+    const loadBookCopies = async (bookId) => {
+        // ... (function remains unchanged, still populates copiesListBody) ...
+        if (!copiesListBody) return;
+        copiesListBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading copies...</td></tr>';
+        bookModal.dataset.currentBookId = bookId; 
+        try {
+            const response = await fetch(`../php/api/librarian.php?action=getBookCopies&book_id=${bookId}`);
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+            copiesListBody.innerHTML = '';
+            if (result.data.length === 0) {
+                copiesListBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No copies found. Add one below.</td></tr>';
+                return;
+            }
+            const allStatuses = ['Available', 'Borrowed', 'Overdue', 'Maintenance', 'Archived'];
+            const allConditions = ['Good', 'Fair', 'Damaged'];
+            result.data.forEach(copy => {
+                const row = document.createElement('tr');
+                row.dataset.copyId = copy.copy_id;
+                let statusOptions = '';
+                const isBorrowed = (copy.status === 'Borrowed' || copy.status === 'Overdue');
+                allStatuses.forEach(s => {
+                    statusOptions += `<option value="${s}" ${s === copy.status ? 'selected' : ''}>${s}</option>`;
+                });
+                let conditionOptions = '';
+                allConditions.forEach(c => {
+                    conditionOptions += `<option value="${c}" ${c === copy.condition ? 'selected' : ''}>${c}</option>`;
+                });
+                row.innerHTML = `
+                    <td class="copy-id-cell">#${copy.copy_id}</td>
+                    <td><select class="copy-status" ${isBorrowed ? 'disabled' : ''}>${statusOptions}</select></td>
+                    <td><select class="copy-condition">${conditionOptions}</select></td>
+                    <td><input type="text" class="copy-shelf" value="${copy.shelf_location || ''}" placeholder="e.g., A-01"></td>
+                    <td class="action-cell">
+                        <button type="button" class="copy-action-btn save-copy-btn" title="Save Changes"><span class="material-icons-round">save</span></button>
+                        <button type="button" class="copy-action-btn delete-copy-btn" title="Delete Copy" ${isBorrowed ? 'disabled' : ''}><span class="material-icons-round">delete</span></button>
+                    </td>
+                `;
+                copiesListBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Failed to load copies:", error);
+            copiesListBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error: ${error.message}</td></tr>`;
+        }
+    };
+    
+    /**
+     * --- NEW: Function to switch modal tabs ---
+     */
+    const switchModalTab = (paneName) => {
+        if (!modalTabsContainer || !modalTabPanes.length) return;
+
+        // Activate the correct tab button
+        modalTabsContainer.querySelectorAll('.modal-tab-item').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.dataset.pane === paneName) {
+                tab.classList.add('active');
+            }
+        });
+
+        // Activate the correct tab pane
+        modalTabPanes.forEach(pane => {
+            pane.classList.remove('active');
+            if (pane.id === paneName) {
+                pane.classList.add('active');
+            }
+        });
+    };
+
+
+    // ===========================================
+    // 1. SPA NAVIGATION LOGIC
+    // ===========================================
+    // ... (SPA navigation logic remains unchanged) ...
     const switchPanel = (targetId) => {
-        // Hide all panels
         mainContent.querySelectorAll(".content-panel").forEach(panel => {
             panel.classList.remove("active");
         });
-
-        // Show the target panel
         const activePanel = document.getElementById(targetId);
         if (activePanel) {
             activePanel.classList.add("active");
-            
-            // --- MODIFICATION ---
-            // If we are switching to the catalog, load its data.
-            if (targetId === "librarian-catalog-content") {
-                loadCatalog();
-            }
-            // --- END MODIFICATION ---
-
+            if (targetId === "librarian-catalog-content") loadCatalog();
+            if (targetId === "librarian-archive-content") loadArchive();
         } else {
             console.warn(`Content panel with ID "${targetId}" not found.`);
         }
     };
-
-    // Handle sidebar navigation clicks
     sidebar.addEventListener("click", (e) => {
         const navItem = e.target.closest(".nav-item");
         if (!navItem) return;
-
         e.preventDefault(); 
-
         const targetId = navItem.dataset.target;
         if (!targetId) return;
-
         sidebar.querySelectorAll(".nav-item").forEach(item => {
             item.classList.remove("active");
         });
         navItem.classList.add("active");
-
         switchPanel(targetId);
         window.location.hash = navItem.getAttribute("href");
     });
-
-    // Handle page load based on URL hash
-    const currentHash = window.location.hash.substring(1); // e.g., "dashboard"
-    let targetPanelId = "librarian-dashboard-content"; // Default
-    
+    const currentHash = window.location.hash.substring(1);
+    let targetPanelId = "librarian-dashboard-content";
     if (currentHash) {
         const activeLink = sidebar.querySelector(`.nav-item[href="#${currentHash}"]`);
         if (activeLink) {
@@ -71,34 +227,21 @@ document.addEventListener("DOMContentLoaded", () => {
             activeLink.classList.add("active");
         }
     }
-    
-    // Show the initial panel
     switchPanel(targetPanelId);
-    
-    // --- MODIFICATION ---
-    // Call catalog load on initial page load if hash is #catalog
-    if (targetPanelId === "librarian-catalog-content") {
-        loadCatalog();
-    }
-    // --- END MODIFICATION ---
 
 
     // ===========================================
-    // 2. LOGOUT LOGIC (Original)
+    // 2. LOGOUT LOGIC
     // ===========================================
+    // ... (Logout logic remains unchanged) ...
     const logoutButton = document.getElementById("logout-button");
     const logoutLink = document.getElementById("logout-link");
-    
     const handleLogout = async (e) => {
         e.preventDefault();
         if (!confirm("Are you sure you want to log out?")) return;
-        
         try {
-            const response = await fetch("../php/api/auth.php?action=logout", {
-                method: "POST"
-            });
+            const response = await fetch("../php/api/auth.php?action=logout", { method: "POST" });
             const result = await response.json();
-            
             if(result.success) {
                 window.location.href = "login.php";
             } else {
@@ -108,44 +251,48 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("An error occurred during logout.");
         }
     };
-
     if(logoutButton) logoutButton.addEventListener("click", handleLogout);
     if(logoutLink) logoutLink.addEventListener("click", handleLogout);
 
     // ===========================================
-    // 3. CATALOG & MODAL LOGIC (New)
+    // 3. CATALOG & MODAL LOGIC (Event Listeners)
     // ===========================================
 
-    const catalogTableBody = document.getElementById("catalog-table-body");
-    const bookModal = document.getElementById("book-form-modal");
-    const bookForm = document.getElementById("book-form");
-    const openBookModalBtn = document.getElementById("add-new-book-btn");
-    const catalogContent = document.getElementById("librarian-catalog-content");
+    // --- NEW: Handle Modal Tab Clicks ---
+    if (modalTabsContainer) {
+        modalTabsContainer.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tabButton = e.target.closest('.modal-tab-item');
+            if (tabButton && !tabButton.classList.contains('disabled')) {
+                const paneName = tabButton.dataset.pane;
+                switchModalTab(paneName);
 
-    // Function to load the catalog
-    const loadCatalog = async () => {
-        if (!catalogTableBody) return;
-        
-        catalogTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading books...</td></tr>';
-        try {
-            const response = await fetch("../php/api/librarian.php?action=getBooks");
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
+                // If switching to copies, load them
+                const bookId = bookModal.dataset.currentBookId;
+                if (paneName === 'book-copies-pane' && bookId) {
+                    // Check if already loaded
+                    if (!copiesListBody.hasChildNodes() || copiesListBody.innerText.includes("Loading")) {
+                        loadBookCopies(bookId);
+                    }
+                }
             }
-            const html = await response.text();
-            catalogTableBody.innerHTML = html;
-        } catch (error) {
-            console.error("Failed to load catalog:", error);
-            catalogTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error loading books.</td></tr>';
-        }
-    };
+        });
+    }
 
     // Open "Add Book" modal
     if (openBookModalBtn && bookModal) {
         openBookModalBtn.addEventListener("click", () => {
-            bookForm.reset(); // Clear the form
+            bookForm.reset(); 
             document.getElementById("book-modal-title").innerText = "Add New Book";
-            document.getElementById("book-id").value = ""; // Clear any book ID
+            document.getElementById("book-id").value = ""; 
+            resetImagePreview();
+            
+            // --- MODIFIED: Reset and disable copies tab ---
+            switchModalTab('book-details-pane'); // Set to first tab
+            if (copiesTabButton) copiesTabButton.classList.add('disabled');
+            if (copiesListBody) copiesListBody.innerHTML = '';
+            bookModal.dataset.currentBookId = '';
+            
             bookModal.classList.add("active");
         });
     }
@@ -155,32 +302,27 @@ document.addEventListener("DOMContentLoaded", () => {
         bookModal.addEventListener("click", (e) => {
             if (e.target.classList.contains("modal-overlay") || e.target.closest(".modal-close-btn")) {
                 bookModal.classList.remove("active");
+                resetImagePreview();
             }
         });
     }
 
-    // Handle "Add Book" form submission
+    // Handle "Add/Edit Book" form submission (the main details)
     if (bookForm) {
         bookForm.addEventListener("submit", async (e) => {
+            // ... (this function remains unchanged) ...
             e.preventDefault();
             const formData = new FormData(bookForm);
-            
-            // Determine if this is an add or edit
             const bookId = formData.get("book_id");
-            const action = bookId ? 'updateBook' : 'addBook'; // (Note: updateBook API not built, but this shows how)
+            const action = bookId ? 'updateBook' : 'addBook';
             formData.append('action', action);
-
             try {
-                const response = await fetch("../php/api/librarian.php", {
-                    method: "POST",
-                    body: formData
-                });
+                const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                 const result = await response.json();
-
                 if (result.success) {
                     alert(result.message);
                     bookModal.classList.remove("active");
-                    loadCatalog(); // Refresh the table!
+                    loadCatalog(); 
                 } else {
                     alert("Error: " + result.message);
                 }
@@ -190,56 +332,231 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
-    // TODO: Add event listener for delete/archive buttons
+    
+    // Handle clicks on the main Catalog table (Edit, Archive)
     if (catalogTableBody) {
-        catalogTableBody.addEventListener("click", (e) => {
-            const deleteBtn = e.target.closest(".delete-action-btn");
-            if (deleteBtn) {
-                const bookId = deleteBtn.dataset.bookId;
+        catalogTableBody.addEventListener("click", async (e) => {
+            const archiveBtn = e.target.closest(".archive-action-btn");
+            const editBtn = e.target.closest(".edit-action-btn");
+
+            // --- ARCHIVE LOGIC ---
+            if (archiveBtn) {
+                // ... (archive logic remains unchanged) ...
+                e.preventDefault();
+                const bookId = archiveBtn.dataset.bookId;
+                if (!bookId) return;
                 if (confirm(`Are you sure you want to archive Book ID ${bookId}?`)) {
-                    // TODO: Implement archiveBook(bookId) function
-                    // async function archiveBook(bookId) {
-                    //    const formData = new FormData();
-                    //    formData.append('action', 'archiveBook');
-                    //    formData.append('book_id', bookId);
-                    //    const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
-                    //    const result = await response.json();
-                    //    if (result.success) {
-                    //        loadCatalog();
-                    //    } else {
-                    //        alert(result.message);
-                    //    }
-                    // }
-                    console.log("TODO: Archive book", bookId);
+                    try {
+                        const formData = new FormData();
+                        formData.append('action', 'archiveBook');
+                        formData.append('book_id', bookId);
+                        const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                        const result = await response.json();
+                        if (result.success) {
+                            alert(result.message);
+                            loadCatalog();
+                        } else {
+                            alert("Error: " + result.message);
+                        }
+                    } catch (error) {
+                        alert("An error occurred: " + error.message);
+                    }
+                }
+            }
+
+            // --- EDIT LOGIC (MODIFIED) ---
+            if (editBtn) {
+                e.preventDefault();
+                const bookId = editBtn.dataset.bookId;
+                if (!bookId) return;
+
+                try {
+                    // 1. Fetch the book's current data
+                    const response = await fetch(`../php/api/librarian.php?action=getBookForEdit&book_id=${bookId}`);
+                    const result = await response.json();
+                    if (!result.success) throw new Error(result.message);
+                    const book = result.data;
+
+                    // 2. Populate the modal form
+                    bookForm.reset(); 
+                    resetImagePreview(); 
+                    document.getElementById("book-modal-title").innerText = "Edit Book";
+                    document.getElementById("book-id").value = book.book_id;
+                    document.getElementById("book-title").value = book.title;
+                    document.getElementById("book-authors").value = book.authors;
+                    document.getElementById("book-genres").value = book.genres;
+                    document.getElementById("book-isbn").value = book.isbn;
+                    document.getElementById("book-publisher").value = book.publisher;
+                    document.getElementById("book-year").value = book.year_published;
+                    document.getElementById("book-desc").value = book.description;
+                    const preview = document.getElementById("book-cover-preview");
+                    preview.src = book.cover_url ? `../assets/covers/${book.cover_url}` : "../assets/covers/CoverBookTemp.png";
+
+                    // --- MODIFIED: Enable copies tab and set book ID ---
+                    switchModalTab('book-details-pane'); // Reset to details tab
+                    if (copiesTabButton) copiesTabButton.classList.remove('disabled');
+                    if (copiesListBody) copiesListBody.innerHTML = ''; // Clear old copies
+                    bookModal.dataset.currentBookId = book.book_id; // Set book ID
+                    // Note: We DON'T load copies here. We wait for the user to click the tab.
+                    
+                    // 3. Open the modal
+                    bookModal.classList.add("active");
+
+                } catch (error) {
+                    alert("Failed to load book for editing: " + error.message);
                 }
             }
         });
     }
 
+    // --- Handle "Add New Copy" form submission ---
+    if (addCopyForm) {
+        addCopyForm.addEventListener("submit", async (e) => {
+            // ... (this function remains unchanged) ...
+            e.preventDefault();
+            const bookId = bookModal.dataset.currentBookId;
+            if (!bookId) {
+                alert("Error: No book ID found. Cannot add copy.");
+                return;
+            }
+            const conditionInput = document.getElementById("add-copy-condition");
+            const shelfInput = document.getElementById("add-copy-shelf");
+            const formData = new FormData();
+            formData.append('action', 'addBookCopy');
+            formData.append('book_id', bookId);
+            formData.append('condition', conditionInput.value);
+            formData.append('shelf_location', shelfInput.value);
+            try {
+                const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    shelfInput.value = ''; 
+                    await loadBookCopies(bookId); 
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                alert(`Error adding copy: ${error.message}`);
+            }
+        });
+    }
+    
+    // --- Handle "Save Copy" and "Delete Copy" clicks ---
+    if (copiesListBody) {
+        copiesListBody.addEventListener("click", async (e) => {
+            // ... (this function remains unchanged) ...
+            const saveBtn = e.target.closest(".save-copy-btn");
+            const deleteBtn = e.target.closest(".delete-copy-btn");
+            const bookId = bookModal.dataset.currentBookId;
+            if (saveBtn) {
+                const row = saveBtn.closest("tr");
+                const copyId = row.dataset.copyId;
+                const formData = new FormData();
+                formData.append('action', 'updateBookCopy');
+                formData.append('copy_id', copyId);
+                formData.append('status', row.querySelector('.copy-status').value);
+                formData.append('condition', row.querySelector('.copy-condition').value);
+                formData.append('shelf_location', row.querySelector('.copy-shelf').value);
+                try {
+                    const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(result.message);
+                        await loadBookCopies(bookId); 
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    alert(`Error updating copy: ${error.message}`);
+                    await loadBookCopies(bookId); 
+                }
+            }
+            if (deleteBtn) {
+                const row = deleteBtn.closest("tr");
+                const copyId = row.dataset.copyId;
+                if (!confirm(`Are you sure you want to PERMANENTLY DELETE Copy ID #${copyId}?`)) return;
+                const formData = new FormData();
+                formData.append('action', 'deleteBookCopy');
+                formData.append('copy_id', copyId);
+                try {
+                    const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(result.message);
+                        await loadBookCopies(bookId); 
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    alert(`Error deleting copy: ${error.message}`);
+                }
+            }
+        });
+    }
+
+    // --- Archive Page Event Listener ---
+    if (archiveTableBody) {
+        // ... (archive logic remains unchanged) ...
+        archiveTableBody.addEventListener("click", async (e) => {
+            const restoreBtn = e.target.closest(".restore-action-btn");
+            if (restoreBtn) {
+                e.preventDefault();
+                const bookId = restoreBtn.dataset.bookId;
+                if (!bookId) return;
+                if (confirm(`Are you sure you want to restore Book ID ${bookId}?`)) {
+                    try {
+                        const formData = new FormData();
+                        formData.append('action', 'unarchiveBook');
+                        formData.append('book_id', bookId);
+                        const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                        const result = await response.json();
+                        if (result.success) {
+                            alert(result.message);
+                            loadArchive();
+                        } else {
+                            alert("Error: " + result.message);
+                        }
+                    } catch (error) {
+                        alert("An error occurred: " + error.message);
+                    }
+                }
+            }
+        });
+    }
+
+
     // ===========================================
-    // 4. CIRCULATION LOGIC (New)
+    // 4. BOOK FORM IMAGE PREVIEW LOGIC (Event Listeners)
     // ===========================================
+    // ... (image preview logic remains unchanged) ...
+    if (triggerUploadBtn) {
+        triggerUploadBtn.addEventListener("click", () => bookCoverUpload.click());
+    }
+    if (bookCoverUpload) {
+        bookCoverUpload.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    newPreviewImg.src = event.target.result;
+                    previewGrid.classList.add("show-new");
+                    newPreviewBox.style.display = "block";
+                    cancelUploadBtn.style.display = "inline-block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    if (cancelUploadBtn) {
+        cancelUploadBtn.addEventListener("click", resetImagePreview);
+    }
 
-    // --- Circulation Elements ---
-    const borrowForm = document.getElementById("borrow-form");
-    const userSearchInput = document.getElementById("borrow-user-search");
-    const userNameDiv = document.getElementById("borrow-user-name");
-    const bookSearchInput = document.getElementById("borrow-book-search");
-    const bookTitleDiv = document.getElementById("borrow-book-title");
-
-    const returnForm = document.getElementById("return-form");
-    const returnSearchInput = document.getElementById("return-book-search");
-    const returnDetailsDiv = document.getElementById("return-details");
-
-    // --- State for circulation ---
-    let currentBorrowUser = null;
-    let currentBorrowCopy = null;
-    let currentReturnTransaction = null;
-
-    // --- Borrow Form Logic ---
+    // ===========================================
+    // 5. CIRCULATION LOGIC (Event Listeners)
+    // ===========================================
+    // ... (circulation logic remains unchanged) ...
     if (borrowForm) {
-        // Find user
         userSearchInput.addEventListener("change", async () => {
             try {
                 const response = await fetch(`../php/api/librarian.php?action=findUser&query=${userSearchInput.value}`);
@@ -253,8 +570,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (e) { userNameDiv.textContent = e.message; currentBorrowUser = null;}
         });
-
-        // Find book copy
         bookSearchInput.addEventListener("change", async () => {
             try {
                 const response = await fetch(`../php/api/librarian.php?action=findCopy&copy_id=${bookSearchInput.value}`);
@@ -268,26 +583,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (e) { bookTitleDiv.textContent = e.message; currentBorrowCopy = null;}
         });
-
-        // Finalize checkout
         borrowForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!currentBorrowUser || !currentBorrowCopy) {
                 alert("Please select a valid user AND a valid book copy.");
                 return;
             }
-            
             const formData = new FormData();
             formData.append('action', 'borrowBook');
             formData.append('account_id', currentBorrowUser);
             formData.append('copy_id', currentBorrowCopy);
-            
             try {
                 const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                 const result = await response.json();
                 alert(result.message);
                 if (result.success) {
-                    // Reset form
                     borrowForm.reset();
                     userNameDiv.textContent = "...";
                     bookTitleDiv.textContent = "...";
@@ -297,10 +607,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (e) { alert(e.message); }
         });
     }
-
-    // --- Return Form Logic ---
     if (returnForm) {
-        // Find transaction
         returnSearchInput.addEventListener("change", async () => {
             try {
                 const response = await fetch(`../php/api/librarian.php?action=findReturn&copy_id=${returnSearchInput.value}`);
@@ -321,25 +628,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (e) { alert(e.message); currentReturnTransaction = null; returnDetailsDiv.style.display = "none";}
         });
-
-        // Process return
         returnForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!currentReturnTransaction) {
                 alert("Please find a valid transaction first.");
                 return;
             }
-            
             const formData = new FormData();
             formData.append('action', 'returnBook');
             formData.append('transaction_id', currentReturnTransaction);
-            
             try {
                 const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                 const result = await response.json();
                 alert(result.message);
                 if (result.success) {
-                    // Reset form
                     returnForm.reset();
                     returnDetailsDiv.style.display = "none";
                     currentReturnTransaction = null;

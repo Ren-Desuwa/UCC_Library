@@ -5,21 +5,41 @@
     
     $catalogueService = new CatalogueService($conn);
     
-    // UPDATED: Fixed calls to match new 6-argument signature
-    $recommendedBooks = $catalogueService->searchBooks("", "", "", "", "", "", 10, 0); 
-    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", "", "", "", 10, 0);
-    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", "", "", "", 10, 0);
+    // UPDATED: Fetch 11 books (one more than the display limit)
+    $shelfLimit = 10;
+    $fetchLimit = $shelfLimit + 1;
+    
+    $recommendedBooks = $catalogueService->searchBooks("", "", "", "", "", "", $fetchLimit, 0); 
+    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", "", "", "", $fetchLimit, 0);
+    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", "", "", "", $fetchLimit, 0);
 
     /**
      * Helper function to render a single "book shelf" carousel.
      */
-    function renderBookShelf($title, $books) {
+    function renderBookShelf($title, $books, $displayLimit = 10) {
         if (empty($books)) return; 
+
+        // --- NEW LOGIC START ---
+        // Check if the number of books exceeds the display limit
+        $bookCount = count($books);
+        $hasMoreBooks = $bookCount > $displayLimit;
+
+        if ($hasMoreBooks) {
+            // Remove the extra book so we only display the limit
+            array_pop($books);
+        }
+        // --- NEW LOGIC END ---
 
         echo '<section class="book-shelf-student">';
         echo '<div class="shelf-header-student">';
         echo "<h2>{$title}</h2>";
-        echo '<a href="#" class="see-all-link-student">See All <span class="material-icons-round">arrow_forward_ios</span></a>';
+        
+        // UPDATED: Only show the link if $hasMoreBooks is true
+        if ($hasMoreBooks) {
+             // ADDED: class="open-see-all-modal-btn" and data-genre attribute
+            echo '<a href="#" class="see-all-link-student open-see-all-modal-btn" data-genre="' . htmlspecialchars($title) . '">See All <span class="material-icons-round">arrow_forward_ios</span></a>';
+        }
+
         echo '</div>';
         echo '<div class="shelf-carousel-student">';
         
@@ -65,9 +85,10 @@
 
         <div id="catalogue-grid-view">
             <?php
-                renderBookShelf("Recommended", $recommendedBooks);
-                renderBookShelf("Thrillers & Mystery", $thrillerBooks);
-                renderBookShelf("Fantasy & Adventure", $fantasyBooks);
+                // UPDATED: Pass the $shelfLimit to the function
+                renderBookShelf("Recommended", $recommendedBooks, $shelfLimit);
+                renderBookShelf("Thrillers & Mystery", $thrillerBooks, $shelfLimit);
+                renderBookShelf("Fantasy & Adventure", $fantasyBooks, $shelfLimit);
             ?>
         </div>
 
