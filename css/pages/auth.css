@@ -28,6 +28,8 @@ body {
     max-width: 1200px;
 }
 
+
+
 .signin-card, .register-card {
     display: flex;
     width: 100%;
@@ -297,6 +299,24 @@ body {
     font-weight: 500;
 }
 
+.forgot-password-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 30px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  min-height: 300px;
+}
+
+
+
 /* Responsive */
 @media (max-width: 968px) {
     .signin-card, .register-card {
@@ -308,4 +328,15 @@ body {
     .right-panel { padding: 40px 30px; }
     .logo-container { position: relative; top: 0; right: 0; margin: 0 auto 30px; }
     .form-group-triple, .form-group-double { flex-direction: column; gap: 0; }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

@@ -123,7 +123,8 @@ class AuthService {
             // Don't reveal if email exists, just return success
             return true;
         }
-        
+
+        try {
         $otpCode = rand(100000, 999999);
         $expiresAt = (new DateTime())->add(new DateInterval("PT15M"))->format('Y-m-d H:i:s'); // 15 min expiry
         
@@ -131,8 +132,14 @@ class AuthService {
         $this->userOtpDAO->createOtp($account['account_id'], $email, $otpCode, $expiresAt);
         
         // Here you would email the $otpCode to the user
-        // mail($email, "Your Password Reset Code", "Your code is: $otpCode");
+        //mail($email, "Your Password Reset Code", "Your code is: $otpCode");
         
         return true;
+        }
+        catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
+
+   
 }

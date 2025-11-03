@@ -92,6 +92,32 @@ try {
             $response['message'] = "Registration successful! You can now log in.";
             break;
 
+            case 'forgotPassword':
+
+                $email = $_POST['email'] ?? null;
+
+                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception('Please enter a valid email');
+                }
+
+                $account = $authService->requestPasswordReset($email);
+
+                $response['success'] = true;
+                $response['message'] = 'Request success!';
+
+                break;
+            
+            case 'getOtp':
+
+                $otp = $_POST['code'] ?? null;
+
+                if ($otp === null || !preg_match('/^\d{6}$/', $otp)) {
+                    throw new Exception('Please enter a valid code');
+                }
+
+                
+
+
         /**
          * --- LOGOUT ---
          * Handles a logout request.
@@ -113,6 +139,7 @@ try {
     // If anything in the 'try' block throws an Exception, catch it here.
     $response['success'] = false;
     $response['message'] = $e->getMessage();
+    error_log($e->getMessage());
 }
 
 // Finally, encode the $response array as JSON and send it back to auth.js

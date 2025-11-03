@@ -5,7 +5,16 @@ class AccountDAO {
     public function __construct($conn) {
         $this->conn = $conn;
     }
-    
+
+
+    public function getAccountBId($accountId) {
+        $sql = "SELECT * FROM accounts WHERE account_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $accountId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
     public function getAccountByUsername($username) {
         $sql = "SELECT * FROM accounts WHERE username = ?";
         $stmt = $this->conn->prepare($sql);

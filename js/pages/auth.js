@@ -6,6 +6,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
     const registerForm = document.getElementById("register-form");
+    const forgotPasswordForm = document.getElementById("forgot-password-form")
     const showPasswordCheckbox = document.getElementById("showPassword");
 
     // Handle Login Form Submission
@@ -16,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Handle Registration Form Submission
     if (registerForm) {
         registerForm.addEventListener("submit", handleRegister);
+    }
+
+    if(forgotPasswordForm){
+        forgotPasswordForm.addEventListener("submit", handleForgotPassword);
     }
 
     // Handle "Show Password" Checkbox
@@ -143,6 +148,77 @@ async function handleRegister(e) {
     } finally {
         setButtonState(button, "Register Account", false);
     }
+}
+
+
+async function handleForgotPassword(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const button = form.querySelector('button[type="submit"]');
+
+    setButtonState(button, "Requesting...", true);
+
+    try {
+        const response = await fetch("../php/api/auth.php?action=forgotPassword", {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json();
+
+         if (result.success) {
+            // Success! Redirect to the send code page.
+            window.location.href = "send_code.php";
+
+        } else {
+            // Show error message from the server
+            alert(`Request Failed: ${result.message}`);
+        }
+    }
+      catch (error) {
+        console.error("Forgot Password error:", error);
+        alert("An error occurred while requesting for password reset. Please try again. test");
+        alert(error.message);
+    } finally {
+        setButtonState(button, "Send Reset Link", false);
+    }
+
+}
+
+async function handleSendCode(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const button = form.querySelector('button[type="submit"]');
+
+    setButtonState(button, "Submitting Code", true);
+
+    try {
+        const response = await fetch("../php/api/auth.php?action=getOtp", {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json();
+
+         if (result.success) {
+            // Success! Redirect to the reset password page.
+            window.location.href = "reset_password.php";
+
+        } else {
+            // Show error message from the server
+            alert(`Request Failed: ${result.message}`);
+        }
+    }
+      catch (error) {
+        console.error("Send Code error:", error);
+        alert("An error occurred while sending the code. Please try again. test");
+        alert(error.message);
+    } finally {
+        setButtonState(button, "Submit Code", false);
+    }
+
 }
 
 /**
