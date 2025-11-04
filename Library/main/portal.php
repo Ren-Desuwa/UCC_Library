@@ -23,11 +23,14 @@
     <link rel="stylesheet" href="../css/shared/responsive.css">
 
     <?php
+        // Load CSS based on role
         if ($role == 'Student') {
             echo '<link rel="stylesheet" href="../css/pages/student.css">';
         } else if ($role == 'Librarian') {
             echo '<link rel="stylesheet" href="../css/pages/librarian.css">';
         } else if ($role == 'Admin') {
+            // Admin uses both librarian and admin styles
+            echo '<link rel="stylesheet" href="../css/pages/librarian.css">';
             echo '<link rel="stylesheet" href="../css/pages/admin.css">';
         }
     ?>
@@ -43,7 +46,8 @@
         } else if ($role == 'Librarian') {
             include 'includes/_sidebar_librarian.php';
         } else if ($role == 'Admin') {
-            // include 'includes/_sidebar_admin.php';
+            // Admin gets their own sidebar
+            include 'includes/_sidebar_admin.php';
         }
     ?>
 
@@ -52,11 +56,26 @@
             // === CONTENT PAGES ===
             if ($role == 'Student') {
                 include 'pages/student_dashboard.php';
-                // The file below is correct, the original comment was misleading and has been removed.
                 include 'pages/student_catalogue.php'; 
                 include 'pages/student_history.php';
                 include 'pages/student_settings.php'; 
+                
             } else if ($role == 'Librarian') {
+                include 'pages/librarian_dashboard.php';
+                include 'pages/librarian_circulation.php';
+                include 'pages/librarian_catalogue.php';
+                include 'pages/librarian_archive.php';
+                include 'pages/librarian_users.php';
+                
+            } else if ($role == 'Admin') {
+                // --- Admin-Specific Pages ---
+                include 'pages/admin_dashboard.php';
+                include 'pages/admin_accounts.php';
+                include 'pages/admin_announcements.php';
+                include 'pages/admin_settings.php';
+                include 'pages/admin_logs.php';
+                
+                // --- Inherited Librarian Pages ---
                 include 'pages/librarian_dashboard.php';
                 include 'pages/librarian_circulation.php';
                 include 'pages/librarian_catalogue.php';
@@ -67,23 +86,28 @@
     </main>
 
     <?php
-        // include 'includes/_modals_common.php'; 
+        // === MODALS ===
         if ($role == 'Student') {
             include 'includes/_modals_student.php'; 
         } else if ($role == 'Librarian') {
             include 'includes/_modals_librarian.php';
         } else if ($role == 'Admin') {
-            // include 'includes/_modals_admin.php';
+            // Admin gets their own modals *and* librarian modals
+            include 'includes/_modals_librarian.php';
+            include 'includes/_modals_admin.php';
         }
     ?>
 
     <?php
+        // === JAVASCRIPT ===
         if ($role == 'Student') {
             echo '<script type="module" src="../js/pages/student.js"></script>';
         } else if ($role == 'Librarian') {
             echo '<script type="module" src="../js/pages/librarian.js"></script>';
         } else if ($role == 'Admin') {
-            // echo '<script type="module" src="../js/pages/admin.js"></script>';
+            // Admin needs both librarian and admin scripts
+            echo '<script type="module" src="../js/pages/librarian.js"></script>';
+            echo '<script type="module" src="../js/pages/admin.js"></script>';
         }
     ?>
 </body>

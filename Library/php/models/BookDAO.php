@@ -294,7 +294,10 @@ class BookDAO {
     /**
      * NEW: Fetches all archived books for the archive page.
      */
-    public function getArchivedBooks($limit = 100, $offset = 0) {
+    /**
+     * UPDATED: Fetches all archived books for the archive page, with search.
+     */
+    public function getArchivedBooks($searchTerm = "", $limit = 100, $offset = 0) {
         $sql = "SELECT 
                     b.*, 
                     GROUP_CONCAT(DISTINCT a.name ORDER BY a.name SEPARATOR ', ') AS author_names
@@ -302,12 +305,34 @@ class BookDAO {
                 LEFT JOIN book_authors ba ON b.book_id = ba.book_id
                 LEFT JOIN authors a ON ba.author_id = a.author_id
                 WHERE b.is_archived = 1
-                GROUP BY b.book_id
-                ORDER BY b.title
-                LIMIT ? OFFSET ?";
+                GROUP BY b.book_id";
         
+        $params = [];
+        $types = "";
+
+        // --- NEW: Add search filter ---
+        if (!empty($searchTerm)) {
+            // We search in HAVING because author_names is an aggregated field
+            $sql .= " HAVING (b.title LIKE ? OR b.isbn LIKE ? OR author_names LIKE ?)";
+            $likeTerm = "%" . $searchTerm . "%";
+            $params[] = $likeTerm;
+            $params[] = $likeTerm;
+            $params[] = $likeTerm;
+            $types .= "sss";
+        }
+        // --- END NEW ---
+        
+        $sql .= " ORDER BY b.title LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
+        $types .= "ii";
+                
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ii", $limit, $offset);
+        
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);

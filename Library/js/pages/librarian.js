@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Archive Page Elements ---
     const archiveTableBody = document.getElementById("archive-table-body");
+    const archiveSearchInput = document.getElementById("archive-search-input"); // <-- ADDED
     
     // --- Book Copies Manager Elements ---
     const copiesManagerSection = document.getElementById("book-copies-manager");
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ... (circulation declarations remain unchanged) ...
     const borrowForm = document.getElementById("borrow-form");
     const userSearchInput = document.getElementById("borrow-user-search");
+    const userTableBody = document.getElementById("user-table-body");
     const userNameDiv = document.getElementById("borrow-user-name");
     const bookSearchInput = document.getElementById("borrow-book-search");
     const bookTitleDiv = document.getElementById("borrow-book-title");
@@ -64,6 +66,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===========================================
     // FUNCTION DEFINITIONS (MOVED UP)
     // ===========================================
+    /**
+     * --- NEW: Debounce function to limit API calls ---
+     */
+    const debounce = (func, delay) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    };
 
     /**
      * Function to load the main catalog
@@ -84,15 +98,25 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     /**
-     * Function to load the archive
+     * --- MODIFIED: Function to load the archive ---
      */
-    const loadArchive = async () => {
-        // ... (function remains unchanged) ...
+    const loadArchive = async (searchTerm = "") => { // <-- ADDED searchTerm
         if (!archiveTableBody) return;
+
         archiveTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading archived books...</td></tr>';
         try {
-            const response = await fetch("../php/api/librarian.php?action=getArchivedBooks");
-            if (!response.ok) throw new Error("Network response was not ok");
+            // --- NEW: Add query to fetch ---
+            const query = new URLSearchParams({
+                action: 'getArchivedBooks',
+                query: searchTerm
+            }).toString();
+
+            const response = await fetch(`../php/api/librarian.php?${query}`);
+            // --- END NEW ---
+
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
             const html = await response.text();
             archiveTableBody.innerHTML = html;
         } catch (error) {
@@ -101,6 +125,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // --- NEW: Function to load users ---
+    const loadUsers = async (searchTerm = "") => {
+        if (!userTableBody) return;
+        userTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading users...</td></tr>';
+        
+        try {
+            const query = new URLSearchParams({
+                action: 'searchUsers',
+                query: searchTerm
+            }).toString();
+            
+            const response = await fetch(`../php/api/librarian.php?${query}`);
+            if (!response.ok) throw new Error("Network response was not ok");
+            
+            const html = await response.text();
+            userTableBody.innerHTML = html;
+        } catch (error) {
+            console.error("Failed to load users:", error);
+            userTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
+        }
+    };
     /**
      * Function to reset the image preview
      */
@@ -190,7 +235,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===========================================
     // 1. SPA NAVIGATION LOGIC
     // ===========================================
-    // ... (SPA navigation logic remains unchanged) ...
+    
+    // --- MODIFIED: Function to switch content panels ---
     const switchPanel = (targetId) => {
         mainContent.querySelectorAll(".content-panel").forEach(panel => {
             panel.classList.remove("active");
@@ -198,12 +244,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const activePanel = document.getElementById(targetId);
         if (activePanel) {
             activePanel.classList.add("active");
+            
+            // Load content on panel switch
             if (targetId === "librarian-catalog-content") loadCatalog();
             if (targetId === "librarian-archive-content") loadArchive();
+            if (targetId === "librarian-users-content") loadUsers(); // <-- ADDED
+
         } else {
             console.warn(`Content panel with ID "${targetId}" not found.`);
         }
     };
+
     sidebar.addEventListener("click", (e) => {
         const navItem = e.target.closest(".nav-item");
         if (!navItem) return;
@@ -494,28 +545,34 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
-    // --- Archive Page Event Listener ---
+// --- Archive Page Event Listener (Restore) ---
     if (archiveTableBody) {
-        // ... (archive logic remains unchanged) ...
         archiveTableBody.addEventListener("click", async (e) => {
             const restoreBtn = e.target.closest(".restore-action-btn");
+
             if (restoreBtn) {
                 e.preventDefault();
                 const bookId = restoreBtn.dataset.bookId;
                 if (!bookId) return;
-                if (confirm(`Are you sure you want to restore Book ID ${bookId}?`)) {
+
+                if (confirm(`Are you sure you want to restore Book ID ${bookId}? It will appear in the main catalogue again.`)) {
                     try {
                         const formData = new FormData();
                         formData.append('action', 'unarchiveBook');
                         formData.append('book_id', bookId);
-                        const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+
+                        const response = await fetch("../php/api/librarian.php", {
+                            method: "POST",
+                            body: formData
+                        });
                         const result = await response.json();
+
                         if (result.success) {
                             alert(result.message);
-                            loadArchive();
+                            // --- MODIFIED: Reload with current search term ---
+                            loadArchive(archiveSearchInput ? archiveSearchInput.value : ""); 
                         } else {
-                            alert("Error: " + result.message);
+                            alert("Error: " . result.message);
                         }
                     } catch (error) {
                         alert("An error occurred: " + error.message);
@@ -525,6 +582,32 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // --- NEW: Archive Search ---
+    if (archiveSearchInput) {
+        // Use a 300ms debounce to prevent spamming the server
+        archiveSearchInput.addEventListener("keyup", debounce(() => {
+            loadArchive(archiveSearchInput.value);
+        }, 300));
+    }
+
+    // --- NEW: User Search ---
+    if (userSearchInput) {
+        userSearchInput.addEventListener("keyup", debounce(() => {
+            loadUsers(userSearchInput.value);
+        }, 300));
+    }
+
+    // --- NEW: User Table Clicks (for future modal) ---
+    if (userTableBody) {
+        userTableBody.addEventListener("click", (e) => {
+            const detailsBtn = e.target.closest(".view-details-btn");
+            if (detailsBtn) {
+                const accountId = detailsBtn.dataset.accountId;
+                alert(`(Future feature): View details for Account ID #${accountId}`);
+                // We will build the modal for this in the next step!
+            }
+        });
+    }
 
     // ===========================================
     // 4. BOOK FORM IMAGE PREVIEW LOGIC (Event Listeners)

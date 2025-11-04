@@ -33,6 +33,7 @@ CREATE TABLE `accounts` (
   `password_hash` varchar(64) NOT NULL,
   `role` varchar(50) NOT NULL DEFAULT 'Student',
   `name` varchar(255) NOT NULL,
+  `physical_id` varchar(50) NOT NULL,
   `email` varchar(255) NOT NULL,
   `birthday` date DEFAULT NULL,
   `contact_number` varchar(20) DEFAULT NULL,
@@ -45,10 +46,10 @@ CREATE TABLE `accounts` (
 -- Dumping data for table `accounts`
 --
 
-INSERT INTO `accounts` (`account_id`, `username`, `password_hash`, `role`, `name`, `email`, `birthday`, `contact_number`, `fav_book_design`, `date_created`, `is_active`) VALUES
-(1, 'admin', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Admin', 'Admin User', 'admin@imlibrary.com', '1990-01-01', '09170000001', 1, '2025-10-31 11:50:07', 1),
-(2, 'alex', '93f18139c11d4b32f9d985a11631f406691a89c89c8558448a08d23a6c4b9167', 'Student', 'Alex Reyes', 'alex@imlibrary.com', '2002-05-15', '09170000002', 1, '2025-10-31 11:50:07', 1),
-(3, 'mary', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'Librarian', 'Mary Jane', 'mary@imlibrary.com', '2002-05-15', '09170000003', 1);
+INSERT INTO `accounts` (`account_id`, `username`, `password_hash`, `role`, `name`, `physical_id`, `email`, `birthday`, `contact_number`, `fav_book_design`, `date_created`, `is_active`) VALUES
+(1, 'admin', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Admin', 'Admin User', 'ADMIN-01', 'admin@imlibrary.com', '1990-01-01', '09170000001', 1, '2025-10-31 11:50:07', 1),
+(2, 'alex', '93f18139c11d4b32f9d985a11631f406691a89c89c8558448a08d23a6c4b9167', 'Student', 'Alex Reyes', '2024001-C', 'alex@imlibrary.com', '2002-05-15', '09170000002', 1, '2025-10-31 11:50:07', 1),
+(3, 'mary', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'Librarian', 'Mary Jane', '2024002-L', 'mary@imlibrary.com', '2002-05-15', '09170000003', 1, '2025-10-31 11:50:07', 1);
 
 -- --------------------------------------------------------
 
@@ -429,6 +430,7 @@ ALTER TABLE `accounts`
   ADD PRIMARY KEY (`account_id`),
   ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `physical_id` (`physical_id`),
   ADD KEY `role` (`role`);
 
 --

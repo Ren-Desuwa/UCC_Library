@@ -20,26 +20,32 @@ class AuthService {
      * Registers a new student account.
      * This is a transactional operation.
      */
-    public function registerStudent($username, $email, $name, $password) {
+
+        // UPDATE THIS FUNCTION SIGNATURE
+    public function registerStudent($username, $email, $name, $password, $physical_id) {
         // Start the transaction
         $this->conn->begin_transaction();
 
         try {
             // 1. Business Logic: Check for existing user
             if ($this->accountDAO->getAccountByUsername($username)) {
-                throw new Exception("Username already taken.");
+                throw new Exception("Username (Student ID) already taken.");
             }
             if ($this->accountDAO->getAccountByEmail($email)) {
                 throw new Exception("Email already in use.");
             }
+            // ADD THIS CHECK
+            if (empty($physical_id)) {
+                throw new Exception("Student ID is required.");
+            }
 
-            // 2. Business Logic: Hash password (Your schema uses SHA-256)
+            // 2. Business Logic: Hash password
             $passwordHash = hash('sha256', $password);
-            // In a real app: $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
             // 3. Data Operation: Use the DAO to create the account
             $role = 'Student';
-            $accountId = $this->accountDAO->createAccount($username, $passwordHash, $role, $name, $email);
+            // UPDATE THIS FUNCTION CALL (passes $physical_id)
+            $accountId = $this->accountDAO->createAccount($username, $passwordHash, $role, $name, $email, $physical_id);
 
             // If everything is successful, commit the transaction
             $this->conn->commit();

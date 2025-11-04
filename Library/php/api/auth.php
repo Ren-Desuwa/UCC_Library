@@ -80,7 +80,7 @@ try {
             }
 
             // Call the registerStudent method
-            $accountId = $authService->registerStudent($username, $email, $name, $password);
+            $accountId = $authService->registerStudent($username, $email, $name, $password, $username);
 
             $response['success'] = true;
             $response['message'] = "Registration successful! You can now log in.";

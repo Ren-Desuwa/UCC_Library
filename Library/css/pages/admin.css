@@ -127,3 +127,98 @@
 @media (max-width: 768px) {
     .borrow-return-grid { grid-template-columns: 1fr; }
 }
+
+/* === NEW ADMIN STYLES === */
+
+/* --- Settings Page --- */
+.settings-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 30px;
+    max-width: 1000px;
+}
+.settings-form-grid .input-row {
+    margin-bottom: 0;
+}
+.settings-card .settings-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+.settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+    border-top: 1px solid #E5E7EB;
+    padding-top: 25px;
+}
+
+/* --- Logs Console Page --- */
+.logs-console-container {
+    background-color: #1A202C; /* Dark background */
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #E2E8F0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.logs-console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #4A5568;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+.logs-console-header h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+}
+.logs-console-header .refresh-btn {
+    background-color: #4A5568;
+    color: white;
+    font-size: 0.9rem;
+}
+.logs-console-header .refresh-btn:hover {
+    background-color: #718096;
+}
+.logs-console {
+    max-height: 600px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+.log-line {
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+.log-line-Info { color: #E2E8F0; }
+.log-line-Warn { color: #F59E0B; }
+.log-line-Error { color: #EF4444; }
+
+
+/* --- Account Management Page --- */
+#admin-accounts-table .action-btn {
+    padding: 8px 10px;
+    margin-right: 5px;
+}
+.deactivate-btn {
+    background-color: #F59E0B; /* Orange */
+}
+.deactivate-btn:hover {
+    background-color: #D97706;
+}
+.activate-btn {
+    background-color: #10B981; /* Green */
+}
+.activate-btn:hover {
+    background-color: #059669;
+}
+
+/* --- Add Librarian Modal --- */
+.form-grid-double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}

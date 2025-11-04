@@ -174,9 +174,15 @@ try {
             break;
 
         case 'getArchivedBooks':
-            // (This case remains unchanged)
+            // --- MODIFIED TO BE FUNCTIONAL ---
             header('Content-Type: text/html');
-            $books = $bookDAO->getArchivedBooks(); 
+            
+            // --- NEW: Get search query from URL ---
+            $searchTerm = $_GET['query'] ?? "";
+
+            // This now uses the new, functional BookDAO method
+            $books = $bookDAO->getArchivedBooks($searchTerm); 
+
             $html = '';
             if (empty($books)) {
                 $html = '<tr><td colspan="4" style="text-align: center;">No archived books found.</td></tr>';
@@ -330,6 +336,38 @@ try {
             $response['success'] = true;
             $response['message'] = "Book returned. Fine: $" . number_format($result['fine_paid'], 2);
             break;
+
+        case 'searchUsers':
+            header('Content-Type: text/html');
+            $searchTerm = $_GET['query'] ?? "";
+
+            // We specifically search for 'Student' role
+            $accounts = $accountDAO->searchAccounts($searchTerm, 'Student');
+
+            $html = '';
+            if (empty($accounts)) {
+                $html = '<tr><td colspan="5" style="text-align: center;">No students found.</td></tr>';
+            } else {
+                foreach ($accounts as $acc) {
+                    $statusTag = $acc['is_active'] 
+                        ? '<span class="status-tag tag-available">Active</span>'
+                        : '<span class="status-tag tag-checkedout">Inactive</span>';
+                    
+                    $html .= '
+                        <tr>
+                            <td>' . htmlspecialchars($acc['username']) . '</td>
+                            <td>' . htmlspecialchars($acc['name']) . '</td>
+                            <td>' . htmlspecialchars($acc['email']) . '</td>
+                            <td>' . $statusTag . '</td>
+                            <td>
+                                <button class="action-btn view-details-btn" data-account-id="' . $acc['account_id'] . '">View Details</button>
+                            </td>
+                        </tr>
+                    ';
+                }
+            }
+            echo $html;
+            exit;
 
         default:
             throw new Exception("Invalid librarian action specified.");
