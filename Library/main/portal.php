@@ -105,9 +105,12 @@
         } else if ($role == 'Librarian') {
             echo '<script type="module" src="../js/pages/librarian.js"></script>';
         } else if ($role == 'Admin') {
-            // Admin needs both librarian and admin scripts
-            echo '<script type="module" src="../js/pages/librarian.js"></script>';
+            // --- THIS IS THE FIX ---
+            // We NO LONGER load librarian.js
+            // echo '<script type="module" src="../js/pages/librarian.js"></script>';
+            // We ONLY load admin.js, which now contains all merged logic
             echo '<script type="module" src="../js/pages/admin.js"></script>';
+            // --- END FIX ---
         }
     ?>
 </body>

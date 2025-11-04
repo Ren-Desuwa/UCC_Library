@@ -1,6 +1,10 @@
 /**
- * librarian.js
- * Handles SPA navigation and logic for the Librarian portal.
+ * admin.js
+ * Handles SPA navigation and logic for the Admin portal.
+ *
+ * --- MERGED ---
+ * This file NOW ALSO CONTAINS all logic from librarian.js
+ * to provide full functionality for the Admin role.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,14 +12,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const mainContent = document.querySelector(".main-content");
 
     if (!sidebar || !mainContent) {
-        console.error("Sidebar or Main Content area not found.");
+        console.error("Admin Sidebar or Main Content area not found.");
         return;
     }
 
     // ===========================================
-    // 3. CATALOG & MODAL LOGIC (Declarations moved up)
+    // --- ADMIN ELEMENT DECLARATIONS ---
     // ===========================================
-
+    const addLibrarianBtn = document.getElementById("add-librarian-btn");
+    const addLibrarianModal = document.getElementById("add-librarian-modal");
+    const addLibrarianForm = document.getElementById("add-librarian-form");
+    const accountsTableBody = document.getElementById("admin-accounts-table-body");
+    const settingsForm = document.getElementById("settings-form");
+    const logsConsole = document.getElementById("logs-console");
+    const refreshLogsBtn = document.getElementById("refresh-logs-btn");
+    const announcementForm = document.getElementById("announcement-form");
+    const announcementsTableBody = document.getElementById("announcements-table-body");
+    
+    // ===========================================
+    // --- LIBRARIAN ELEMENT DECLARATIONS ---
+    // ===========================================
     const catalogTableBody = document.getElementById("catalog-table-body");
     const bookModal = document.getElementById("book-form-modal");
     const bookForm = document.getElementById("book-form");
@@ -39,27 +55,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const copiesListBody = document.getElementById("book-copies-list");
     const addCopyForm = document.getElementById("add-copy-form");
 
-    // --- Modal Tab Elements ---
+    // --- Book Modal Tab Elements ---
     const modalTabsContainer = bookModal ? bookModal.querySelector(".modal-tabs") : null;
     const modalTabPanes = bookModal ? bookModal.querySelectorAll(".modal-tab-pane") : [];
     const copiesTabButton = modalTabsContainer ? modalTabsContainer.querySelector('a[data-pane="book-copies-pane"]') : null;
 
-    // --- MODIFIED: User Management Elements ---
+    // --- User Management Elements ---
     const userSearchInput = document.getElementById("user-search-input"); // This is the search bar
     const userTableBody = document.getElementById("user-table-body"); // This is the table
     
-    // --- NEW: Student Details Modal Elements ---
+    // --- Student Details Modal Elements ---
     const studentModal = document.getElementById("student-details-modal");
     const studentModalTabs = studentModal ? studentModal.querySelector(".modal-tabs") : null;
     const studentModalPanes = studentModal ? studentModal.querySelectorAll(".modal-tab-pane") : [];
     const studentModalTitle = document.getElementById("student-modal-title");
-
-
-    // ===========================================
-    // 4. CIRCULATION LOGIC (Declarations moved up)
-    // ===========================================
+    
+    // --- Circulation Elements ---
     const borrowForm = document.getElementById("borrow-form");
-    // NOTE: userSearchInput (borrow-user-search) is different from the main user search
     const borrowUserSearchInput = document.getElementById("borrow-user-search"); 
     const userNameDiv = document.getElementById("borrow-user-name");
     const bookSearchInput = document.getElementById("borrow-book-search");
@@ -73,9 +85,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===========================================
-    // FUNCTION DEFINITIONS (MOVED UP)
+    // --- FUNCTION DEFINITIONS (MERGED) ---
     // ===========================================
-    
+
+    // --- Debounce (Shared) ---
     const debounce = (func, delay) => {
         let timeout;
         return (...args) => {
@@ -86,6 +99,114 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     };
 
+    // --- Admin Functions ---
+    const loadAccounts = async () => { 
+        if (!accountsTableBody) return;
+        accountsTableBody.innerHTML = '<tr><td colspan="6">Loading accounts...</td></tr>';
+        try {
+            const response = await fetch("../php/api/admin.php?action=getAllAccounts");
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            accountsTableBody.innerHTML = ""; // Clear
+            result.data.forEach(acc => {
+                const statusTag = acc.is_active == 1 
+                    ? `<span class="status-tag tag-available">Active</span>`
+                    : `<span class="status-tag tag-checkedout">Inactive</span>`;
+                
+                const actionBtn = acc.is_active == 1
+                    ? `<button class="action-btn deactivate-btn" data-id="${acc.account_id}" data-active="0">Deactivate</button>`
+                    : `<button class="action-btn activate-btn" data-id="${acc.account_id}" data-active="1">Activate</button>`;
+
+                accountsTableBody.innerHTML += `
+                    <tr>
+                        <td><strong>${acc.username}</strong></td>
+                        <td>${acc.name}</td>
+                        <td>${acc.email}</td>
+                        <td>${acc.role}</td>
+                        <td>${statusTag}</td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            accountsTableBody.innerHTML = `<tr><td colspan="6" style="color: red;">${error.message}</td></tr>`;
+        }
+    };
+    
+    const loadSettings = async () => { 
+        if (!settingsForm) return;
+        try {
+            const response = await fetch("../php/api/admin.php?action=getSettings");
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+            
+            document.getElementById("setting-borrow-duration").value = result.data.borrow_duration_days;
+            document.getElementById("setting-max-books").value = result.data.max_books_per_user;
+            document.getElementById("setting-fine-rate").value = result.data.overdue_fine_per_day;
+            document.getElementById("setting-reservation-expiry").value = result.data.reservation_expiry_hours;
+            
+        } catch (error) {
+            alert(`Error loading settings: ${error.message}`);
+        }
+    };
+    
+    const loadLogs = async () => { 
+        if (!logsConsole) return;
+        logsConsole.innerHTML = '<div class="log-line">Loading logs...</div>';
+        try {
+            const response = await fetch("../php/api/admin.php?action=getLogs");
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+            
+            logsConsole.innerHTML = ""; // Clear
+            if (result.data.length === 0) {
+                logsConsole.innerHTML = '<div class="log-line">No logs found.</div>';
+                return;
+            }
+
+            result.data.forEach(log => {
+                const user = log.username || 'System';
+                const time = new Date(log.timestamp).toLocaleString();
+                const severity = log.severity || 'Info';
+                logsConsole.innerHTML += 
+                    `<div class="log-line log-line-${severity}">` +
+                    `[${time}] [${user}] [${severity.toUpperCase()}]: ${log.action} - ${log.details}` +
+                    `</div>`;
+            });
+        } catch (error) {
+            logsConsole.innerHTML = `<div class="log-line log-line-Error">${error.message}</div>`;
+        }
+    };
+    
+    const loadAnnouncements = async () => { 
+        if (!announcementsTableBody) return;
+        announcementsTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+        try {
+            const response = await fetch("../php/api/admin.php?action=getAllAnnouncements");
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            announcementsTableBody.innerHTML = ""; // Clear
+            result.data.forEach(item => {
+                const status = item.is_active == 1 ? "Active" : "Inactive";
+                announcementsTableBody.innerHTML += `
+                    <tr>
+                        <td>${item.priority}</td>
+                        <td>${item.title}</td>
+                        <td>${item.message.substring(0, 50)}...</td>
+                        <td>${new Date(item.date_posted).toLocaleDateString()}</td>
+                        <td>${status}</td>
+                        <td><button class="action-btn edit-action-btn">Edit</button></td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            announcementsTableBody.innerHTML = `<tr><td colspan="6" style="color: red;">${error.message}</td></tr>`;
+        }
+    };
+
+    // --- Librarian Functions (Copied from librarian.js) ---
     const loadCatalog = async () => {
         if (!catalogTableBody) return;
         catalogTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading books...</td></tr>';
@@ -114,17 +235,14 @@ document.addEventListener("DOMContentLoaded", () => {
             archiveTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error loading archived books.</td></tr>';
         }
     };
-
-    // --- MODIFIED: Function to load users ---
+    
     const loadUsers = async (searchTerm = "") => {
         if (!userTableBody) return;
         userTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading users...</td></tr>';
-        
         try {
             const query = new URLSearchParams({ action: 'searchUsers', query: searchTerm }).toString();
             const response = await fetch(`../php/api/librarian.php?${query}`);
             if (!response.ok) throw new Error("Network response was not ok");
-            
             const html = await response.text();
             userTableBody.innerHTML = html;
         } catch (error) {
@@ -132,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
             userTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
         }
     };
-
+    
     const resetImagePreview = () => {
         if (bookCoverUpload) bookCoverUpload.value = null;
         if (newPreviewImg) newPreviewImg.src = "#";
@@ -198,10 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (pane.id === paneName) pane.classList.add('active');
         });
     };
-
-    /**
-     * --- NEW: Function to switch STUDENT modal tabs ---
-     */
+    
     const switchStudentModalTab = (paneName) => {
         if (!studentModalTabs || !studentModalPanes.length) return;
         studentModalTabs.querySelectorAll('.modal-tab-item').forEach(tab => {
@@ -213,10 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (pane.id === paneName) pane.classList.add('active');
         });
     };
-
-    /**
-     * --- NEW: Functions to populate student modal ---
-     */
+    
     const populateStudentProfile = (profile) => {
         if (!profile) return;
         document.getElementById("student-modal-name").textContent = profile.name;
@@ -224,13 +336,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("student-modal-email").textContent = profile.email;
         document.getElementById("student-modal-contact").textContent = profile.contact_number || 'N/A';
         document.getElementById("student-modal-joined").textContent = new Date(profile.date_created).toLocaleDateString();
-
         const statusTag = document.getElementById("student-modal-status-tag");
         const statusDesc = document.getElementById("student-modal-status-desc");
         const toggleBtn = document.getElementById("student-modal-toggle-status-btn");
-        
         toggleBtn.dataset.accountId = profile.account_id;
-        
         if (profile.is_active == 1) {
             statusTag.textContent = "Active";
             statusTag.className = "status-tag tag-available";
@@ -261,16 +370,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <tr>
                     <td>${t.title}</td>
                     <td>${new Date(t.date_due).toLocaleDateString()}</td>
-                    <td>
-                        <span class="status-tag ${isOverdue ? 'tag-checkedout' : 'tag-available'}">
-                            ${t.status}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="action-btn return-book-btn" data-transaction-id="${t.transaction_id}">
-                            Mark as Returned
-                        </button>
-                    </td>
+                    <td><span class="status-tag ${isOverdue ? 'tag-checkedout' : 'tag-available'}">${t.status}</span></td>
+                    <td><button class="action-btn return-book-btn" data-transaction-id="${t.transaction_id}">Mark as Returned</button></td>
                 </tr>
             `;
         });
@@ -291,54 +392,39 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${t.date_returned ? new Date(t.date_returned).toLocaleDateString() : 'N/A'}</td>
                     <td>$${parseFloat(t.fine).toFixed(2)}</td>
                     <td>
-                        <button class="action-btn issue-fine-btn" data-transaction-id="${t.transaction_id}">
-                            Issue Fine
-                        </button>
+                        <button class="action-btn issue-fine-btn" data-transaction-id="${t.transaction_id}">Issue Fine</button>
                         ${hasFine ? `<button class="action-btn waive-fine-btn" data-transaction-id="${t.transaction_id}">Waive Fine</button>` : ''}
                     </td>
                 </tr>
             `;
         });
     };
-
-    /**
-     * --- NEW: Main function to load all student details ---
-     */
+    
     const loadStudentDetails = async (accountId) => {
-        // 1. Reset modal
         studentModalTitle.textContent = "Loading...";
         switchStudentModalTab('student-profile-pane');
         document.getElementById("student-current-table-body").innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading...</td></tr>';
         document.getElementById("student-history-table-body").innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading...</td></tr>';
         document.getElementById("student-issue-fine-form").reset();
-        
-        // 2. Set account ID on forms
         studentModal.dataset.currentAccountId = accountId;
-
-        // 3. Fetch data
         try {
             const response = await fetch(`../php/api/librarian.php?action=getStudentDetails&account_id=${accountId}`);
             const result = await response.json();
             if (!result.success) throw new Error(result.message);
-
-            // 4. Populate panes
             studentModalTitle.textContent = result.data.profile.name;
             populateStudentProfile(result.data.profile);
             populateStudentCurrent(result.data.currentBorrows);
             populateStudentHistory(result.data.history);
-
         } catch (error) {
             alert(`Error loading student details: ${error.message}`);
             studentModal.classList.remove("active");
         }
     };
 
-
     // ===========================================
-    // 1. SPA NAVIGATION LOGIC
+    // 1. SPA NAVIGATION LOGIC (MERGED)
     // ===========================================
     
-    // --- MODIFIED: Function to switch content panels ---
     const switchPanel = (targetId) => {
         mainContent.querySelectorAll(".content-panel").forEach(panel => {
             panel.classList.remove("active");
@@ -347,10 +433,20 @@ document.addEventListener("DOMContentLoaded", () => {
         if (activePanel) {
             activePanel.classList.add("active");
             
-            // Load content on panel switch
+            // --- MERGED: Load data for BOTH Admin and Librarian panels ---
+            // Admin Panels
+            if (targetId === "admin-dashboard-content") { /* Dashboard might have dynamic stats */ }
+            if (targetId === "admin-accounts-content") loadAccounts();
+            if (targetId === "admin-settings-content") loadSettings();
+            if (targetId === "admin-logs-content") loadLogs();
+            if (targetId === "admin-announcements-content") loadAnnouncements();
+            
+            // Librarian Panels
             if (targetId === "librarian-catalog-content") loadCatalog();
             if (targetId === "librarian-archive-content") loadArchive();
-            if (targetId === "librarian-users-content") loadUsers(); // <-- This line is in your file
+            if (targetId === "librarian-users-content") loadUsers();
+            if (targetId === "librarian-circulation-content") { /* No initial load needed */ }
+            if (targetId === "librarian-dashboard-content") { /* No initial load needed */ }
 
         } else {
             console.warn(`Content panel with ID "${targetId}" not found.`);
@@ -360,19 +456,23 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebar.addEventListener("click", (e) => {
         const navItem = e.target.closest(".nav-item");
         if (!navItem) return;
+        
         e.preventDefault(); 
         const targetId = navItem.dataset.target;
         if (!targetId) return;
+
         sidebar.querySelectorAll(".nav-item").forEach(item => {
             item.classList.remove("active");
         });
         navItem.classList.add("active");
+        
         switchPanel(targetId);
         window.location.hash = navItem.getAttribute("href");
     });
-    
+
+    // Initial page load
     const currentHash = window.location.hash.substring(1);
-    let targetPanelId = "librarian-dashboard-content";
+    let targetPanelId = "admin-dashboard-content"; // Default to admin dashboard
     if (currentHash) {
         const activeLink = sidebar.querySelector(`.nav-item[href="#${currentHash}"]`);
         if (activeLink) {
@@ -381,13 +481,11 @@ document.addEventListener("DOMContentLoaded", () => {
             activeLink.classList.add("active");
         }
     }
-    switchPanel(targetPanelId);
-
+    switchPanel(targetPanelId); // This will now load data for the initial panel
 
     // ===========================================
-    // 2. LOGOUT LOGIC
+    // 2. LOGOUT LOGIC (SHARED)
     // ===========================================
-    const logoutButton = document.getElementById("logout-button");
     const logoutLink = document.getElementById("logout-link");
     const handleLogout = async (e) => {
         e.preventDefault();
@@ -404,13 +502,133 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("An error occurred during logout.");
         }
     };
-    if(logoutButton) logoutButton.addEventListener("click", handleLogout);
     if(logoutLink) logoutLink.addEventListener("click", handleLogout);
 
     // ===========================================
-    // 3. CATALOG & MODAL LOGIC (Event Listeners)
+    // 3. ADMIN-SPECIFIC PAGE LISTENERS
     // ===========================================
 
+    // --- ACCOUNTS PAGE ---
+    if (addLibrarianBtn && addLibrarianModal) {
+        addLibrarianBtn.addEventListener("click", () => {
+            addLibrarianForm.reset();
+            addLibrarianModal.classList.add("active");
+        });
+        addLibrarianModal.addEventListener("click", (e) => {
+            if (e.target.classList.contains("modal-overlay") || e.target.closest(".modal-close-btn")) {
+                addLibrarianModal.classList.remove("active");
+            }
+        });
+    }
+
+    if (addLibrarianForm) {
+        addLibrarianForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(addLibrarianForm);
+            formData.append('action', 'createLibrarian');
+            
+            try {
+                const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message || "Librarian created successfully!"); // Added fallback message
+                    addLibrarianModal.classList.remove("active");
+                    loadAccounts(); // Refresh the table
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+    }
+
+    if (accountsTableBody) {
+        accountsTableBody.addEventListener("click", async (e) => {
+            const btn = e.target.closest(".activate-btn, .deactivate-btn");
+            if (!btn) return;
+            
+            const accountId = btn.dataset.id;
+            const isActive = btn.dataset.active;
+            const actionText = isActive == 1 ? "activate" : "deactivate";
+
+            if (confirm(`Are you sure you want to ${actionText} this account?`)) {
+                const formData = new FormData();
+                formData.append('action', 'toggleAccountStatus');
+                formData.append('account_id', accountId);
+                formData.append('is_active', isActive);
+
+                try {
+                    // Note: This API endpoint is in admin.php, which is correct
+                    const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(result.message);
+                        loadAccounts(); // Refresh
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                }
+            }
+        });
+    }
+
+    // --- SETTINGS PAGE ---
+    if (settingsForm) {
+        settingsForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(settingsForm);
+            formData.append('action', 'updateSettings');
+            
+            try {
+                const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    loadSettings(); // Refresh
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+    }
+
+    // --- LOGS CONSOLE PAGE ---
+    if (refreshLogsBtn) {
+        refreshLogsBtn.addEventListener("click", loadLogs);
+    }
+    
+    // --- DASHBOARD ANNOUNCEMENT ---
+    if (announcementForm) {
+        announcementForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(announcementForm);
+            formData.append('action', 'createAnnouncement');
+            
+            try {
+                const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    announcementForm.reset();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+    }
+
+    // ===========================================
+    // 4. LIBRARIAN-SPECIFIC PAGE LISTENERS (MERGED)
+    // ===========================================
+
+    // --- BOOK MODAL TABS ---
     if (modalTabsContainer) {
         modalTabsContainer.addEventListener('click', (e) => {
             e.preventDefault();
@@ -428,6 +646,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // --- "ADD NEW BOOK" BUTTON ---
     if (openBookModalBtn && bookModal) {
         openBookModalBtn.addEventListener("click", () => {
             bookForm.reset(); 
@@ -442,6 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // --- BOOK MODAL (CLOSE & SUBMIT) ---
     if (bookModal) {
         bookModal.addEventListener("click", (e) => {
             if (e.target.classList.contains("modal-overlay") || e.target.closest(".modal-close-btn")) {
@@ -450,7 +670,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
     if (bookForm) {
         bookForm.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -475,11 +694,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     
+    // --- CATALOG TABLE (EDIT/ARCHIVE) ---
     if (catalogTableBody) {
         catalogTableBody.addEventListener("click", async (e) => {
             const archiveBtn = e.target.closest(".archive-action-btn");
             const editBtn = e.target.closest(".edit-action-btn");
-
             if (archiveBtn) {
                 e.preventDefault();
                 const bookId = archiveBtn.dataset.bookId;
@@ -494,15 +713,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (result.success) {
                             alert(result.message);
                             loadCatalog();
-                        } else {
-                            alert("Error: " + result.message);
-                        }
-                    } catch (error) {
-                        alert("An error occurred: " + error.message);
-                    }
+                        } else { alert("Error: " + result.message); }
+                    } catch (error) { alert("An error occurred: " + error.message); }
                 }
             }
-
             if (editBtn) {
                 e.preventDefault();
                 const bookId = editBtn.dataset.bookId;
@@ -530,21 +744,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (copiesListBody) copiesListBody.innerHTML = ''; 
                     bookModal.dataset.currentBookId = book.book_id;
                     bookModal.classList.add("active");
-                } catch (error) {
-                    alert("Failed to load book for editing: " + error.message);
-                }
+                } catch (error) { alert("Failed to load book for editing: " + error.message); }
             }
         });
     }
 
+    // --- "ADD NEW COPY" FORM ---
     if (addCopyForm) {
         addCopyForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const bookId = bookModal.dataset.currentBookId;
-            if (!bookId) {
-                alert("Error: No book ID found. Cannot add copy.");
-                return;
-            }
+            if (!bookId) { alert("Error: No book ID found. Cannot add copy."); return; }
             const conditionInput = document.getElementById("add-copy-condition");
             const shelfInput = document.getElementById("add-copy-shelf");
             const formData = new FormData();
@@ -559,15 +769,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     alert(result.message);
                     shelfInput.value = ''; 
                     await loadBookCopies(bookId); 
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                alert(`Error adding copy: ${error.message}`);
-            }
+                } else { throw new Error(result.message); }
+            } catch (error) { alert(`Error adding copy: ${error.message}`); }
         });
     }
     
+    // --- "SAVE/DELETE COPY" BUTTONS ---
     if (copiesListBody) {
         copiesListBody.addEventListener("click", async (e) => {
             const saveBtn = e.target.closest(".save-copy-btn");
@@ -588,9 +795,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (result.success) {
                         alert(result.message);
                         await loadBookCopies(bookId); 
-                    } else {
-                        throw new Error(result.message);
-                    }
+                    } else { throw new Error(result.message); }
                 } catch (error) {
                     alert(`Error updating copy: ${error.message}`);
                     await loadBookCopies(bookId); 
@@ -609,16 +814,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (result.success) {
                         alert(result.message);
                         await loadBookCopies(bookId); 
-                    } else {
-                        throw new Error(result.message);
-                    }
-                } catch (error) {
-                    alert(`Error deleting copy: ${error.message}`);
-                }
+                    } else { throw new Error(result.message); }
+                } catch (error) { alert(`Error deleting copy: ${error.message}`); }
             }
         });
     }
 
+    // --- ARCHIVE PAGE (RESTORE) ---
     if (archiveTableBody) {
         archiveTableBody.addEventListener("click", async (e) => {
             const restoreBtn = e.target.closest(".restore-action-btn");
@@ -636,58 +838,50 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (result.success) {
                             alert(result.message);
                             loadArchive(archiveSearchInput ? archiveSearchInput.value : ""); 
-                        } else {
-                            alert("Error: " + result.message);
-                        }
-                    } catch (error) {
-                        alert("An error occurred: " + error.message);
-                    }
+                        } else { alert("Error: " + result.message); }
+                    } catch (error) { alert("An error occurred: " + error.message); }
                 }
             }
         });
     }
 
+    // --- ARCHIVE PAGE (SEARCH) ---
     if (archiveSearchInput) {
         archiveSearchInput.addEventListener("keyup", debounce(() => {
             loadArchive(archiveSearchInput.value);
         }, 300));
     }
 
-    // --- MODIFIED: User Search ---
+    // --- USER MANAGEMENT (SEARCH) ---
     if (userSearchInput) {
         userSearchInput.addEventListener("keyup", debounce(() => {
             loadUsers(userSearchInput.value);
         }, 300));
     }
 
-    // --- MODIFIED: User Table Clicks ---
+    // --- USER MANAGEMENT (VIEW DETAILS) ---
     if (userTableBody) {
         userTableBody.addEventListener("click", (e) => {
             const detailsBtn = e.target.closest(".view-details-btn");
             if (detailsBtn) {
                 const accountId = detailsBtn.dataset.accountId;
-                // --- NEW LOGIC ---
                 if (studentModal) {
                     studentModal.classList.add("active");
                     loadStudentDetails(accountId);
                 } else {
                     alert(`Error: Student modal not found. Cannot view details for #${accountId}`);
                 }
-                // --- END NEW ---
             }
         });
     }
 
-    // --- NEW: Student Details Modal Listeners ---
+    // --- STUDENT DETAILS MODAL (ALL LISTENERS) ---
     if (studentModal) {
-        // Close modal
         studentModal.addEventListener("click", (e) => {
             if (e.target.classList.contains("modal-overlay") || e.target.closest(".modal-close-btn")) {
                 studentModal.classList.remove("active");
             }
         });
-
-        // Tab switching
         studentModalTabs.addEventListener("click", (e) => {
             e.preventDefault();
             const tabButton = e.target.closest(".modal-tab-item");
@@ -695,71 +889,57 @@ document.addEventListener("DOMContentLoaded", () => {
                 switchStudentModalTab(tabButton.dataset.pane);
             }
         });
-        
-        // --- Event Delegation for all modal actions ---
         studentModal.addEventListener("click", async (e) => {
             const accountId = studentModal.dataset.currentAccountId;
-
-            // Toggle Status Button
             if (e.target.id === "student-modal-toggle-status-btn") {
                 const btn = e.target;
                 const newStatus = btn.dataset.activeStatus;
                 const actionText = newStatus == 1 ? "activate" : "deactivate";
-                
                 if (confirm(`Are you sure you want to ${actionText} this account?`)) {
                     const formData = new FormData();
                     formData.append('action', 'toggleStudentStatus');
                     formData.append('account_id', accountId);
                     formData.append('is_active', newStatus);
-                    
                     try {
                         const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
                         if (!result.success) throw new Error(result.message);
                         alert(result.message);
-                        await loadStudentDetails(accountId); // Reload profile pane
-                        await loadUsers(userSearchInput.value); // Reload main user list
+                        await loadStudentDetails(accountId); 
+                        await loadUsers(userSearchInput ? userSearchInput.value : "");
                     } catch (error) { alert(`Error: ${error.message}`); }
                 }
             }
-
-            // Mark as Returned Button
             if (e.target.classList.contains("return-book-btn")) {
                 const transactionId = e.target.dataset.transactionId;
                 if (confirm(`Manually return Transaction #${transactionId}?`)) {
                     const formData = new FormData();
                     formData.append('action', 'manuallyReturnBook');
                     formData.append('transaction_id', transactionId);
-                    
                     try {
                         const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
                         if (!result.success) throw new Error(result.message);
                         alert(result.message);
-                        await loadStudentDetails(accountId); // Reload both panes
+                        await loadStudentDetails(accountId);
                     } catch (error) { alert(`Error: ${error.message}`); }
                 }
             }
-
-            // Waive Fine Button
             if (e.target.classList.contains("waive-fine-btn")) {
                 const transactionId = e.target.dataset.transactionId;
                 if (confirm(`Waive entire fine for Transaction #${transactionId}?`)) {
                     const formData = new FormData();
                     formData.append('action', 'waiveFine');
                     formData.append('transaction_id', transactionId);
-                    
                     try {
                         const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
                         if (!result.success) throw new Error(result.message);
                         alert(result.message);
-                        await loadStudentDetails(accountId); // Reload history pane
+                        await loadStudentDetails(accountId);
                     } catch (error) { alert(`Error: ${error.message}`); }
                 }
             }
-            
-            // Issue Fine (from History)
             if (e.target.classList.contains("issue-fine-btn")) {
                 const transactionId = e.target.dataset.transactionId;
                 switchStudentModalTab('student-actions-pane');
@@ -768,7 +948,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
         
-        // Issue Fine (from Form)
         const issueFineForm = document.getElementById("student-issue-fine-form");
         if (issueFineForm) {
             issueFineForm.addEventListener("submit", async (e) => {
@@ -776,24 +955,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 const accountId = studentModal.dataset.currentAccountId;
                 const formData = new FormData(issueFineForm);
                 formData.append('action', 'issueFine');
-                
                 try {
                     const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                     const result = await response.json();
                     if (!result.success) throw new Error(result.message);
                     alert(result.message);
                     issueFineForm.reset();
-                    // Reload history pane
                     await loadStudentDetails(accountId);
                 } catch (error) { alert(`Error: ${error.message}`); }
             });
         }
     }
 
-
-    // ===========================================
-    // 4. BOOK FORM IMAGE PREVIEW LOGIC (Event Listeners)
-    // ===========================================
+    // --- BOOK FORM IMAGE PREVIEW ---
     if (triggerUploadBtn) {
         triggerUploadBtn.addEventListener("click", () => bookCoverUpload.click());
     }
@@ -816,11 +990,8 @@ document.addEventListener("DOMContentLoaded", () => {
         cancelUploadBtn.addEventListener("click", resetImagePreview);
     }
 
-    // ===========================================
-    // 5. CIRCULATION LOGIC (Event Listeners)
-    // ===========================================
+    // --- CIRCULATION PANEL ---
     if (borrowForm) {
-        // Use borrowUserSearchInput here
         borrowUserSearchInput.addEventListener("change", async () => {
             try {
                 const response = await fetch(`../php/api/librarian.php?action=findUser&query=${borrowUserSearchInput.value}`);
