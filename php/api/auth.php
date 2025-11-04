@@ -130,7 +130,10 @@ try {
 
                 $password = $_POST['password'] ?? null;
                 $confirmPassword = $_POST['confirmPassword'] ?? null;
-                $userID = $_POST['user_id'] ?? null;
+                $userID = $_POST['userID'] ?? null;
+                error_log("POST: " . print_r($_POST, true));
+
+                error_log('auth user id'. $userID);
                 
                 if (strlen($password) < 8) {
                 throw new Exception("Password must be at least 8 characters long.");

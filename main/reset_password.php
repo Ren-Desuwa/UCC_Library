@@ -1,9 +1,9 @@
 <?php
 $userID = $_GET['userID'] ?? null;
-
 if ($userID && is_numeric($userID)) {
     $_SESSION['userID'] = $userID;
 }
+var_dump($userID);
 ?>
 
 <!DOCTYPE html>
@@ -16,12 +16,14 @@ if ($userID && is_numeric($userID)) {
   </style>
 </head>
 <body>
-  <span id="userId" data-id="<?= htmlspecialchars($userID) ?>"></span>
+  
     <div class="form-wrapper" id="reset-password-form">
+        
       <div class="forgot-password-card">
       <h2 class="form-title">Reset Password</h2>
       <p class="form-subtitle">Enter the new password</p>
       <form class="form-group" method="POST">
+        <input type="hidden" id="userID" name="userID" value="<?= htmlspecialchars($userID) ?>">
         <div class="form-group">
 
                                 <label for="password">Password</label>
