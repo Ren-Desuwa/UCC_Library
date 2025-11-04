@@ -24,8 +24,8 @@
             Settings
         </a>
     </nav>
-    <div class="sidebar-footer">
-        <div class="user-info">
+   <div class="sidebar-footer">
+        <div class="user-info" id="profile-button"> 
             <span class="material-icons-round user-icon">person</span>
             <div class="user-details">
                 <p class="user-role"><?php echo htmlspecialchars($_SESSION['role']); ?></p>

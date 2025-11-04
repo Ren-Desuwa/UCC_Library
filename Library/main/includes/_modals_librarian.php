@@ -5,6 +5,9 @@
 <div id="book-form-modal" class="modal-overlay">
     <div class="modal-content book-form-content">
         
+        <div class="modal-header">
+            <h2 id="book-modal-title">Add New Book</h2>
+        </div>
         <div class="modal-tabs">
             <a href="#book-details-pane" class="modal-tab-item active" data-pane="book-details-pane">1. Book Details</a>
             <a href="#book-copies-pane" class="modal-tab-item" data-pane="book-copies-pane">2. Manage Copies</a>
@@ -111,7 +114,8 @@
 </div>
 
 <div id="student-details-modal" class="modal-overlay">
-    <div class="modal-content student-modal-content"> <div class="modal-header">
+    <div class="modal-content student-modal-content"> 
+        <div class="modal-header">
             <h2 id="student-modal-title">Student Details</h2>
         </div>
         

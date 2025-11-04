@@ -86,6 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Sidebar or Main Content area not found.");
     }
 
+    // --- (NEW) PROFILE BUTTON CLICK LOGIC ---
+    const profileButton = document.getElementById("profile-button");
+    // Find the "Settings" link in the sidebar
+    const settingsLink = document.querySelector('.sidebar-nav .nav-item[href="#settings"]');
+
+    if (profileButton && settingsLink) {
+        profileButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            // Programmatically click the hidden "Settings" link
+            // This reuses all the existing logic in handleNavClick
+            settingsLink.click();
+        });
+    }
+
     // --- 2. MODAL LOGIC (FIXED) ---
     const announcementsModal = document.getElementById('announcements-modal');
     const bookModal = document.getElementById('book-modal');

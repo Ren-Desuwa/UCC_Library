@@ -107,6 +107,19 @@
     margin-bottom: 25px; 
 }
 
+/* --- ADDED THIS NEW RULE --- */
+#profile-button {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-radius: 6px;
+    padding: 5px; 
+    margin: 0 -5px 25px -5px; /* Adjust margin to account for padding */
+}
+#profile-button:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Slight hover effect */
+}
+/* --- END OF NEW RULE --- */
+
 .user-icon {
     font-size: 1.8rem;
     margin-right: 10px;
