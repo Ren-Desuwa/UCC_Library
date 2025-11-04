@@ -31,6 +31,10 @@
                     <input type="email" id="lib-email" name="email" required class="info-input">
                 </div>
                 <div class="input-row">
+                    <label for="lib-contact">Contact Number (Optional)</label>
+                    <input type="tel" id="lib-contact" name="contactNumber" class="info-input">
+                </div>
+                <div class="input-row">
                     <label for="lib-password">Temporary Password</label>
                     <input type="password" id="lib-password" name="password" required class="info-input">
                 </div>

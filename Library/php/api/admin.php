@@ -48,16 +48,14 @@ try {
             $email = $_POST['email'] ?? '';
             $name = $_POST['name'] ?? '';
             $physical_id = $_POST['physical_id'] ?? '';
+            $contactNumber = $_POST['contactNumber'] ?? null; // Librarians may not have one
             $password = $_POST['password'] ?? '';
             
             if (empty($username) || empty($email) || empty($name) || empty($password) || empty($physical_id)) {
-                throw new Exception("All fields are required.");
+                throw new Exception("All fields (except contact) are required.");
             }
             
-            $newAccountId = $accountService->createLibrarianAccount($username, $email, $name, $password, $physical_id);
-            $response['success'] = true;
-            $response['message'] = "Librarian account created (ID: $newAccountId).";
-            break;
+            $newAccountId = $accountService->createLibrarianAccount($username, $email, $name, $password, $physical_id, $contactNumber);
 
         case 'toggleAccountStatus':
             $accountId = $_POST['account_id'] ?? 0;
