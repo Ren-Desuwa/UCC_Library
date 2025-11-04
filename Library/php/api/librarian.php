@@ -40,20 +40,14 @@ $action = $_REQUEST['action'] ?? null;
 
 
 // --- MODIFIED HELPER FUNCTION FOR FILE UPLOAD ---
-// Now uses the original filename instead of sanitizing the title
+// (This function is unchanged from your file)
 function handleBookCoverUpload($fileInputName, $existingCoverUrl = 'CoverBookTemp.png') {
     $uploadDir = __DIR__ . '/../../assets/covers/';
-    
-    // Check if a file was uploaded
     if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES[$fileInputName];
-        
-        // --- KEY CHANGE: Use the original filename ---
         $newFileName = basename($file['name']);
         $targetPath = $uploadDir . $newFileName;
         $fileType = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
-
-        // Basic validation
         $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
         if (!in_array($fileType, $allowedTypes)) {
             throw new Exception("Invalid file type. Only JPG, JPEG, PNG, GIF are allowed.");
@@ -61,16 +55,12 @@ function handleBookCoverUpload($fileInputName, $existingCoverUrl = 'CoverBookTem
         if ($file['size'] > 5000000) { // 5MB limit
             throw new Exception("File is too large. Max 5MB.");
         }
-
-        // Move the file
         if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-            return $newFileName; // Return the ORIGINAL filename
+            return $newFileName;
         } else {
             throw new Exception("Failed to move uploaded file. Check folder permissions.");
         }
     }
-    
-    // If no new file, return the existing one
     return $existingCoverUrl;
 }
 // --- END HELPER FUNCTION ---
@@ -81,9 +71,9 @@ try {
         // ===========================================
         // CATALOG MANAGEMENT
         // ===========================================
-
+        // (All cases from 'getBooks' to 'deleteBookCopy' remain unchanged)
+        // ... (getBooks) ...
         case 'getBooks':
-            // (This case remains unchanged)
             header('Content-Type: text/html');
             $books = $catalogueService->searchBooks("", "", "", "", "", "", 100, 0); 
             $html = '';
@@ -114,8 +104,8 @@ try {
             echo $html; 
             exit;
 
+        // ... (addBook) ...
         case 'addBook':
-            // (This case remains unchanged)
             $title = $_POST['title'] ?? '';
             $isbn = $_POST['isbn'] ?? '';
             $publisher = $_POST['publisher'] ?? '';
@@ -132,8 +122,8 @@ try {
             $response['message'] = "Book added successfully (ID: $bookId).";
             break;
 
+        // ... (getBookForEdit) ...
         case 'getBookForEdit':
-            // (This case remains unchanged)
             $bookId = $_GET['book_id'] ?? 0;
             if (empty($bookId)) throw new Exception("No book ID provided.");
             $bookData = $catalogueService->getBookForEdit($bookId); 
@@ -142,8 +132,8 @@ try {
             $response['data'] = $bookData;
             break;
 
+        // ... (updateBook) ...
         case 'updateBook':
-            // (This case remains unchanged)
             $bookId = $_POST['book_id'] ?? 0;
             if (empty($bookId)) throw new Exception("No book ID provided for update.");
             $title = $_POST['title'] ?? '';
@@ -164,8 +154,8 @@ try {
             $response['message'] = "Book (ID: $bookId) updated successfully.";
             break;
 
+        // ... (archiveBook) ...
         case 'archiveBook':
-            // (This case remains unchanged)
             $bookId = $_POST['book_id'] ?? 0;
             if (empty($bookId)) throw new Exception("No book ID provided.");
             $catalogueService->archiveBook($bookId); 
@@ -173,16 +163,11 @@ try {
             $response['message'] = 'Book (ID: ' . $bookId . ') has been archived.';
             break;
 
+        // ... (getArchivedBooks) ...
         case 'getArchivedBooks':
-            // --- MODIFIED TO BE FUNCTIONAL ---
             header('Content-Type: text/html');
-            
-            // --- NEW: Get search query from URL ---
             $searchTerm = $_GET['query'] ?? "";
-
-            // This now uses the new, functional BookDAO method
             $books = $bookDAO->getArchivedBooks($searchTerm); 
-
             $html = '';
             if (empty($books)) {
                 $html = '<tr><td colspan="4" style="text-align: center;">No archived books found.</td></tr>';
@@ -206,8 +191,8 @@ try {
             echo $html;
             exit;
             
+        // ... (unarchiveBook) ...
         case 'unarchiveBook':
-            // (This case remains unchanged)
             $bookId = $_POST['book_id'] ?? 0;
             if (empty($bookId)) throw new Exception("No book ID provided.");
             $catalogueService->unarchiveBook($bookId); 
@@ -215,10 +200,7 @@ try {
             $response['message'] = 'Book (ID: ' . $bookId . ') has been restored.';
             break;
 
-        // ===========================================
-        // --- NEW BOOK COPY ACTIONS ---
-        // ===========================================
-
+        // ... (getBookCopies) ...
         case 'getBookCopies':
             $bookId = $_GET['book_id'] ?? 0;
             if (empty($bookId)) throw new Exception("No book ID provided.");
@@ -227,6 +209,7 @@ try {
             $response['data'] = $copies;
             break;
 
+        // ... (addBookCopy) ...
         case 'addBookCopy':
             $bookId = $_POST['book_id'] ?? 0;
             $condition = $_POST['condition'] ?? 'Good';
@@ -239,49 +222,140 @@ try {
             $response['message'] = "New copy (ID: $newCopyId) added successfully.";
             break;
 
+        // ... (updateBookCopy) ...
         case 'updateBookCopy':
             $copyId = $_POST['copy_id'] ?? 0;
             $status = $_POST['status'] ?? 'Available';
             $condition = $_POST['condition'] ?? 'Good';
             $shelfLocation = $_POST['shelf_location'] ?? '';
             if (empty($copyId)) throw new Exception("Copy ID is required.");
-            
-            // Prevent changing status of a borrowed book
             $copy = $bookCopyDAO->getCopyById($copyId);
             if ($copy['status'] == 'Borrowed' || $copy['status'] == 'Overdue') {
                 if ($status != $copy['status']) {
                     throw new Exception("Cannot change status of a borrowed or overdue book.");
                 }
             }
-            
             $bookCopyDAO->updateCopyDetails($copyId, $status, $condition, $shelfLocation);
             $response['success'] = true;
             $response['message'] = "Copy (ID: $copyId) updated successfully.";
             break;
 
+        // ... (deleteBookCopy) ...
         case 'deleteBookCopy':
             $copyId = $_POST['copy_id'] ?? 0;
             if (empty($copyId)) throw new Exception("Copy ID is required.");
-            
-            // Check if copy is currently borrowed
             $copy = $bookCopyDAO->getCopyById($copyId);
             if ($copy['status'] == 'Borrowed' || $copy['status'] == 'Overdue') {
                 throw new Exception("Cannot delete a copy that is currently borrowed or overdue.");
             }
-
-            // The DAO will throw an error if it's linked to history,
-            // which will be caught by the main catch block.
             $bookCopyDAO->deleteCopy($copyId);
             $response['success'] = true;
             $response['message'] = "Copy (ID: $copyId) deleted successfully.";
+            break;
+
+        // ===========================================
+        // --- USER MANAGEMENT ACTIONS (NEW) ---
+        // ===========================================
+        
+        case 'searchUsers':
+            // (This case remains unchanged from your file)
+            header('Content-Type: text/html');
+            $searchTerm = $_GET['query'] ?? "";
+            $accounts = $accountDAO->searchAccounts($searchTerm, 'Student');
+            $html = '';
+            if (empty($accounts)) {
+                $html = '<tr><td colspan="5" style="text-align: center;">No students found.</td></tr>';
+            } else {
+                foreach ($accounts as $acc) {
+                    $statusTag = $acc['is_active'] 
+                        ? '<span class="status-tag tag-available">Active</span>'
+                        : '<span class="status-tag tag-checkedout">Inactive</span>';
+                    $html .= '
+                        <tr>
+                            <td>' . htmlspecialchars($acc['username']) . '</td>
+                            <td>' . htmlspecialchars($acc['name']) . '</td>
+                            <td>' . htmlspecialchars($acc['email']) . '</td>
+                            <td>' . $statusTag . '</td>
+                            <td>
+                                <button class="action-btn view-details-btn" data-account-id="' . $acc['account_id'] . '">View Details</button>
+                            </td>
+                        </tr>
+                    ';
+                }
+            }
+            echo $html;
+            exit;
+
+        // --- NEW: Get all details for the student modal ---
+        case 'getStudentDetails':
+            $accountId = $_GET['account_id'] ?? 0;
+            if (empty($accountId)) throw new Exception("No account ID provided.");
+
+            $data = [
+                'profile' => $accountDAO->getAccountById($accountId),
+                'currentBorrows' => $transactionDAO->getActiveTransactionsForUser($accountId),
+                'history' => $transactionDAO->getCompletedTransactionsForUser($accountId)
+            ];
+            
+            $response['success'] = true;
+            $response['data'] = $data;
+            break;
+
+        // --- NEW: Toggle a student's active status ---
+        case 'toggleStudentStatus':
+            $accountId = $_POST['account_id'] ?? 0;
+            $isActive = $_POST['is_active'] ?? 0;
+            
+            if (empty($accountId)) throw new Exception("Account ID is required.");
+            
+            $accountService->toggleAccountStatus($accountId, (bool)$isActive);
+            $response['success'] = true;
+            $response['message'] = "Account status updated.";
+            break;
+
+        // --- NEW: Manually return a book ---
+        case 'manuallyReturnBook':
+            $transactionId = $_POST['transaction_id'] ?? 0;
+            if (empty($transactionId)) throw new Exception("Transaction ID is required.");
+            
+            $result = $transactionService->returnBook($transactionId); 
+            
+            $response['success'] = true;
+            $response['message'] = "Book returned. Fine: $" . number_format($result['fine_paid'], 2);
+            break;
+
+        // --- NEW: Waive a fine ---
+        case 'waiveFine':
+            $transactionId = $_POST['transaction_id'] ?? 0;
+            if (empty($transactionId)) throw new Exception("Transaction ID is required.");
+            
+            $transactionDAO->setFine($transactionId, 0.00);
+            
+            $response['success'] = true;
+            $response['message'] = "Fine waived for Transaction #$transactionId.";
+            break;
+
+        // --- NEW: Issue a manual fine ---
+        case 'issueFine':
+            $transactionId = $_POST['transaction_id'] ?? 0;
+            $amount = $_POST['amount'] ?? 0;
+            
+            if (empty($transactionId) || empty($amount) || !is_numeric($amount)) {
+                throw new Exception("Valid Transaction ID and amount are required.");
+            }
+            
+            $transactionDAO->addFine($transactionId, (float)$amount);
+            
+            $response['success'] = true;
+            $response['message'] = "Fine of $" . number_format($amount, 2) . " added to Transaction #$transactionId.";
             break;
             
         // ===========================================
         // CIRCULATION (BORROW & RETURN)
         // ===========================================
-
+        // (All cases from 'findUser' to 'returnBook' remain unchanged)
+        // ... (findUser) ...
         case 'findUser':
-            // (This case remains unchanged)
             $username = $_GET['query'] ?? '';
             $user = $accountDAO->getAccountByUsername($username);
             if (!$user || $user['role'] !== 'Student') throw new Exception("Student account not found.");
@@ -290,8 +364,8 @@ try {
             $response['name'] = $user['name'];
             break;
 
+        // ... (findCopy) ...
         case 'findCopy':
-            // (This case remains unchanged)
             $copyId = $_GET['copy_id'] ?? 0;
             $copy = $bookCopyDAO->getCopyById($copyId); 
             if ($copy['status'] !== 'Available') throw new Exception("Copy not available. Status: " . $copy['status']);
@@ -301,8 +375,8 @@ try {
             $response['title'] = $book['title'];
             break;
 
+        // ... (borrowBook) ...
         case 'borrowBook':
-            // (This case remains unchanged)
             $accountId = $_POST['account_id'] ?? 0;
             $copyId = $_POST['copy_id'] ?? 0;
             $transactionId = $transactionService->borrowBook($accountId, $copyId);
@@ -310,8 +384,8 @@ try {
             $response['message'] = "Book checked out. Transaction ID: $transactionId";
             break;
 
+        // ... (findReturn) ...
         case 'findReturn':
-            // (This case remains unchanged)
             $copyId = $_GET['copy_id'] ?? 0;
             $sql = "SELECT t.*, a.name as user_name, b.title, b.cover_url 
                     FROM transactions t
@@ -329,45 +403,13 @@ try {
             $response['transaction'] = $transaction;
             break;
 
+        // ... (returnBook) ...
         case 'returnBook':
-            // (This case remains unchanged)
             $transactionId = $_POST['transaction_id'] ?? 0;
             $result = $transactionService->returnBook($transactionId); 
             $response['success'] = true;
             $response['message'] = "Book returned. Fine: $" . number_format($result['fine_paid'], 2);
             break;
-
-        case 'searchUsers':
-            header('Content-Type: text/html');
-            $searchTerm = $_GET['query'] ?? "";
-
-            // We specifically search for 'Student' role
-            $accounts = $accountDAO->searchAccounts($searchTerm, 'Student');
-
-            $html = '';
-            if (empty($accounts)) {
-                $html = '<tr><td colspan="5" style="text-align: center;">No students found.</td></tr>';
-            } else {
-                foreach ($accounts as $acc) {
-                    $statusTag = $acc['is_active'] 
-                        ? '<span class="status-tag tag-available">Active</span>'
-                        : '<span class="status-tag tag-checkedout">Inactive</span>';
-                    
-                    $html .= '
-                        <tr>
-                            <td>' . htmlspecialchars($acc['username']) . '</td>
-                            <td>' . htmlspecialchars($acc['name']) . '</td>
-                            <td>' . htmlspecialchars($acc['email']) . '</td>
-                            <td>' . $statusTag . '</td>
-                            <td>
-                                <button class="action-btn view-details-btn" data-account-id="' . $acc['account_id'] . '">View Details</button>
-                            </td>
-                        </tr>
-                    ';
-                }
-            }
-            echo $html;
-            exit;
 
         default:
             throw new Exception("Invalid librarian action specified.");

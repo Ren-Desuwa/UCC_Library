@@ -314,3 +314,135 @@
     font-size: 1.4rem;
 }
 /* =========== END COPIES MANAGER STYLES =========== */
+
+/* =========== NEW: STUDENT DETAILS MODAL STYLES =========== */
+
+.modal-content.student-modal-content {
+    max-width: 900px;
+    padding: 0; /* Use tab pane padding */
+}
+
+/* --- Tab Panes --- */
+#student-profile-pane,
+#student-actions-pane {
+    padding: 30px;
+}
+
+#student-current-pane,
+#student-history-pane {
+    padding: 25px 30px;
+}
+
+/* --- Profile Pane --- */
+.student-profile-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+.student-info-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4B5563;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+.student-info-list {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+}
+.student-info-list dt {
+    font-weight: 500;
+    color: #6B7280;
+}
+.student-info-list dd {
+    font-weight: 600;
+    color: #2D3748;
+}
+#student-modal-status-tag {
+    font-size: 1rem;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+}
+#student-modal-status-desc {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin-bottom: 20px;
+}
+#student-modal-toggle-status-btn {
+    width: 100%;
+}
+.deactivate-btn { background-color: #F59E0B; }
+.deactivate-btn:hover { background-color: #D97706; }
+.activate-btn { background-color: #10B981; }
+.activate-btn:hover { background-color: #059669; }
+
+
+/* --- History/Current Panes --- */
+.student-modal-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+}
+.student-history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.student-history-table thead th {
+    background-color: #F9FAFB;
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 0.85rem;
+    color: #6B7280;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+.student-history-table tbody td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+.student-history-table .action-btn {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+}
+.waive-fine-btn {
+    background-color: #10B981;
+    margin-left: 5px;
+}
+.waive-fine-btn:hover {
+    background-color: #059669;
+}
+
+
+/* --- Actions Pane --- */
+.student-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+.student-action-card {
+    background-color: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 20px;
+}
+.student-action-card h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2D3748;
+}
+.student-action-card p {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin-bottom: 20px;
+}
+.form-grid-double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}

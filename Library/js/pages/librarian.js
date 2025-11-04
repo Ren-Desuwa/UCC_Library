@@ -32,26 +32,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Archive Page Elements ---
     const archiveTableBody = document.getElementById("archive-table-body");
-    const archiveSearchInput = document.getElementById("archive-search-input"); // <-- ADDED
+    const archiveSearchInput = document.getElementById("archive-search-input");
     
     // --- Book Copies Manager Elements ---
     const copiesManagerSection = document.getElementById("book-copies-manager");
     const copiesListBody = document.getElementById("book-copies-list");
     const addCopyForm = document.getElementById("add-copy-form");
 
-    // --- NEW: Modal Tab Elements ---
+    // --- Modal Tab Elements ---
     const modalTabsContainer = bookModal ? bookModal.querySelector(".modal-tabs") : null;
     const modalTabPanes = bookModal ? bookModal.querySelectorAll(".modal-tab-pane") : [];
     const copiesTabButton = modalTabsContainer ? modalTabsContainer.querySelector('a[data-pane="book-copies-pane"]') : null;
+
+    // --- MODIFIED: User Management Elements ---
+    const userSearchInput = document.getElementById("user-search-input"); // This is the search bar
+    const userTableBody = document.getElementById("user-table-body"); // This is the table
+    
+    // --- NEW: Student Details Modal Elements ---
+    const studentModal = document.getElementById("student-details-modal");
+    const studentModalTabs = studentModal ? studentModal.querySelector(".modal-tabs") : null;
+    const studentModalPanes = studentModal ? studentModal.querySelectorAll(".modal-tab-pane") : [];
+    const studentModalTitle = document.getElementById("student-modal-title");
 
 
     // ===========================================
     // 4. CIRCULATION LOGIC (Declarations moved up)
     // ===========================================
-    // ... (circulation declarations remain unchanged) ...
     const borrowForm = document.getElementById("borrow-form");
-    const userSearchInput = document.getElementById("borrow-user-search");
-    const userTableBody = document.getElementById("user-table-body");
+    // NOTE: userSearchInput (borrow-user-search) is different from the main user search
+    const borrowUserSearchInput = document.getElementById("borrow-user-search"); 
     const userNameDiv = document.getElementById("borrow-user-name");
     const bookSearchInput = document.getElementById("borrow-book-search");
     const bookTitleDiv = document.getElementById("borrow-book-title");
@@ -66,9 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===========================================
     // FUNCTION DEFINITIONS (MOVED UP)
     // ===========================================
-    /**
-     * --- NEW: Debounce function to limit API calls ---
-     */
+    
     const debounce = (func, delay) => {
         let timeout;
         return (...args) => {
@@ -79,11 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     };
 
-    /**
-     * Function to load the main catalog
-     */
     const loadCatalog = async () => {
-        // ... (function remains unchanged) ...
         if (!catalogTableBody) return;
         catalogTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading books...</td></tr>';
         try {
@@ -97,26 +100,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    /**
-     * --- MODIFIED: Function to load the archive ---
-     */
-    const loadArchive = async (searchTerm = "") => { // <-- ADDED searchTerm
+    const loadArchive = async (searchTerm = "") => {
         if (!archiveTableBody) return;
-
         archiveTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading archived books...</td></tr>';
         try {
-            // --- NEW: Add query to fetch ---
-            const query = new URLSearchParams({
-                action: 'getArchivedBooks',
-                query: searchTerm
-            }).toString();
-
+            const query = new URLSearchParams({ action: 'getArchivedBooks', query: searchTerm }).toString();
             const response = await fetch(`../php/api/librarian.php?${query}`);
-            // --- END NEW ---
-
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
+            if (!response.ok) throw new Error("Network response was not ok");
             const html = await response.text();
             archiveTableBody.innerHTML = html;
         } catch (error) {
@@ -125,17 +115,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // --- NEW: Function to load users ---
+    // --- MODIFIED: Function to load users ---
     const loadUsers = async (searchTerm = "") => {
         if (!userTableBody) return;
         userTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading users...</td></tr>';
         
         try {
-            const query = new URLSearchParams({
-                action: 'searchUsers',
-                query: searchTerm
-            }).toString();
-            
+            const query = new URLSearchParams({ action: 'searchUsers', query: searchTerm }).toString();
             const response = await fetch(`../php/api/librarian.php?${query}`);
             if (!response.ok) throw new Error("Network response was not ok");
             
@@ -146,11 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
             userTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
         }
     };
-    /**
-     * Function to reset the image preview
-     */
+
     const resetImagePreview = () => {
-        // ... (function remains unchanged) ...
         if (bookCoverUpload) bookCoverUpload.value = null;
         if (newPreviewImg) newPreviewImg.src = "#";
         if (previewGrid) previewGrid.classList.remove("show-new");
@@ -159,11 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentPreviewBox) currentPreviewBox.style.display = "block";
     };
 
-    /**
-     * Function to load book copies into the modal
-     */
     const loadBookCopies = async (bookId) => {
-        // ... (function remains unchanged, still populates copiesListBody) ...
         if (!copiesListBody) return;
         copiesListBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Loading copies...</td></tr>';
         bookModal.dataset.currentBookId = bookId; 
@@ -208,27 +187,150 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
     
-    /**
-     * --- NEW: Function to switch modal tabs ---
-     */
     const switchModalTab = (paneName) => {
         if (!modalTabsContainer || !modalTabPanes.length) return;
-
-        // Activate the correct tab button
         modalTabsContainer.querySelectorAll('.modal-tab-item').forEach(tab => {
             tab.classList.remove('active');
-            if (tab.dataset.pane === paneName) {
-                tab.classList.add('active');
-            }
+            if (tab.dataset.pane === paneName) tab.classList.add('active');
         });
-
-        // Activate the correct tab pane
         modalTabPanes.forEach(pane => {
             pane.classList.remove('active');
-            if (pane.id === paneName) {
-                pane.classList.add('active');
-            }
+            if (pane.id === paneName) pane.classList.add('active');
         });
+    };
+
+    /**
+     * --- NEW: Function to switch STUDENT modal tabs ---
+     */
+    const switchStudentModalTab = (paneName) => {
+        if (!studentModalTabs || !studentModalPanes.length) return;
+        studentModalTabs.querySelectorAll('.modal-tab-item').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.dataset.pane === paneName) tab.classList.add('active');
+        });
+        studentModalPanes.forEach(pane => {
+            pane.classList.remove('active');
+            if (pane.id === paneName) pane.classList.add('active');
+        });
+    };
+
+    /**
+     * --- NEW: Functions to populate student modal ---
+     */
+    const populateStudentProfile = (profile) => {
+        if (!profile) return;
+        document.getElementById("student-modal-name").textContent = profile.name;
+        document.getElementById("student-modal-username").textContent = profile.username;
+        document.getElementById("student-modal-email").textContent = profile.email;
+        document.getElementById("student-modal-contact").textContent = profile.contact_number || 'N/A';
+        document.getElementById("student-modal-joined").textContent = new Date(profile.date_created).toLocaleDateString();
+
+        const statusTag = document.getElementById("student-modal-status-tag");
+        const statusDesc = document.getElementById("student-modal-status-desc");
+        const toggleBtn = document.getElementById("student-modal-toggle-status-btn");
+        
+        toggleBtn.dataset.accountId = profile.account_id;
+        
+        if (profile.is_active == 1) {
+            statusTag.textContent = "Active";
+            statusTag.className = "status-tag tag-available";
+            statusDesc.textContent = "This student can borrow books.";
+            toggleBtn.textContent = "Deactivate Account";
+            toggleBtn.className = "action-btn deactivate-btn";
+            toggleBtn.dataset.activeStatus = "0";
+        } else {
+            statusTag.textContent = "Inactive";
+            statusTag.className = "status-tag tag-checkedout";
+            statusDesc.textContent = "This account is deactivated.";
+            toggleBtn.textContent = "Activate Account";
+            toggleBtn.className = "action-btn activate-btn";
+            toggleBtn.dataset.activeStatus = "1";
+        }
+    };
+
+    const populateStudentCurrent = (borrows) => {
+        const tableBody = document.getElementById("student-current-table-body");
+        tableBody.innerHTML = "";
+        if (!borrows || borrows.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No active borrows.</td></tr>';
+            return;
+        }
+        borrows.forEach(t => {
+            const isOverdue = t.status === 'Overdue';
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${t.title}</td>
+                    <td>${new Date(t.date_due).toLocaleDateString()}</td>
+                    <td>
+                        <span class="status-tag ${isOverdue ? 'tag-checkedout' : 'tag-available'}">
+                            ${t.status}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn return-book-btn" data-transaction-id="${t.transaction_id}">
+                            Mark as Returned
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    };
+
+    const populateStudentHistory = (history) => {
+        const tableBody = document.getElementById("student-history-table-body");
+        tableBody.innerHTML = "";
+        if (!history || history.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No borrowing history.</td></tr>';
+            return;
+        }
+        history.forEach(t => {
+            const hasFine = t.fine > 0;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${t.title}</td>
+                    <td>${t.date_returned ? new Date(t.date_returned).toLocaleDateString() : 'N/A'}</td>
+                    <td>$${parseFloat(t.fine).toFixed(2)}</td>
+                    <td>
+                        <button class="action-btn issue-fine-btn" data-transaction-id="${t.transaction_id}">
+                            Issue Fine
+                        </button>
+                        ${hasFine ? `<button class="action-btn waive-fine-btn" data-transaction-id="${t.transaction_id}">Waive Fine</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+    };
+
+    /**
+     * --- NEW: Main function to load all student details ---
+     */
+    const loadStudentDetails = async (accountId) => {
+        // 1. Reset modal
+        studentModalTitle.textContent = "Loading...";
+        switchStudentModalTab('student-profile-pane');
+        document.getElementById("student-current-table-body").innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading...</td></tr>';
+        document.getElementById("student-history-table-body").innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading...</td></tr>';
+        document.getElementById("student-issue-fine-form").reset();
+        
+        // 2. Set account ID on forms
+        studentModal.dataset.currentAccountId = accountId;
+
+        // 3. Fetch data
+        try {
+            const response = await fetch(`../php/api/librarian.php?action=getStudentDetails&account_id=${accountId}`);
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            // 4. Populate panes
+            studentModalTitle.textContent = result.data.profile.name;
+            populateStudentProfile(result.data.profile);
+            populateStudentCurrent(result.data.currentBorrows);
+            populateStudentHistory(result.data.history);
+
+        } catch (error) {
+            alert(`Error loading student details: ${error.message}`);
+            studentModal.classList.remove("active");
+        }
     };
 
 
@@ -248,7 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Load content on panel switch
             if (targetId === "librarian-catalog-content") loadCatalog();
             if (targetId === "librarian-archive-content") loadArchive();
-            if (targetId === "librarian-users-content") loadUsers(); // <-- ADDED
+            if (targetId === "librarian-users-content") loadUsers(); // <-- This line is in your file
 
         } else {
             console.warn(`Content panel with ID "${targetId}" not found.`);
@@ -268,6 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
         switchPanel(targetId);
         window.location.hash = navItem.getAttribute("href");
     });
+    
     const currentHash = window.location.hash.substring(1);
     let targetPanelId = "librarian-dashboard-content";
     if (currentHash) {
@@ -284,7 +387,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===========================================
     // 2. LOGOUT LOGIC
     // ===========================================
-    // ... (Logout logic remains unchanged) ...
     const logoutButton = document.getElementById("logout-button");
     const logoutLink = document.getElementById("logout-link");
     const handleLogout = async (e) => {
@@ -309,7 +411,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // 3. CATALOG & MODAL LOGIC (Event Listeners)
     // ===========================================
 
-    // --- NEW: Handle Modal Tab Clicks ---
     if (modalTabsContainer) {
         modalTabsContainer.addEventListener('click', (e) => {
             e.preventDefault();
@@ -317,11 +418,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (tabButton && !tabButton.classList.contains('disabled')) {
                 const paneName = tabButton.dataset.pane;
                 switchModalTab(paneName);
-
-                // If switching to copies, load them
                 const bookId = bookModal.dataset.currentBookId;
                 if (paneName === 'book-copies-pane' && bookId) {
-                    // Check if already loaded
                     if (!copiesListBody.hasChildNodes() || copiesListBody.innerText.includes("Loading")) {
                         loadBookCopies(bookId);
                     }
@@ -330,25 +428,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Open "Add Book" modal
     if (openBookModalBtn && bookModal) {
         openBookModalBtn.addEventListener("click", () => {
             bookForm.reset(); 
             document.getElementById("book-modal-title").innerText = "Add New Book";
             document.getElementById("book-id").value = ""; 
             resetImagePreview();
-            
-            // --- MODIFIED: Reset and disable copies tab ---
-            switchModalTab('book-details-pane'); // Set to first tab
+            switchModalTab('book-details-pane');
             if (copiesTabButton) copiesTabButton.classList.add('disabled');
             if (copiesListBody) copiesListBody.innerHTML = '';
             bookModal.dataset.currentBookId = '';
-            
             bookModal.classList.add("active");
         });
     }
 
-    // Close any modal
     if (bookModal) {
         bookModal.addEventListener("click", (e) => {
             if (e.target.classList.contains("modal-overlay") || e.target.closest(".modal-close-btn")) {
@@ -358,10 +451,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Handle "Add/Edit Book" form submission (the main details)
     if (bookForm) {
         bookForm.addEventListener("submit", async (e) => {
-            // ... (this function remains unchanged) ...
             e.preventDefault();
             const formData = new FormData(bookForm);
             const bookId = formData.get("book_id");
@@ -384,15 +475,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     
-    // Handle clicks on the main Catalog table (Edit, Archive)
     if (catalogTableBody) {
         catalogTableBody.addEventListener("click", async (e) => {
             const archiveBtn = e.target.closest(".archive-action-btn");
             const editBtn = e.target.closest(".edit-action-btn");
 
-            // --- ARCHIVE LOGIC ---
             if (archiveBtn) {
-                // ... (archive logic remains unchanged) ...
                 e.preventDefault();
                 const bookId = archiveBtn.dataset.bookId;
                 if (!bookId) return;
@@ -415,20 +503,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // --- EDIT LOGIC (MODIFIED) ---
             if (editBtn) {
                 e.preventDefault();
                 const bookId = editBtn.dataset.bookId;
                 if (!bookId) return;
-
                 try {
-                    // 1. Fetch the book's current data
                     const response = await fetch(`../php/api/librarian.php?action=getBookForEdit&book_id=${bookId}`);
                     const result = await response.json();
                     if (!result.success) throw new Error(result.message);
                     const book = result.data;
-
-                    // 2. Populate the modal form
                     bookForm.reset(); 
                     resetImagePreview(); 
                     document.getElementById("book-modal-title").innerText = "Edit Book";
@@ -442,17 +525,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById("book-desc").value = book.description;
                     const preview = document.getElementById("book-cover-preview");
                     preview.src = book.cover_url ? `../assets/covers/${book.cover_url}` : "../assets/covers/CoverBookTemp.png";
-
-                    // --- MODIFIED: Enable copies tab and set book ID ---
-                    switchModalTab('book-details-pane'); // Reset to details tab
+                    switchModalTab('book-details-pane');
                     if (copiesTabButton) copiesTabButton.classList.remove('disabled');
-                    if (copiesListBody) copiesListBody.innerHTML = ''; // Clear old copies
-                    bookModal.dataset.currentBookId = book.book_id; // Set book ID
-                    // Note: We DON'T load copies here. We wait for the user to click the tab.
-                    
-                    // 3. Open the modal
+                    if (copiesListBody) copiesListBody.innerHTML = ''; 
+                    bookModal.dataset.currentBookId = book.book_id;
                     bookModal.classList.add("active");
-
                 } catch (error) {
                     alert("Failed to load book for editing: " + error.message);
                 }
@@ -460,10 +537,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- Handle "Add New Copy" form submission ---
     if (addCopyForm) {
         addCopyForm.addEventListener("submit", async (e) => {
-            // ... (this function remains unchanged) ...
             e.preventDefault();
             const bookId = bookModal.dataset.currentBookId;
             if (!bookId) {
@@ -493,10 +568,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     
-    // --- Handle "Save Copy" and "Delete Copy" clicks ---
     if (copiesListBody) {
         copiesListBody.addEventListener("click", async (e) => {
-            // ... (this function remains unchanged) ...
             const saveBtn = e.target.closest(".save-copy-btn");
             const deleteBtn = e.target.closest(".delete-copy-btn");
             const bookId = bookModal.dataset.currentBookId;
@@ -545,34 +618,26 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-// --- Archive Page Event Listener (Restore) ---
+
     if (archiveTableBody) {
         archiveTableBody.addEventListener("click", async (e) => {
             const restoreBtn = e.target.closest(".restore-action-btn");
-
             if (restoreBtn) {
                 e.preventDefault();
                 const bookId = restoreBtn.dataset.bookId;
                 if (!bookId) return;
-
-                if (confirm(`Are you sure you want to restore Book ID ${bookId}? It will appear in the main catalogue again.`)) {
+                if (confirm(`Are you sure you want to restore Book ID ${bookId}?`)) {
                     try {
                         const formData = new FormData();
                         formData.append('action', 'unarchiveBook');
                         formData.append('book_id', bookId);
-
-                        const response = await fetch("../php/api/librarian.php", {
-                            method: "POST",
-                            body: formData
-                        });
+                        const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
-
                         if (result.success) {
                             alert(result.message);
-                            // --- MODIFIED: Reload with current search term ---
                             loadArchive(archiveSearchInput ? archiveSearchInput.value : ""); 
                         } else {
-                            alert("Error: " . result.message);
+                            alert("Error: " + result.message);
                         }
                     } catch (error) {
                         alert("An error occurred: " + error.message);
@@ -582,37 +647,153 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- NEW: Archive Search ---
     if (archiveSearchInput) {
-        // Use a 300ms debounce to prevent spamming the server
         archiveSearchInput.addEventListener("keyup", debounce(() => {
             loadArchive(archiveSearchInput.value);
         }, 300));
     }
 
-    // --- NEW: User Search ---
+    // --- MODIFIED: User Search ---
     if (userSearchInput) {
         userSearchInput.addEventListener("keyup", debounce(() => {
             loadUsers(userSearchInput.value);
         }, 300));
     }
 
-    // --- NEW: User Table Clicks (for future modal) ---
+    // --- MODIFIED: User Table Clicks ---
     if (userTableBody) {
         userTableBody.addEventListener("click", (e) => {
             const detailsBtn = e.target.closest(".view-details-btn");
             if (detailsBtn) {
                 const accountId = detailsBtn.dataset.accountId;
-                alert(`(Future feature): View details for Account ID #${accountId}`);
-                // We will build the modal for this in the next step!
+                // --- NEW LOGIC ---
+                if (studentModal) {
+                    studentModal.classList.add("active");
+                    loadStudentDetails(accountId);
+                } else {
+                    alert(`Error: Student modal not found. Cannot view details for #${accountId}`);
+                }
+                // --- END NEW ---
             }
         });
     }
 
+    // --- NEW: Student Details Modal Listeners ---
+    if (studentModal) {
+        // Close modal
+        studentModal.addEventListener("click", (e) => {
+            if (e.target.classList.contains("modal-overlay") || e.target.closest(".modal-close-btn")) {
+                studentModal.classList.remove("active");
+            }
+        });
+
+        // Tab switching
+        studentModalTabs.addEventListener("click", (e) => {
+            e.preventDefault();
+            const tabButton = e.target.closest(".modal-tab-item");
+            if (tabButton) {
+                switchStudentModalTab(tabButton.dataset.pane);
+            }
+        });
+        
+        // --- Event Delegation for all modal actions ---
+        studentModal.addEventListener("click", async (e) => {
+            const accountId = studentModal.dataset.currentAccountId;
+
+            // Toggle Status Button
+            if (e.target.id === "student-modal-toggle-status-btn") {
+                const btn = e.target;
+                const newStatus = btn.dataset.activeStatus;
+                const actionText = newStatus == 1 ? "activate" : "deactivate";
+                
+                if (confirm(`Are you sure you want to ${actionText} this account?`)) {
+                    const formData = new FormData();
+                    formData.append('action', 'toggleStudentStatus');
+                    formData.append('account_id', accountId);
+                    formData.append('is_active', newStatus);
+                    
+                    try {
+                        const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                        const result = await response.json();
+                        if (!result.success) throw new Error(result.message);
+                        alert(result.message);
+                        await loadStudentDetails(accountId); // Reload profile pane
+                        await loadUsers(userSearchInput.value); // Reload main user list
+                    } catch (error) { alert(`Error: ${error.message}`); }
+                }
+            }
+
+            // Mark as Returned Button
+            if (e.target.classList.contains("return-book-btn")) {
+                const transactionId = e.target.dataset.transactionId;
+                if (confirm(`Manually return Transaction #${transactionId}?`)) {
+                    const formData = new FormData();
+                    formData.append('action', 'manuallyReturnBook');
+                    formData.append('transaction_id', transactionId);
+                    
+                    try {
+                        const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                        const result = await response.json();
+                        if (!result.success) throw new Error(result.message);
+                        alert(result.message);
+                        await loadStudentDetails(accountId); // Reload both panes
+                    } catch (error) { alert(`Error: ${error.message}`); }
+                }
+            }
+
+            // Waive Fine Button
+            if (e.target.classList.contains("waive-fine-btn")) {
+                const transactionId = e.target.dataset.transactionId;
+                if (confirm(`Waive entire fine for Transaction #${transactionId}?`)) {
+                    const formData = new FormData();
+                    formData.append('action', 'waiveFine');
+                    formData.append('transaction_id', transactionId);
+                    
+                    try {
+                        const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                        const result = await response.json();
+                        if (!result.success) throw new Error(result.message);
+                        alert(result.message);
+                        await loadStudentDetails(accountId); // Reload history pane
+                    } catch (error) { alert(`Error: ${error.message}`); }
+                }
+            }
+            
+            // Issue Fine (from History)
+            if (e.target.classList.contains("issue-fine-btn")) {
+                const transactionId = e.target.dataset.transactionId;
+                switchStudentModalTab('student-actions-pane');
+                document.getElementById('fine-transaction-id').value = transactionId;
+                document.getElementById('fine-amount').focus();
+            }
+        });
+        
+        // Issue Fine (from Form)
+        const issueFineForm = document.getElementById("student-issue-fine-form");
+        if (issueFineForm) {
+            issueFineForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const accountId = studentModal.dataset.currentAccountId;
+                const formData = new FormData(issueFineForm);
+                formData.append('action', 'issueFine');
+                
+                try {
+                    const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
+                    const result = await response.json();
+                    if (!result.success) throw new Error(result.message);
+                    alert(result.message);
+                    issueFineForm.reset();
+                    // Reload history pane
+                    await loadStudentDetails(accountId);
+                } catch (error) { alert(`Error: ${error.message}`); }
+            });
+        }
+    }
+
+
     // ===========================================
     // 4. BOOK FORM IMAGE PREVIEW LOGIC (Event Listeners)
     // ===========================================
-    // ... (image preview logic remains unchanged) ...
     if (triggerUploadBtn) {
         triggerUploadBtn.addEventListener("click", () => bookCoverUpload.click());
     }
@@ -638,11 +819,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===========================================
     // 5. CIRCULATION LOGIC (Event Listeners)
     // ===========================================
-    // ... (circulation logic remains unchanged) ...
     if (borrowForm) {
-        userSearchInput.addEventListener("change", async () => {
+        // Use borrowUserSearchInput here
+        borrowUserSearchInput.addEventListener("change", async () => {
             try {
-                const response = await fetch(`../php/api/librarian.php?action=findUser&query=${userSearchInput.value}`);
+                const response = await fetch(`../php/api/librarian.php?action=findUser&query=${borrowUserSearchInput.value}`);
                 const result = await response.json();
                 if (result.success) {
                     userNameDiv.textContent = result.name;

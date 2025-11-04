@@ -37,6 +37,17 @@ class TransactionDAO {
         }
         return $stmt->affected_rows > 0;
     }
+    
+    // --- NEW: Function to add to an existing fine ---
+    public function addFine($transactionId, $amountToAdd) {
+        $sql = "UPDATE transactions SET fine = fine + ? WHERE transaction_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("di", $amountToAdd, $transactionId);
+         if (!$stmt->execute()) {
+            throw new Exception("DAO Error: Failed to add fine: "." - ".$stmt->error);
+        }
+        return $stmt->affected_rows > 0;
+    }
 
     public function getActiveTransactionCountForUser($accountId) {
         $sql = "SELECT COUNT(*) as count FROM transactions 
@@ -56,21 +67,12 @@ class TransactionDAO {
         return $stmt->get_result()->fetch_assoc();
     }
 
-    public function addFine($transactionId, $amountToAdd) {
-        $sql = "UPDATE transactions SET fine = fine + ? WHERE transaction_id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("di", $amountToAdd, $transactionId);
-         if (!$stmt->execute()) {
-            throw new Exception("DAO Error: Failed to add to fine: "." - ".$stmt->error);
-        }
-        return $stmt->affected_rows > 0;
-    }
-
     public function getActiveTransactionsForUser($accountId) {
         $sql = "SELECT t.*, b.title, b.cover_url FROM transactions t
                 JOIN book_copies c ON t.copy_id = c.copy_id
                 JOIN books b ON c.book_id = b.book_id
-                WHERE t.account_id = ? AND t.status IN ('Active', 'Overdue')";
+                WHERE t.account_id = ? AND t.status IN ('Active', 'Overdue')
+                ORDER BY t.date_due ASC"; // <-- Changed to sort by due date
         
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $accountId);
@@ -79,10 +81,22 @@ class TransactionDAO {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
     
-    /**
-     * NEW: Fetches full details for a single transaction.
-     * This is for the student history modal.
-     */
+    // --- NEW: Function to get completed transactions ---
+    public function getCompletedTransactionsForUser($accountId) {
+        $sql = "SELECT t.*, b.title, b.cover_url FROM transactions t
+                JOIN book_copies c ON t.copy_id = c.copy_id
+                JOIN books b ON c.book_id = b.book_id
+                WHERE t.account_id = ? AND t.status = 'Completed'
+                ORDER BY t.date_returned DESC
+                LIMIT 50"; // Limit to last 50
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $accountId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+    
     public function getTransactionDetailsById($transactionId, $accountId) {
         $sql = "SELECT 
                     t.*, 
