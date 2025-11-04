@@ -126,6 +126,7 @@ class AuthService {
 
         try {
         $otpCode = rand(100000, 999999);
+        date_default_timezone_set('Asia/Manila');
         $expiresAt = (new DateTime())->add(new DateInterval("PT15M"))->format('Y-m-d H:i:s'); // 15 min expiry
         
         // This will now work
@@ -139,6 +140,18 @@ class AuthService {
         catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function verifyOtp($email, $otp) {
+        $otpRecord = $this->userOtpDAO->getValidOtp($email, $otp);
+
+        if (!$otpRecord) {
+            throw new Exception('invalid or Expired Code');
+        }
+
+        $this->userOtpDAO->markOtpAsUsed($otpRecord['otp_id']);
+
+        return true;
     }
 
    

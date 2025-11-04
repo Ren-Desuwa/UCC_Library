@@ -1,21 +1,31 @@
+<?php
+$email = $_GET['email'] ?? null;
+
+if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    // Use $email or store in session
+    $_SESSION['email'] = $email;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="../css/pages/auth.css">
-  <title>Forgot Password</title>
+  <title>Send Code</title>
   </style>
 </head>
 <body>
   
-    <div class="form-wrapper">
+    <div class="form-wrapper" id="send-code-form">
       <div class="forgot-password-card">
       <h2 class="form-title">Send Code</h2>
       <p class="form-subtitle">An email has been sent to your inbox</p>
       <form class="form-group" method="POST">
         <label for="code">Enter Code</label>
-        <input type="number" id="code" name="code" required />
+        <input type="hidden" name="email" value="<?= htmlspecialchars($_SESSION['email'] ?? $_GET['email'] ?? '') ?>" />
+        <input type="text" name="code" pattern="\d{6}" maxlength="6" required />
         <br>
         <br>
         <button class="signin-button" type="submit">Submit Code</button>
@@ -23,4 +33,6 @@
       <a class="forgot-password" href="login.php" class="back-link">Back to Login</a>
     </div>
   </div>
+
+  <script type="module" src="../js/pages/auth.js"></script>
 </body>

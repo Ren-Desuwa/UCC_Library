@@ -6,7 +6,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
     const registerForm = document.getElementById("register-form");
-    const forgotPasswordForm = document.getElementById("forgot-password-form")
+    const forgotPasswordForm = document.getElementById("forgot-password-form");
+    const sendCodeForm = document.getElementById("send-code-form");
     const showPasswordCheckbox = document.getElementById("showPassword");
 
     // Handle Login Form Submission
@@ -23,10 +24,15 @@ document.addEventListener("DOMContentLoaded", () => {
         forgotPasswordForm.addEventListener("submit", handleForgotPassword);
     }
 
+    if(sendCodeForm){
+        sendCodeForm.addEventListener("submit", handleSendCode);
+    }
+
     // Handle "Show Password" Checkbox
     if (showPasswordCheckbox) {
         showPasswordCheckbox.addEventListener("change", togglePasswordVisibility);
     }
+
 });
 
 /**
@@ -156,6 +162,7 @@ async function handleForgotPassword(e) {
     const form = e.target;
     const formData = new FormData(form);
     const button = form.querySelector('button[type="submit"]');
+    const email = document.getElementById("email").value
 
     setButtonState(button, "Requesting...", true);
 
@@ -169,7 +176,7 @@ async function handleForgotPassword(e) {
 
          if (result.success) {
             // Success! Redirect to the send code page.
-            window.location.href = "send_code.php";
+            window.location.href = `send_code.php?email=${encodeURIComponent(email)}`;
 
         } else {
             // Show error message from the server

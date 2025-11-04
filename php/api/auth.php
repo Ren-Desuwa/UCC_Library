@@ -1,4 +1,5 @@
 <?php
+
 /**
  * API Endpoint: auth.php
  * * This file acts as the bridge between the frontend JavaScript (auth.js)
@@ -12,6 +13,7 @@ header('Content-Type: application/json');
 // Include the necessary backend files
 require_once __DIR__ . '/../db_connect.php'; // Database connection
 require_once __DIR__ . '/../services/AuthService.php'; // The logic file
+
 
 // Get the requested action from the URL (e.g., ?action=login)
 $action = $_GET['action'] ?? null;
@@ -109,13 +111,19 @@ try {
             
             case 'getOtp':
 
-                $otp = $_POST['code'] ?? null;
-
+                $email = trim($_POST['email'] ?? '');
+                $otp = trim($_POST['code'] ?? '');
+                
                 if ($otp === null || !preg_match('/^\d{6}$/', $otp)) {
                     throw new Exception('Please enter a valid code');
                 }
 
-                
+                $otpRecord = $authService->verifyOtp($email, $otp);
+
+                $response['success'] = true;
+                $response['message'] = 'Code Verified';
+
+                break;
 
 
         /**
@@ -136,6 +144,7 @@ try {
             break;
     }
 } catch (Exception $e) {
+    
     // If anything in the 'try' block throws an Exception, catch it here.
     $response['success'] = false;
     $response['message'] = $e->getMessage();

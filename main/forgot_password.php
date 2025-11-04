@@ -1,3 +1,10 @@
+<?php
+session_start();
+$email = $_POST['email'] ?? null;
+$_SESSION['email'] = $email;
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

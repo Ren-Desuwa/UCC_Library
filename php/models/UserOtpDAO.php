@@ -20,11 +20,14 @@ class UserOtpDAO {
     public function getValidOtp($verificationTarget, $otpCode) {
         $sql = "SELECT * FROM user_otp 
                 WHERE verification_target = ? AND otp_code = ? 
-                AND expires_at > NOW() AND is_used = 0";
+                AND expires_at > NOW() AND is_used = 0
+                ORDER BY otp_id DESC LIMIT 1";
+
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("ss", $verificationTarget, $otpCode);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
+        
     }
     
     public function markOtpAsUsed($otpId) {
