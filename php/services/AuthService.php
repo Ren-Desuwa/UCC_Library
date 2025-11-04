@@ -151,7 +151,25 @@ class AuthService {
 
         $this->userOtpDAO->markOtpAsUsed($otpRecord['otp_id']);
 
-        return true;
+        return $otpRecord;
+    }
+
+    public function resetPassword($userID, $password) {
+        $this->conn->begin_transaction();
+        try {
+        error_log("Password: $password");
+        $passwordHash = hash('sha256', $password);
+        error_log("Password Hash: $passwordHash");
+        $account = $this->accountDAO->resetPassword($userID, $passwordHash);
+
+        $this->conn->commit();
+        return $account;
+        }
+        catch (Exception $e) {
+            $this->conn->rollback();
+            throw new Exception($e->getMessage());
+        }
+
     }
 
    

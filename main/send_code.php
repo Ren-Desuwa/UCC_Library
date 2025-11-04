@@ -4,6 +4,7 @@ $email = $_GET['email'] ?? null;
 if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
     // Use $email or store in session
     $_SESSION['email'] = $email;
+
 }
 ?>
 

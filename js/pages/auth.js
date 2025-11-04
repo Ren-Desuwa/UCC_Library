@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const forgotPasswordForm = document.getElementById("forgot-password-form");
     const sendCodeForm = document.getElementById("send-code-form");
     const showPasswordCheckbox = document.getElementById("showPassword");
+    const resetPasswordForm = document.getElementById("reset-password-form");
 
     // Handle Login Form Submission
     if (loginForm) {
@@ -26,6 +27,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(sendCodeForm){
         sendCodeForm.addEventListener("submit", handleSendCode);
+    }
+
+    if(resetPasswordForm){
+        resetPasswordForm.addEventListener("submit", handleResetPassword);
     }
 
     // Handle "Show Password" Checkbox
@@ -208,10 +213,11 @@ async function handleSendCode(e) {
         });
 
         const result = await response.json();
+        const userID = result.userID;
 
          if (result.success) {
             // Success! Redirect to the reset password page.
-            window.location.href = "reset_password.php";
+            window.location.href = `reset_password.php?userID=${encodeURIComponent(userID)}`;
 
         } else {
             // Show error message from the server
@@ -227,6 +233,45 @@ async function handleSendCode(e) {
     }
 
 }
+
+async function handleResetPassword(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const button = form.querySelector('button[type="submit"]');
+
+    setButtonState(button, "Resetting Password", true);
+
+    try {
+        const response = await fetch("../php/api/auth.php?action=resetPassword", {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json();
+
+         if (result.success) {
+            // Success! Redirect to the login page.
+            alert("Password reset successful!");
+            window.location.href = "login.php"
+            
+        } else {
+            // Show error message from the server
+            alert(`Password Reset Failed: ${result.message}`);
+        }
+    }
+      catch (error) {
+        console.error("Send Code error:", error);
+        alert("An error occurred while resetting the password. Please try again. test");
+        alert(error.message);
+    } finally {
+        setButtonState(button, "Reset Password", false);
+    }
+
+}
+
+
+
 
 /**
  * Helper function to update button state during API calls.

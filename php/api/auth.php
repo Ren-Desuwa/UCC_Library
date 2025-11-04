@@ -122,7 +122,28 @@ try {
 
                 $response['success'] = true;
                 $response['message'] = 'Code Verified';
+                $response['userID'] = $otpRecord['user_id'];
 
+                break;
+
+            case 'resetPassword':
+
+                $password = $_POST['password'] ?? null;
+                $confirmPassword = $_POST['confirmPassword'] ?? null;
+                $userID = $_POST['user_id'] ?? null;
+                
+                if (strlen($password) < 8) {
+                throw new Exception("Password must be at least 8 characters long.");
+                }
+                if ($password !== $confirmPassword) {
+                throw new Exception("Passwords do not match.");
+                }
+
+                $account = $authService->resetPassword($userID, $password);
+
+                $response["success"] = true;
+                $response["message"] = "";
+                
                 break;
 
 

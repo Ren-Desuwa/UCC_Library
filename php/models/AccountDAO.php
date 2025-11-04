@@ -84,4 +84,16 @@ class AccountDAO {
         }
         return $stmt->affected_rows > 0;
     }
+
+    public function resetPassword ($accountId, $newPassword) {
+        error_log("Password Hash: $newPassword");
+        $sql = "UPDATE accounts SET password_hash = ? WHERE account_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("si", $newPassword, $accountId);
+        if (!$stmt->execute()) {
+            throw new Exception("DAO Error: Failed to update password: " . $stmt->error);
+        }
+        error_log("password updated");
+        return $stmt->affected_rows > 0;
+    }
 }
