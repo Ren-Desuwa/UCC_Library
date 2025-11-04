@@ -5,7 +5,16 @@ class AccountDAO {
     public function __construct($conn) {
         $this->conn = $conn;
     }
-    
+
+
+    public function getAccountBId($accountId) {
+        $sql = "SELECT * FROM accounts WHERE account_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $accountId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
     public function getAccountByUsername($username) {
         $sql = "SELECT * FROM accounts WHERE username = ?";
         $stmt = $this->conn->prepare($sql);
@@ -48,16 +57,24 @@ class AccountDAO {
         return $stmt->get_result()->fetch_assoc();
     }
 
+    public function getAccountbyContactNumber($contactNumber) {
+        $sql = "SELECT * FROM accounts WHERE contact_number = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $contactNumber);
+        $stmt->execute();
+    }  
+
     public function verifyPassword($plainTextPassword, $passwordHash) {
         $hashed_password_to_check = hash('sha256', $plainTextPassword);
         return hash_equals($passwordHash, $hashed_password_to_check);
     }
 
-    public function createAccount($username, $passwordHash, $role, $name, $email, $physical_id) {
-        $sql = "INSERT INTO accounts (username, password_hash, role, name, email, physical_id, is_active) 
-                VALUES (?, ?, ?, ?, ?, ?, 1)";
+    public function createAccount($username, $passwordHash, $role, $name, $email, $physical_id, $contactNumber) {
+        $sql = "INSERT INTO accounts (username, password_hash, role, name, email, physical_id, contact_number, is_active) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssssss", $username, $passwordHash, $role, $name, $email, $physical_id);
+        $stmt->bind_param("sssssss", $username, $passwordHash, $role, $name, $email, $physical_id, $contactNumber);
+        
         if (!$stmt->execute()) {
              throw new Exception("DAO Error: Failed to create account: " . $stmt->error);
         }

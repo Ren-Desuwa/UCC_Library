@@ -22,7 +22,7 @@ class AuthService {
      */
 
         // UPDATE THIS FUNCTION SIGNATURE
-    public function registerStudent($username, $email, $name, $password, $physical_id) {
+    public function registerStudent($username, $email, $contactNumber, $name, $password, $physical_id) {
         // Start the transaction
         $this->conn->begin_transaction();
 
@@ -31,12 +31,15 @@ class AuthService {
             if ($this->accountDAO->getAccountByUsername($username)) {
                 throw new Exception("Username (Student ID) already taken.");
             }
-            if ($this->accountDAO->getAccountByEmail($email)) {
+            if ($email && $this->accountDAO->getAccountByEmail($email)) {
                 throw new Exception("Email already in use.");
             }
             // ADD THIS CHECK
             if (empty($physical_id)) {
                 throw new Exception("Student ID is required.");
+            }
+            if ($contactNumber && $this->accountDAO->getAccountByContactNumber($contactNumber)) {
+                throw new Exception("Contact number already in use.");
             }
 
             // 2. Business Logic: Hash password
@@ -45,7 +48,7 @@ class AuthService {
             // 3. Data Operation: Use the DAO to create the account
             $role = 'Student';
             // UPDATE THIS FUNCTION CALL (passes $physical_id)
-            $accountId = $this->accountDAO->createAccount($username, $passwordHash, $role, $name, $email, $physical_id);
+            $accountId = $this->accountDAO->createAccount($username, $passwordHash, $role, $name, $email, $physical_id, $contactNumber); 
 
             // If everything is successful, commit the transaction
             $this->conn->commit();
@@ -66,7 +69,7 @@ class AuthService {
         $account = $this->accountDAO->getAccountByUsername($username);
 
         if (!$account || !$this->accountDAO->verifyPassword($password, $account['password_hash'])) {
-            throw new Exception("Invalid username or password." . $account["password_hash"] . " must match '" . $password . "' = " . hash('sha256', $password));
+            throw new Exception("Invalid username or password.");
         }
         if (!$account['is_active']) {
             throw new Exception("Your account is deactivated.");
@@ -126,16 +129,36 @@ class AuthService {
             // Don't reveal if email exists, just return success
             return true;
         }
-        
+
+        try {
         $otpCode = rand(100000, 999999);
+        date_default_timezone_set('Asia/Manila');
         $expiresAt = (new DateTime())->add(new DateInterval("PT15M"))->format('Y-m-d H:i:s'); // 15 min expiry
         
         // This will now work
         $this->userOtpDAO->createOtp($account['account_id'], $email, $otpCode, $expiresAt);
         
         // Here you would email the $otpCode to the user
-        // mail($email, "Your Password Reset Code", "Your code is: $otpCode");
+        //mail($email, "Your Password Reset Code", "Your code is: $otpCode");
         
         return true;
+        }
+        catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
+
+    public function verifyOtp($email, $otp) {
+        $otpRecord = $this->userOtpDAO->getValidOtp($email, $otp);
+
+        if (!$otpRecord) {
+            throw new Exception('invalid or Expired Code');
+        }
+
+        $this->userOtpDAO->markOtpAsUsed($otpRecord['otp_id']);
+
+        return true;
+    }
+
+   
 }

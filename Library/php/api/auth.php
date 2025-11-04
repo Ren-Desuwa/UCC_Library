@@ -1,4 +1,5 @@
 <?php
+
 /**
  * API Endpoint: auth.php
  * * This file acts as the bridge between the frontend JavaScript (auth.js)
@@ -12,6 +13,7 @@ header('Content-Type: application/json');
 // Include the necessary backend files
 require_once __DIR__ . '/../db_connect.php'; // Database connection
 require_once __DIR__ . '/../services/AuthService.php'; // The logic file
+
 
 // Get the requested action from the URL (e.g., ?action=login)
 $action = $_GET['action'] ?? null;
@@ -42,7 +44,6 @@ try {
 
             // The login method starts the session and sets cookies on success
             $account = $authService->login($username, $password);
-            
             $response['success'] = true;
             $response['message'] = "Login successful. Redirecting...";
             $response['role'] = $account['role']; // Send role back to JS
@@ -56,7 +57,14 @@ try {
         case 'register':
             // Get all required fields from the registration form
             $username = $_POST['username'] ?? '';
-            $email = $_POST['email'] ?? '';
+            $email = $_POST['email'] ?? null;
+            if ($email === '') {
+            $email = null;
+            }
+            $contactNumber = $_POST['contactNumber'] ?? null;
+            if ($contactNumber === '') {
+            $contactNumber = null;
+            }
             $password = $_POST['password'] ?? '';
             $confirmPassword = $_POST['confirmPassword'] ?? '';
             
@@ -66,7 +74,7 @@ try {
             $name = trim($firstName . ' ' . $lastName);
 
             // --- Server-Side Validation ---
-            if (empty($username) || empty($email) || empty($name) || empty($password)) {
+            if (empty($username) || (empty($email) && empty($contactNumber)) || empty($name) || empty($password)) {
                 throw new Exception("Please fill out all required fields.");
             }
             if ($password !== $confirmPassword) {
@@ -75,16 +83,48 @@ try {
             if (strlen($password) < 8) {
                 throw new Exception("Password must be at least 8 characters long.");
             }
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new Exception("Invalid email format.");
             }
 
             // Call the registerStudent method
-            $accountId = $authService->registerStudent($username, $email, $name, $password, $username);
+            $accountId = $authService->registerStudent($username, $email, $contactNumber, $name, $password, $username);
 
             $response['success'] = true;
             $response['message'] = "Registration successful! You can now log in.";
             break;
+
+            case 'forgotPassword':
+
+                $email = $_POST['email'] ?? null;
+
+                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception('Please enter a valid email');
+                }
+
+                $account = $authService->requestPasswordReset($email);
+
+                $response['success'] = true;
+                $response['message'] = 'Request success!';
+
+                break;
+            
+            case 'getOtp':
+
+                $email = trim($_POST['email'] ?? '');
+                $otp = trim($_POST['code'] ?? '');
+                
+                if ($otp === null || !preg_match('/^\d{6}$/', $otp)) {
+                    throw new Exception('Please enter a valid code');
+                }
+
+                $otpRecord = $authService->verifyOtp($email, $otp);
+
+                $response['success'] = true;
+                $response['message'] = 'Code Verified';
+
+                break;
+
 
         /**
          * --- LOGOUT ---
@@ -104,10 +144,12 @@ try {
             break;
     }
 } catch (Exception $e) {
+    
     // If anything in the 'try' block throws an Exception, catch it here.
     $response['success'] = false;
     $response['message'] = $e->getMessage();
+    error_log($e->getMessage());
 }
 
 // Finally, encode the $response array as JSON and send it back to auth.js
-echo json_encode($response);
+echo json_encode($response); 

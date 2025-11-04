@@ -63,6 +63,10 @@
                         </div>
                         
                         <div class="form-section-title">Contact Details</div>
+
+                        <sub>*Need one of either Email or Contact Number</sub>
+                        <br>
+
                         <div class="form-group">
                             <label for="email">Email</label>
                             <input type="email" id="email" name="email">

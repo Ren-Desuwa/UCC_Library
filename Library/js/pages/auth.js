@@ -6,6 +6,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
     const registerForm = document.getElementById("register-form");
+    const forgotPasswordForm = document.getElementById("forgot-password-form");
+    const sendCodeForm = document.getElementById("send-code-form");
     const showPasswordCheckbox = document.getElementById("showPassword");
 
     // Handle Login Form Submission
@@ -18,10 +20,19 @@ document.addEventListener("DOMContentLoaded", () => {
         registerForm.addEventListener("submit", handleRegister);
     }
 
+    if(forgotPasswordForm){
+        forgotPasswordForm.addEventListener("submit", handleForgotPassword);
+    }
+
+    if(sendCodeForm){
+        sendCodeForm.addEventListener("submit", handleSendCode);
+    }
+
     // Handle "Show Password" Checkbox
     if (showPasswordCheckbox) {
         showPasswordCheckbox.addEventListener("change", togglePasswordVisibility);
     }
+
 });
 
 /**
@@ -70,13 +81,16 @@ async function handleLogin(e) {
         });
 
         const result = await response.json();
-
+        
         if (result.success) {
             // Success! Redirect to the main portal.
             window.location.href = "portal.php";
+            document.getElementById("login-form").reset();
         } else {
             // Show error message from the server
-            alert(`Login Failed: ${result.message}`);
+            alert(`Login Failed: invalid username or password.`);
+            //alert(`Login Failed: ${result.message}`);
+
         }
     } catch (error) {
         console.error("Login error:", error);
@@ -127,6 +141,7 @@ async function handleRegister(e) {
             // Success! Redirect to the login page.
             alert("Registration successful! You can now log in.");
             window.location.href = "login.php";
+
         } else {
             // Show error message from the server
             alert(`Registration Failed: ${result.message}`);
@@ -134,10 +149,83 @@ async function handleRegister(e) {
     } catch (error) {
         console.error("Registration error:", error);
         alert("An error occurred during registration. Please try again. test");
+        
         alert(error.message);
     } finally {
         setButtonState(button, "Register Account", false);
     }
+}
+
+
+async function handleForgotPassword(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const button = form.querySelector('button[type="submit"]');
+    const email = document.getElementById("email").value
+
+    setButtonState(button, "Requesting...", true);
+
+    try {
+        const response = await fetch("../php/api/auth.php?action=forgotPassword", {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json();
+
+         if (result.success) {
+            // Success! Redirect to the send code page.
+            window.location.href = `send_code.php?email=${encodeURIComponent(email)}`;
+
+        } else {
+            // Show error message from the server
+            alert(`Request Failed: ${result.message}`);
+        }
+    }
+      catch (error) {
+        console.error("Forgot Password error:", error);
+        alert("An error occurred while requesting for password reset. Please try again. test");
+        alert(error.message);
+    } finally {
+        setButtonState(button, "Send Reset Link", false);
+    }
+
+}
+
+async function handleSendCode(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const button = form.querySelector('button[type="submit"]');
+
+    setButtonState(button, "Submitting Code", true);
+
+    try {
+        const response = await fetch("../php/api/auth.php?action=getOtp", {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json();
+
+         if (result.success) {
+            // Success! Redirect to the reset password page.
+            window.location.href = "reset_password.php";
+
+        } else {
+            // Show error message from the server
+            alert(`Request Failed: ${result.message}`);
+        }
+    }
+      catch (error) {
+        console.error("Send Code error:", error);
+        alert("An error occurred while sending the code. Please try again. test");
+        alert(error.message);
+    } finally {
+        setButtonState(button, "Submit Code", false);
+    }
+
 }
 
 /**
