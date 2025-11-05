@@ -145,12 +145,18 @@
     font-size: 0.95rem; 
     font-weight: 500;
     opacity: 0.8; 
-    transition: opacity 0.3s ease;
-    padding: 10px 0; 
+    
+    /* === MODIFIED === */
+    /* Combined transitions and added padding/margin for hover effect */
+    transition: background-color 0.2s, opacity 0.3s;
+    padding: 10px 5px; 
+    border-radius: 6px;
+    margin: 0 -5px;
 }
 
 .logout-link:hover {
     opacity: 1; 
+    background-color: rgba(255, 255, 255, 0.1); /* Added hover background */
 }
 
 .logout-link .material-icons-round {

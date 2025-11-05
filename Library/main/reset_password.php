@@ -24,7 +24,6 @@ if ($userID && is_numeric($userID)) {
       <form class="form-group" method="POST">
         <input type="hidden" id="userID" name="userID" value="<?= htmlspecialchars($userID) ?>">
         <div class="form-group">
-
                                 <label for="password">Password</label>
                                 <input type="password" id="password" name="password">
                             </div>
