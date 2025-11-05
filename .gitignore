@@ -3,3 +3,4 @@
 /.vs/UCC/FileContentIndex/de7ff516-3fcc-4102-a555-4d528106be2c.vsidx
 *.vsidx
 *.vs
+/vendor/*

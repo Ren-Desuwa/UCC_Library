@@ -121,8 +121,9 @@
 }
 
 /* --- Action Button Style --- */
+/* --- Action Button Style --- */
 .action-btn {
-    background-color: var(--primary-color);
+    background-color: #8B3A3A;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -138,7 +139,7 @@
 }
 
 .action-btn:hover {
-    background-color: var(--primary-color-dark);
+    background-color: #8B3A3A;
 }
 
 .action-btn:active {
