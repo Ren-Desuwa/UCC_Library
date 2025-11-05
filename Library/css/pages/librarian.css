@@ -1,0 +1,448 @@
+/* ================== LIBRARIAN PORTAL SPECIFIC STYLES ================== */
+/* Styles copied from admin.css as they relate to librarian tasks */
+
+/* Cataloging Table */
+#cataloging-table thead th:nth-child(1) { width: 10%; min-width: 80px; } /* Cover */
+#cataloging-table thead th:nth-child(2) { width: auto; } /* Title */
+#cataloging-table thead th:nth-child(3) { width: 100px; } /* Copies */
+#cataloging-table thead th:nth-child(4) { width: 120px; } /* Availability */
+#cataloging-table thead th:nth-child(5) { width: 150px; } /* Action */
+
+.edit-action-btn { background-color: #FCD34D; color: #4B5563; padding: 8px 10px; margin-right: 5px; }
+.edit-action-btn:hover { background-color: #FBBF24; }
+.delete-action-btn { background-color: #EF4444; color: white; padding: 8px 10px; }
+.delete-action-btn:hover { background-color: #DC2626; }
+
+/* Borrow & Return */
+.borrow-return-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    grid-auto-rows: 1fr; 
+    gap: 30px;
+    margin-bottom: 20px;
+}
+.card-panel {
+    background-color: white; border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 30px; display: flex; flex-direction: column;
+}
+.card-title-new {
+    font-size: 1.4rem; font-weight: 700; color: #2D3748;
+    border-bottom: 1px solid #E5E7EB; padding-bottom: 15px; margin-bottom: 25px;
+}
+.search-input-group-alt {
+    display: flex; align-items: center; border: 1px solid #E5E7EB;
+    border-radius: 8px; padding: 5px 15px; margin-bottom: 20px; width: 100%;
+}
+.search-input-group-alt input { border: none; outline: none; font-size: 1rem; padding: 8px 0; flex-grow: 1; }
+.search-input-group-alt .material-icons-round { color: #6B7280; font-size: 1.5rem; cursor: pointer; }
+.borrow-info-group { display: flex; flex-direction: column; margin-bottom: 20px; }
+.info-label-alt { font-weight: 500; color: #6B7280; font-size: 0.9rem; margin-bottom: 5px; }
+.info-value-alt { font-weight: 600; color: #2D3748; font-size: 1rem; padding-bottom: 5px; border-bottom: 1px dashed #E5E7EB; }
+.borrow-info-group.list-label { margin-top: 10px; margin-bottom: 15px; }
+.finalize-checkout-btn, .process-return-btn {
+    width: 100%; color: white; font-size: 1.1rem; font-weight: 700;
+    padding: 12px; margin-top: 15px;
+}
+.finalize-checkout-btn { background-color: #A03A3A; margin-top: auto; }
+.finalize-checkout-btn:hover { background-color: #832e2e; }
+.process-return-btn { background-color: #10B981; margin-top: auto; }
+.process-return-btn:hover { background-color: #059669; }
+
+/* Return Card */
+.return-book-title { font-size: 1.1rem; font-weight: 700; color: #2D3748; margin-bottom: 10px; }
+.return-details-grid { display: grid; grid-template-columns: 1fr 60px; gap: 15px; align-items: flex-start; }
+.return-detail-label { font-size: 0.9rem; color: #4B5563; line-height: 1.6; }
+.return-detail-value { font-weight: 600; color: #2D3748; }
+.return-book-cover-small { width: 50px; height: 75px; object-fit: cover; border-radius: 4px; }
+.return-condition-group, .return-notes-group { display: flex; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
+.return-condition-group { gap: 15px; }
+.return-notes-group { flex-direction: column; align-items: flex-start; }
+.return-condition-select { padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 0.95rem; flex-grow: 1; }
+.return-notes-group textarea {
+    width: 100%; min-height: 80px; border: 1px solid #D1D5DB;
+    border-radius: 6px; padding: 10px; font-size: 0.95rem; resize: vertical; margin-top: 8px;
+}
+/* Librarian Modals */
+.modal-content.student-modal-content,
+.modal-content.manage-announcements-content { max-width: 800px; }
+.modal-content.receipt-modal-content { max-width: 450px; }
+.modal-content.book-form-content { max-width: 900px; padding: 0; }
+.modal-content.transaction-history-content { max-width: 1400px; }
+
+/* Book Form Modal */
+.book-form-body { padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+.book-form-grid { display: grid; grid-template-columns: 250px 1fr; gap: 30px; }
+.book-form-image-area { grid-column: 1 / 2; display: flex; flex-direction: column; }
+/* Responsive */
+@media (max-width: 768px) {
+    .borrow-return-grid { grid-template-columns: 1fr; }
+}
+/* -- STYLES FOR NEW IMAGE PREVIEW -- */
+
+.book-form-image-area .info-label {
+    font-weight: 500;
+    color: #4B5563;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.image-preview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* When the new preview is active, show the grid */
+.image-preview-grid.show-new {
+    display: grid;
+}
+
+/* When it's not active, just show the current image */
+.image-preview-grid:not(.show-new) {
+    display: block;
+}
+.image-preview-grid:not(.show-new) #book-cover-preview-current {
+    width: 100%; /* Make current image full-width */
+}
+
+
+.image-preview-box {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.image-preview-box .preview-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6B7280;
+    background-color: #F9FAFB;
+    padding: 4px 8px;
+    text-align: center;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.image-preview-box img {
+    width: 100%;
+    height: 180px; /* Give previews a fixed height */
+    object-fit: contain; /* Use 'contain' to see the whole image */
+    padding: 5px;
+    background-color: #F4F7FC;
+}
+
+/* Make the original preview image fill its container */
+#book-cover-preview {
+    width: 100%;
+    height: auto; /* Let it scale */
+    max-width: 250px;
+    padding: 0;
+    object-fit: cover;
+}
+
+.image-preview-grid:not(.show-new) #book-cover-preview {
+     height: 350px; /* Taller height when it's the only one */
+}
+
+
+.image-upload-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.image-upload-actions .action-btn,
+.image-upload-actions .modal-close-btn {
+    flex-grow: 1;
+    text-align: center;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+}
+/* =========== NEW MODAL TAB STYLES =========== */
+.modal-tabs {
+    display: flex;
+    background-color: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 10px 30px 0 30px;
+    gap: 20px;
+}
+.modal-tab-item {
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6B7280;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px; /* Overlaps the border-bottom */
+}
+.modal-tab-item:hover {
+    color: #374151;
+}
+.modal-tab-item.active {
+    color: #A03A3A;
+    border-bottom-color: #A03A3A;
+}
+.modal-tab-item.disabled {
+    color: #D1D5DB;
+    pointer-events: none;
+    background-color: #F9FAFB;
+}
+
+.modal-tab-pane {
+    display: none; /* Hide all panes by default */
+}
+.modal-tab-pane.active {
+    display: block; /* Show only the active one */
+}
+/* =========== END NEW MODAL TAB STYLES =========== */
+
+
+/* =========== COPIES MANAGER STYLES (MOVED) =========== */
+/* These styles are now wrapped inside the tab pane */
+#book-copies-pane {
+    /* This pane has its own internal padding */
+    padding: 25px 30px;
+}
+
+.book-copies-manager {
+    /* remove padding from here */
+}
+.copies-manager-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2D3748;
+    margin-bottom: 20px;
+}
+.copies-table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.copies-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.copies-table thead th {
+    background-color: #F9FAFB;
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 0.85rem;
+    color: #6B7280;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+.copies-table tbody td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+.copies-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.copies-table .copy-id-cell {
+    font-weight: 600;
+    color: #4B5563;
+}
+.copies-table .action-cell {
+    display: flex;
+    gap: 5px;
+}
+.copies-table select,
+.copies-table input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+.copies-table select:disabled {
+    background-color: #F9FAFB;
+    color: #6B7280;
+    border-color: #E5E7EB;
+}
+.copy-action-btn {
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 0.2s;
+}
+.copy-action-btn .material-icons-round {
+    font-size: 1.25rem;
+}
+.save-copy-btn { color: #3B82F6; }
+.save-copy-btn:hover { background-color: #DBEAFE; }
+.delete-copy-btn { color: #EF4444; }
+.delete-copy-btn:hover { background-color: #FEE2E2; }
+
+.add-copy-form {
+    border-top: 1px dashed #E5E7EB;
+    padding-top: 20px;
+}
+.add-copy-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4B5563;
+    margin-bottom: 10px;
+}
+.add-copy-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+}
+.add-copy-inputs select,
+.add-copy-inputs input {
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+}
+.add-copy-btn {
+    padding: 0 12px;
+}
+.add-copy-btn .material-icons-round {
+    font-size: 1.4rem;
+}
+/* =========== END COPIES MANAGER STYLES =========== */
+
+/* =========== NEW: STUDENT DETAILS MODAL STYLES =========== */
+
+.modal-content.student-modal-content {
+    max-width: 900px;
+    padding: 0; /* Use tab pane padding */
+}
+
+/* --- Tab Panes --- */
+#student-profile-pane,
+#student-actions-pane {
+    padding: 30px;
+}
+
+#student-current-pane,
+#student-history-pane {
+    padding: 25px 30px;
+}
+
+/* --- Profile Pane --- */
+.student-profile-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+.student-info-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4B5563;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+.student-info-list {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+}
+.student-info-list dt {
+    font-weight: 500;
+    color: #6B7280;
+}
+.student-info-list dd {
+    font-weight: 600;
+    color: #2D3748;
+}
+#student-modal-status-tag {
+    font-size: 1rem;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+}
+#student-modal-status-desc {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin-bottom: 20px;
+}
+#student-modal-toggle-status-btn {
+    width: 100%;
+}
+.deactivate-btn { background-color: #F59E0B; }
+.deactivate-btn:hover { background-color: #D97706; }
+.activate-btn { background-color: #10B981; }
+.activate-btn:hover { background-color: #059669; }
+
+
+/* --- History/Current Panes --- */
+.student-modal-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+}
+.student-history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.student-history-table thead th {
+    background-color: #F9FAFB;
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 0.85rem;
+    color: #6B7280;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+.student-history-table tbody td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+.student-history-table .action-btn {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+}
+.waive-fine-btn {
+    background-color: #10B981;
+    margin-left: 5px;
+}
+.waive-fine-btn:hover {
+    background-color: #059669;
+}
+
+
+/* --- Actions Pane --- */
+.student-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+.student-action-card {
+    background-color: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 20px;
+}
+.student-action-card h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2D3748;
+}
+.student-action-card p {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin-bottom: 20px;
+}
+.form-grid-double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}

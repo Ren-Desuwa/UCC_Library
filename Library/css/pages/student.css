@@ -1,0 +1,318 @@
+/* ================== STUDENT PORTAL SPECIFIC STYLES ================== */
+
+/* Dashboard Updates */
+.updates-section h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2D3748;
+    margin-bottom: 20px;
+}
+.updates-list {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px 30px;
+    margin-bottom: 20px;
+}
+.update-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px 0;
+    border-bottom: 1px solid #E5E7EB;
+}
+.update-item:last-child { border-bottom: none; }
+.tag {
+    padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+    margin-right: 15px; color: white; min-width: 80px; text-align: center; flex-shrink: 0;
+}
+.tag-urgent { background-color: #EF4444; }
+.tag-event { background-color: #3B82F6; }
+.tag-notice { background-color: #10B981; }
+.update-details { flex-grow: 1; min-width: 0; }
+.update-title { font-size: 1rem; font-weight: 600; color: #2D3748; line-height: 1.4; word-break: break-word; }
+.update-description { font-size: 0.85rem; color: #6B7280; }
+.view-all-link {
+    display: inline-block; color: #3B82F6; text-decoration: none;
+    font-size: 0.9rem; font-weight: 500; margin-left: 30px;
+}
+.view-all-link:hover { text-decoration: underline; }
+
+
+/* === BOOK & HISTORY MODAL FIXES === */
+.book-modal-content, .history-modal-content {
+    max-width: 950px; 
+    padding: 30px; 
+}
+.book-details-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-areas: "cover info" "summary summary"; 
+    gap: 20px 40px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #E5E7EB;
+    margin-bottom: 25px;
+    width: 100%; 
+}
+.history-details-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas: "cover info" "receipt notes";
+    gap: 40px 80px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #E5E7EB;
+    margin-bottom: 25px;
+    width: 100%;
+}
+.book-cover-area { grid-area: cover; display: flex; justify-content: center; }
+.book-detail-cover {
+    width: 100%; max-width: 180px; height: auto; border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); display: block; 
+}
+.book-info-area { grid-area: info; }
+.book-detail-title { font-size: 2rem; font-weight: 700; color: #2D3748; margin-bottom: 20px; }
+.book-meta-list {
+    display: grid; grid-template-columns: 100px 1fr;
+    gap: 8px 15px; font-size: 1rem; line-height: 1.5; margin-bottom: 25px;
+}
+.book-meta-list dt { font-weight: 600; color: #6B7280; text-align: right; }
+.book-meta-list dd { font-weight: 400; color: #2D3748; margin-left: 0; }
+.plot-summary-area { grid-area: summary; padding-top: 15px; }
+.plot-summary-title { font-size: 1.2rem; font-weight: 700; color: #2D3748; margin-bottom: 10px; }
+.plot-summary-text { font-size: 0.95rem; color: #4B5563; line-height: 1.6; }
+.book-modal-footer { padding: 0; display: flex; justify-content: space-between; align-items: center; border-top: none; }
+.book-status-info { display: flex; align-items: center; font-size: 1rem; font-weight: 500; }
+.status-indicator { color: #2D3748; margin-right: 5px; }
+.copies-available { color: #059669; font-weight: 600; margin-left: 15px; }
+.book-actions { display: flex; gap: 10px; }
+.place-hold-btn { font-size: 1rem; padding: 10px 20px; font-weight: 600; }
+
+/* History Modal */
+.receipt-area { grid-area: receipt; }
+.receipt-title, .notes-title {
+    font-size: 1.2rem; font-weight: 700; color: #2D3748; margin-bottom: 10px;
+}
+.receipt-list {
+    display: grid; grid-template-columns: 140px 1fr;
+    gap: 5px 10px; font-size: 0.95rem; line-height: 1.6;
+}
+.receipt-list dt { font-weight: 600; color: #2D3748; text-align: left; }
+.receipt-list dd { font-weight: 400; color: #2D3748; margin-left: 0; }
+.receipt-status-text { font-weight: 700; }
+.notes-area { grid-area: notes; } 
+.notes-box {
+    background-color: #F7F7F7; border: 1px solid #E5E7EB; border-radius: 8px;
+    padding: 15px; font-size: 0.95rem; color: #4B5563; line-height: 1.4; min-height: 80px; 
+}
+.history-modal-footer { justify-content: flex-end; }
+
+/* Settings Page */
+.show-password-check {
+    display: flex; align-items: center; margin-top: 10px;
+    margin-bottom: 25px; font-size: 0.9rem; color: #4B5563;
+    margin-left: 150px; 
+}
+.show-password-check input { margin-right: 8px; }
+.password-actions { text-align: right; }
+.confirm-btn { background-color: #EF4444; }
+.confirm-btn:hover { background-color: #DC2626; }
+
+/* ================== NEW CATALOGUE STYLES ================== */
+/* --- Advanced Search Bar --- */
+.search-controls-advanced {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+.search-bar-advanced {
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap; 
+    align-items: center;
+    gap: 5px;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 5px 15px;
+}
+.search-bar-advanced .search-icon {
+    color: #6B7280;
+    font-size: 1.5rem;
+    padding: 5px 0;
+}
+.search-input-flex {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    padding: 10px 5px;
+    flex-grow: 1;
+    min-width: 150px; 
+    background: transparent;
+}
+
+/* --- RE-ADDED: Filter Button & Dropdown --- */
+.filter-container {
+    position: relative;
+    flex-shrink: 0;
+}
+.filter-btn {
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    color: #4B5563;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 100%; /* Match height of search bar */
+}
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: 5px;
+    width: 180px;
+    overflow: hidden;
+}
+.filter-dropdown.active {
+    display: block;
+}
+.filter-dropdown a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #2D3748;
+    font-size: 0.95rem;
+}
+.filter-dropdown a:hover {
+    background-color: #F4F7FC;
+}
+
+/* --- Book Shelf (Light Theme) --- */
+.book-shelf-student {
+    margin-bottom: 40px;
+}
+.shelf-header-student {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.shelf-header-student h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2D3748;
+}
+.see-all-link-student {
+    color: #A03A3A;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+.see-all-link-student .material-icons-round {
+    font-size: 1rem;
+    margin-left: 3px;
+}
+.shelf-carousel-student {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 0 20px 0;
+}
+.shelf-carousel-student::-webkit-scrollbar {
+    height: 8px;
+}
+.shelf-carousel-student::-webkit-scrollbar-track {
+    background: #E5E7EB;
+    border-radius: 4px;
+}
+.shelf-carousel-student::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+}
+.shelf-carousel-student::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* --- Book Card (Light Theme) --- */
+.book-card-student {
+    flex: 0 0 160px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.book-card-student:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+.book-card-student img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #F4F7FC;
+    border: 1px solid #E5E7EB;
+}
+.book-card-student h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2D3748;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.book-card-student .book-card-author-student {
+    font-size: 0.8rem;
+    color: #6B7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .book-details-grid {
+        grid-template-columns: 1fr; 
+        grid-template-areas: "cover" "info" "summary"; 
+        gap: 15px;
+    }
+    .history-details-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas: "cover" "info" "receipt" "notes";
+        gap: 15px;
+    }
+    .notes-area { margin-left: 0; } 
+    .book-detail-title { text-align: center; }
+    .book-modal-footer, .history-modal-footer {
+        flex-direction: column; align-items: flex-start; gap: 15px; padding-top: 15px;
+    }
+    .book-actions { width: 100%; display: flex; justify-content: space-between; }
+    .place-hold-btn, .close-book-modal-btn, .close-history-modal-btn {
+        flex-grow: 1; text-align: center; margin: 0 5px;
+    }
+    .show-password-check { margin-left: 0; justify-content: center; }
+
+    .search-controls-advanced {
+        flex-direction: column;
+    }
+    .book-card-student {
+        flex: 0 0 140px;
+    }
+    .book-card-student img {
+        height: 210px;
+    }
+}
