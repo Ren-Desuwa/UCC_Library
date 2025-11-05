@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f1b7b1a805ff8a61b6b27b2d896ecc87",
+    "content-hash": "4341efd6afd80c388b95f3150f5fddf1",
     "packages": [
         {
             "name": "capcom6/android-sms-gateway",
