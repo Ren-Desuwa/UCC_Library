@@ -3,7 +3,6 @@ $userID = $_GET['userID'] ?? null;
 if ($userID && is_numeric($userID)) {
     $_SESSION['userID'] = $userID;
 }
-var_dump($userID);
 ?>
 
 <!DOCTYPE html>
@@ -32,15 +31,18 @@ var_dump($userID);
                             <div class="form-group">
                                 <label for="confirmPassword">Confirm Password</label>
                                 <input type="password" id="confirmPassword" name="confirmPassword">
+
+                                <br>
+                                <br>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="showPassword">
+                                    <label for="showPassword">Show Password</label>
+                            </div>
                             </div>
         <button class="signin-button" type="submit">Reset Password</button>
                             
       </form>
-      <br>
-      <div class="checkbox-wrapper">
-            <input type="checkbox" id="showPassword">
-            <label for="showPassword">Show Password</label>
-        </div>
+      
       <a class="forgot-password" href="login.php" class="back-link">Back to Login</a>
     </div>
   </div>
