@@ -1,0 +1,99 @@
+/* ================== 2. MAIN CONTENT STYLES (SHARED) ================== */
+
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
+    background-color: #F4F7FC;
+    min-width: 0;
+    margin-left: 250px;
+}
+
+/* Header */
+.main-header {
+    margin-bottom: 30px;
+}
+
+.main-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2D3748;
+    margin-bottom: 5px;
+}
+
+.main-header p {
+    font-size: 0.95rem;
+    color: #6B7280;
+    font-weight: 400;
+}
+
+/* Stats Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px;
+    border-radius: 12px;
+    color: #000000;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2D3748; 
+    text-decoration: none; 
+}
+
+/* Student-specific underline */
+.student-portal .stat-number {
+    text-decoration: underline 3px; 
+    text-decoration-color: #2D3748;
+    text-underline-offset: 4px;
+}
+
+.stat-icon {
+    font-size: 3rem;
+    opacity: 1;
+    color: #2D3748; 
+}
+
+.info-icon {
+    color: #2D3748; 
+}
+
+/* Card Colors */
+.card-blue { background-color: #8395f8; color: #2D3748; }
+.card-orange { background-color: #e0b373; color: #2D3748; }
+.card-green { background-color: #8ddbbf; color: #2D3748; }
+
+/* General Card Title (for settings, reports, etc) */
+.card-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2D3748;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 15px;
+    margin-left: 280px;
+    margin-bottom: 25px;
+}

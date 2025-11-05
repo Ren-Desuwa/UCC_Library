@@ -1,0 +1,282 @@
+/* ================== VISITOR PORTAL SPECIFIC STYLES ================== */
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #A03A3A; 
+    color: white; 
+    padding: 30px 0 20px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+.sidebar-header {
+    display: flex; align-items: center; padding: 0 20px 30px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15); margin-bottom: 25px; 
+}
+.library-logo {
+    width: 50px !important; height: 50px !important; border-radius: 0; 
+    background-color: transparent !important; padding: 0; 
+    object-fit: contain; margin-right: 15px; display: block;
+}
+.logo-text { display: flex; flex-direction: column; }
+.app-name { font-size: 1.2rem; font-weight: 700; }
+.portal-name { font-size: 0.8rem; font-weight: 400; opacity: 0.8; }
+.sidebar-nav { flex-grow: 1; padding: 0 10px; }
+.nav-item {
+    display: flex; align-items: center; padding: 12px 10px; 
+    color: white; text-decoration: none; font-size: 1rem; 
+    font-weight: 500; opacity: 0.8; transition: all 0.3s ease;
+    margin-bottom: 5px; border-radius: 8px; 
+}
+.nav-item:hover, .nav-item.active {
+    background-color: white; color: #2D3748; font-weight: 600; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); opacity: 1; 
+}
+.nav-item .material-icons-round { margin-right: 12px; font-size: 1.5rem; }
+.sidebar-footer { padding: 20px 20px 0 20px; border-top: 1px solid rgba(255, 255, 255, 0.15); }
+.login-link {
+    display: flex; align-items: center; color: white; text-decoration: none;
+    font-size: 0.95rem; font-weight: 500; opacity: 0.8; 
+    transition: opacity 0.3s ease; padding: 10px 0; 
+}
+.login-link:hover { opacity: 1; }
+.login-link .material-icons-round { margin-right: 15px; font-size: 1.4rem; }
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
+    background-color: #F4F7FC;
+}
+.main-header { margin-bottom: 30px; }
+.main-header h1 { font-size: 1.8rem; font-weight: 700; color: #2D3748; margin-bottom: 5px; }
+.main-header p { font-size: 0.95rem; color: #6B7280; font-weight: 400; }
+
+/* Book Details Modal */
+.book-modal-content {
+    max-width: 950px; 
+    padding: 30px; 
+}
+.book-details-grid {
+    display: grid; grid-template-columns: 200px 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas: "cover info" "summary summary";
+    gap: 20px 40px;
+    padding-bottom: 25px; border-bottom: 1px solid #E5E7EB;
+    margin-bottom: 25px; width: 100%; 
+}
+.book-cover-area { grid-area: cover; display: flex; justify-content: center; }
+.book-detail-cover {
+    width: 100%; max-width: 180px; height: auto; border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); display: block; 
+}
+.book-info-area { grid-area: info; }
+.book-detail-title { font-size: 2rem; font-weight: 700; color: #2D3748; margin-bottom: 20px; }
+.book-meta-list {
+    display: grid; grid-template-columns: 100px 1fr; 
+    gap: 8px 15px; font-size: 1rem; line-height: 1.5; margin-bottom: 25px;
+}
+.book-meta-list dt { font-weight: 600; color: #6B7280; text-align: right; }
+.book-meta-list dd { font-weight: 400; color: #2D3748; margin-left: 0; }
+.plot-summary-area { grid-area: summary; padding-top: 15px; }
+.plot-summary-title { font-size: 1.2rem; font-weight: 700; color: #2D3748; margin-bottom: 10px; }
+.plot-summary-text { font-size: 0.95rem; color: #4B5563; line-height: 1.6; }
+.book-modal-footer {
+    padding: 0; display: flex; justify-content: space-between;
+    align-items: center; border-top: none; 
+}
+.book-status-info { display: flex; align-items: center; font-size: 1rem; font-weight: 500; }
+.status-indicator { color: #2D3748; margin-right: 5px; }
+.copies-available { color: #059669; font-weight: 600; margin-left: 15px; }
+.book-actions { display: flex; gap: 10px; }
+.sign-in-btn {
+    background-color: #A03A3A; color: white; font-size: 1rem;
+    padding: 10px 20px; font-weight: 600;
+}
+.sign-in-btn:hover { background-color: #883535; }
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .book-details-grid {
+        grid-template-columns: 1fr; 
+        grid-template-areas: "cover" "info" "summary"; 
+        gap: 15px;
+    }
+    .book-detail-title { text-align: center; }
+    .book-modal-footer { flex-direction: column; align-items: flex-start; gap: 15px; }
+.book-actions { width: 100%; display: flex; justify-content: space-between; }
+    .sign-in-btn, .modal-close-btn { flex-grow: 1; text-align: center; margin: 0 5px; }
+}
+
+/* === NEW: VISITOR SHELF STYLES === */
+/* (Copied from student.css and renamed) */
+
+.book-shelf-visitor {
+    margin-bottom: 40px;
+}
+.shelf-header-visitor {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.shelf-header-visitor h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2D3748;
+}
+.see-all-link-visitor {
+    color: #A03A3A;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+.see-all-link-visitor .material-icons-round {
+    font-size: 1rem;
+    margin-left: 3px;
+}
+.shelf-carousel-visitor {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 0 20px 0;
+}
+.shelf-carousel-visitor::-webkit-scrollbar {
+    height: 8px;
+}
+.shelf-carousel-visitor::-webkit-scrollbar-track {
+    background: #E5E7EB;
+    border-radius: 4px;
+}
+.shelf-carousel-visitor::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+}
+.shelf-carousel-visitor::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* --- Book Card (Light Theme) --- */
+.book-card-visitor {
+    flex: 0 0 160px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.book-card-visitor:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+.book-card-visitor img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #F4F7FC;
+    border: 1px solid #E5E7EB;
+}
+.book-card-visitor h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2D3748;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.book-card-visitor .book-card-author-visitor {
+    font-size: 0.8rem;
+    color: #6B7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* === START: ADD THESE MISSING STYLES === */
+
+/* --- Advanced Search Bar --- */
+.search-controls-advanced {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+.search-bar-advanced {
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap; 
+    align-items: center;
+    gap: 5px;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 5px 15px;
+}
+.search-bar-advanced .search-icon {
+    color: #6B7280;
+    font-size: 1.5rem;
+    padding: 5px 0;
+}
+.search-input-flex {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    padding: 10px 5px;
+    flex-grow: 1;
+    min-width: 150px; 
+    background: transparent;
+}
+
+/* --- Filter Button & Dropdown --- */
+.filter-container {
+    position: relative;
+    flex-shrink: 0;
+}
+.filter-btn {
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    color: #4B5563;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 100%; /* Match height of search bar */
+}
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: 5px;
+    width: 180px;
+    overflow: hidden;
+}
+.filter-dropdown.active {
+    display: block;
+}
+.filter-dropdown a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #2D3748;
+    font-size: 0.95rem;
+}
+.filter-dropdown a:hover {
+    background-color: #F4F7FC;
+}
+
+/* === END: ADD THESE MISSING STYLES === */
