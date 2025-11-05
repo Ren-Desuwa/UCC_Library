@@ -11,11 +11,12 @@ $_SESSION['email'] = $email;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="../css/pages/auth.css">
+  <link rel="stylesheet" href="../css/shared/modals.css">
   <title>Forgot Password</title>
   </style>
 </head>
 <body>
-  
+    <?php include 'includes/_modals_shared.php'; ?>
     <div class="form-wrapper" id="forgot-password-form">
       <div class="forgot-password-card">
       <h2 class="form-title">Forgot Password</h2>

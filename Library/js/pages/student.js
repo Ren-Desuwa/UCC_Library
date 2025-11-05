@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
             infoInputs[0].focus();
         });
         saveBtn.addEventListener('click', () => {
-            alert('Account information updated!'); 
+            window.showPopup('Account information updated!'); 
             toggleInputs(false);
         });
     }
@@ -270,10 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if(result.success) {
                 window.location.href = "login.php";
             } else {
-                alert("Logout failed: " + result.message);
+                window.showPopup("Logout failed: " + result.message);
             }
         } catch (err) {
-            alert("An error occurred during logout.");
+            window.showPopup("An error occurred during logout.");
         }
     };
     if(logoutButton) logoutButton.addEventListener("click", handleLogout);

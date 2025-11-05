@@ -72,7 +72,7 @@ async function handleLogin(e) {
 
     // Basic validation
     if (!formData.get("username") || !formData.get("password")) {
-        alert("Please enter both username and password.");
+        window.showPopup("Please enter both username and password.");
         return;
     }
 
@@ -93,13 +93,13 @@ async function handleLogin(e) {
             document.getElementById("login-form").reset();
         } else {
             // Show error message from the server
-            alert(`Login Failed: invalid username or password.`);
-            //alert(`Login Failed: ${result.message}`);
+            window.showPopup(`Login Failed: invalid username or password.`);
+            //window.showPopup(`Login Failed: ${result.message}`);
 
         }
     } catch (error) {
         console.error("Login error:", error);
-        alert("An error occurred while trying to log in. Please try again.");
+        window.showPopup("An error occurred while trying to log in. Please try again.");
     } finally {
         setButtonState(button, "Sign in", false);
     }
@@ -120,12 +120,12 @@ async function handleRegister(e) {
     const confirmPassword = formData.get("confirmPassword");
 
     if (password !== confirmPassword) {
-        alert("Passwords do not match.");
+        window.showPopup("Passwords do not match.");
         return;
     }
 
     if (password.length < 8) {
-        alert("Password must be at least 8 characters long.");
+        window.showPopup("Password must be at least 8 characters long.");
         return;
     }
     
@@ -144,18 +144,18 @@ async function handleRegister(e) {
 
         if (result.success) {
             // Success! Redirect to the login page.
-            alert("Registration successful! You can now log in.");
+            window.showPopup("Registration successful! You can now log in.");
             window.location.href = "login.php";
 
         } else {
             // Show error message from the server
-            alert(`Registration Failed: ${result.message}`);
+            window.showPopup(`Registration Failed: ${result.message}`);
         }
     } catch (error) {
         console.error("Registration error:", error);
-        alert("An error occurred during registration. Please try again. test");
+        window.showPopup("An error occurred during registration. Please try again. test");
         
-        alert(error.message);
+        window.showPopup(error.message);
     } finally {
         setButtonState(button, "Register Account", false);
     }
@@ -185,13 +185,13 @@ async function handleForgotPassword(e) {
 
         } else {
             // Show error message from the server
-            alert(`Request Failed: ${result.message}`);
+            window.showPopup(`Request Failed: ${result.message}`);
         }
     }
       catch (error) {
         console.error("Forgot Password error:", error);
-        alert("An error occurred while requesting for password reset. Please try again. test");
-        alert(error.message);
+        window.showPopup("An error occurred while requesting for password reset. Please try again. test");
+        window.showPopup(error.message);
     } finally {
         setButtonState(button, "Send Reset Link", false);
     }
@@ -221,13 +221,13 @@ async function handleSendCode(e) {
 
         } else {
             // Show error message from the server
-            alert(`Request Failed: ${result.message}`);
+            window.showPopup(`Request Failed: ${result.message}`);
         }
     }
       catch (error) {
         console.error("Send Code error:", error);
-        alert("An error occurred while sending the code. Please try again. test");
-        alert(error.message);
+        window.showPopup("An error occurred while sending the code. Please try again. test");
+        window.showPopup(error.message);
     } finally {
         setButtonState(button, "Submit Code", false);
     }
@@ -252,18 +252,18 @@ async function handleResetPassword(e) {
 
          if (result.success) {
             // Success! Redirect to the login page.
-            alert("Password reset successful!");
+            window.showPopup("Password reset successful!");
             window.location.href = "login.php"
             
         } else {
             // Show error message from the server
-            alert(`Password Reset Failed: ${result.message}`);
+            window.showPopup(`Password Reset Failed: ${result.message}`);
         }
     }
       catch (error) {
         console.error("Send Code error:", error);
-        alert("An error occurred while resetting the password. Please try again. test");
-        alert(error.message);
+        window.showPopup("An error occurred while resetting the password. Please try again. test");
+        window.showPopup(error.message);
     } finally {
         setButtonState(button, "Reset Password", false);
     }

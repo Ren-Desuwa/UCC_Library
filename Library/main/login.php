@@ -14,9 +14,11 @@
     <title>Library Management System - Sign In</title>
     <!-- Updated to use the modular auth CSS -->
     <link rel="stylesheet" href="../css/pages/auth.css">
+    <link rel="stylesheet" href="../css/shared/modals.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 </head>
 <body>
+    <?php include 'includes/_modals_shared.php'; ?>
     <div class="signin-container">
         <div class="signin-card">
             <!-- Left Panel -->
@@ -78,6 +80,7 @@
             </div>
         </div>
     </div>
+    <script type="module" src="../js/shared/ui.js"></script>
     <script type="module" src="../js/pages/auth.js"></script>
 </body>
 </html>

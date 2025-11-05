@@ -14,11 +14,12 @@ if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="../css/pages/auth.css">
+  <link rel="stylesheet" href="../css/shared/modals.css">
   <title>Send Code</title>
   </style>
 </head>
 <body>
-  
+    <?php include 'includes/_modals_shared.php'; ?>
     <div class="form-wrapper" id="send-code-form">
       <div class="forgot-password-card">
       <h2 class="form-title">Send Code</h2>
@@ -34,6 +35,6 @@ if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
       <a class="forgot-password" href="login.php" class="back-link">Back to Login</a>
     </div>
   </div>
-
+  <script src="../js/shared/ui.js"></script>
   <script type="module" src="../js/pages/auth.js"></script>
 </body>

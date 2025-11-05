@@ -73,11 +73,12 @@
     <link rel="stylesheet" href="../css/shared/modals.css">
     <link rel="stylesheet" href="../css/shared/forms.css">
     <link rel="stylesheet" href="../css/shared/responsive.css">
-
+    <link rel="stylesheet" href="../css/shared/modals.css">
     <link rel="stylesheet" href="../css/pages/visitor.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 </head>
 <body>
+    <?php include 'includes/_modals_shared.php'; ?>
     <div class="dashboard-container">
 
         <aside class="sidebar">
@@ -197,6 +198,7 @@
             </div>
         </div>
     </div>
+    <script src="../js/shared/ui.js"></script>
     <script type="module" src="../js/pages/visitor.js"></script>
 </body>
 </html>

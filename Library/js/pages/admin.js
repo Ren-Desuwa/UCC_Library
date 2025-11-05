@@ -85,10 +85,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if(result.success) {
                 window.location.href = "login.php";
             } else {
-                alert("Logout failed: " + result.message);
+                window.showPopup("Logout failed: " + result.message);
             }
         } catch (err) {
-            alert("An error occurred during logout.");
+            window.showPopup("An error occurred during logout.");
         }
     };
     if(logoutLink) logoutLink.addEventListener("click", handleLogout);
@@ -159,14 +159,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message);
+                    window.showPopup(result.message);
                     addLibrarianModal.classList.remove("active");
                     loadAccounts(); // Refresh the table
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                window.showPopup(`Error: ${error.message}`);
             }
         });
     }
@@ -190,13 +190,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
                     const result = await response.json();
                     if (result.success) {
-                        alert(result.message);
+                        window.showPopup(result.message);
                         loadAccounts(); // Refresh
                     } else {
                         throw new Error(result.message);
                     }
                 } catch (error) {
-                    alert(`Error: ${error.message}`);
+                    window.showPopup(`Error: ${error.message}`);
                 }
             }
         });
@@ -219,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("setting-reservation-expiry").value = result.data.reservation_expiry_hours;
             
         } catch (error) {
-            alert(`Error loading settings: ${error.message}`);
+            window.showPopup(`Error loading settings: ${error.message}`);
         }
     };
 
@@ -233,13 +233,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message);
+                    window.showPopup(result.message);
                     loadSettings(); // Refresh
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                window.showPopup(`Error: ${error.message}`);
             }
         });
     }
@@ -292,13 +292,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message);
+                    window.showPopup(result.message);
                     announcementForm.reset();
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                window.showPopup(`Error: ${error.message}`);
             }
         });
     }

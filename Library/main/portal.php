@@ -96,9 +96,11 @@
             include 'includes/_modals_librarian.php';
             include 'includes/_modals_admin.php';
         }
+        include 'includes/_modals_shared.php';
     ?>
 
     <?php
+        echo '<script src="../js/shared/ui.js"></script>';
         // === JAVASCRIPT ===
         if ($role == 'Student') {
             echo '<script type="module" src="../js/pages/student.js"></script>';
@@ -112,6 +114,7 @@
             echo '<script type="module" src="../js/pages/admin.js"></script>';
             // --- END FIX ---
         }
+        
     ?>
 </body>
 </html>

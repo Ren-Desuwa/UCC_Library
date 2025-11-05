@@ -95,3 +95,52 @@
 }
 
 /* === END NEW STYLES === */
+
+/*
+========================================
+  Modal & Button Styles (from main app)
+========================================
+*/
+
+/* --- Custom Popup Modal --- */
+#popup-modal {
+    z-index: 2000; 
+}
+
+#popup-modal .modal-content {
+    max-width: 400px;
+    animation: slide-down 0.3s ease-out;
+}
+
+#popup-modal .modal-body {
+    padding: 20px 25px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-color);
+    text-align: center;
+}
+
+/* --- Action Button Style --- */
+.action-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    background-color: var(--primary-color-dark);
+}
+
+.action-btn:active {
+    transform: scale(0.98);
+}

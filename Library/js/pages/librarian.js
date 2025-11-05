@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("setting-reservation-expiry").value = result.data.reservation_expiry_hours;
             
         } catch (error) {
-            alert(`Error loading settings: ${error.message}`);
+            window.showPopup(`Error loading settings: ${error.message}`);
         }
     };
     
@@ -416,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
             populateStudentCurrent(result.data.currentBorrows);
             populateStudentHistory(result.data.history);
         } catch (error) {
-            alert(`Error loading student details: ${error.message}`);
+            window.showPopup(`Error loading student details: ${error.message}`);
             studentModal.classList.remove("active");
         }
     };
@@ -496,10 +496,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if(result.success) {
                 window.location.href = "login.php";
             } else {
-                alert("Logout failed: " + result.message);
+                window.showPopup("Logout failed: " + result.message);
             }
         } catch (err) {
-            alert("An error occurred during logout.");
+            window.showPopup("An error occurred during logout.");
         }
     };
     if(logoutLink) logoutLink.addEventListener("click", handleLogout);
@@ -531,14 +531,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message || "Librarian created successfully!"); // Added fallback message
+                    window.showPopup(result.message || "Librarian created successfully!"); // Added fallback message
                     addLibrarianModal.classList.remove("active");
                     loadAccounts(); // Refresh the table
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                window.showPopup(`Error: ${error.message}`);
             }
         });
     }
@@ -563,13 +563,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
                     const result = await response.json();
                     if (result.success) {
-                        alert(result.message);
+                        window.showPopup(result.message);
                         loadAccounts(); // Refresh
                     } else {
                         throw new Error(result.message);
                     }
                 } catch (error) {
-                    alert(`Error: ${error.message}`);
+                    window.showPopup(`Error: ${error.message}`);
                 }
             }
         });
@@ -586,13 +586,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message);
+                    window.showPopup(result.message);
                     loadSettings(); // Refresh
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                window.showPopup(`Error: ${error.message}`);
             }
         });
     }
@@ -613,13 +613,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("../php/api/admin.php", { method: "POST", body: formData });
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message);
+                    window.showPopup(result.message);
                     announcementForm.reset();
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                window.showPopup(`Error: ${error.message}`);
             }
         });
     }
@@ -681,15 +681,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message);
+                    window.showPopup(result.message);
                     bookModal.classList.remove("active");
                     loadCatalog(); 
                 } else {
-                    alert("Error: " + result.message);
+                    window.showPopup("Error: " + result.message);
                 }
             } catch (error) {
                 console.error("Failed to submit form:", error);
-                alert("A critical error occurred.");
+                window.showPopup("A critical error occurred.");
             }
         });
     }
@@ -711,10 +711,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
                         if (result.success) {
-                            alert(result.message);
+                            window.showPopup(result.message);
                             loadCatalog();
-                        } else { alert("Error: " + result.message); }
-                    } catch (error) { alert("An error occurred: " + error.message); }
+                        } else { window.showPopup("Error: " + result.message); }
+                    } catch (error) { window.showPopup("An error occurred: " + error.message); }
                 }
             }
             if (editBtn) {
@@ -744,7 +744,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (copiesListBody) copiesListBody.innerHTML = ''; 
                     bookModal.dataset.currentBookId = book.book_id;
                     bookModal.classList.add("active");
-                } catch (error) { alert("Failed to load book for editing: " + error.message); }
+                } catch (error) { window.showPopup("Failed to load book for editing: " + error.message); }
             }
         });
     }
@@ -754,7 +754,7 @@ document.addEventListener("DOMContentLoaded", () => {
         addCopyForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const bookId = bookModal.dataset.currentBookId;
-            if (!bookId) { alert("Error: No book ID found. Cannot add copy."); return; }
+            if (!bookId) { window.showPopup("Error: No book ID found. Cannot add copy."); return; }
             const conditionInput = document.getElementById("add-copy-condition");
             const shelfInput = document.getElementById("add-copy-shelf");
             const formData = new FormData();
@@ -766,11 +766,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message);
+                    window.showPopup(result.message);
                     shelfInput.value = ''; 
                     await loadBookCopies(bookId); 
                 } else { throw new Error(result.message); }
-            } catch (error) { alert(`Error adding copy: ${error.message}`); }
+            } catch (error) { window.showPopup(`Error adding copy: ${error.message}`); }
         });
     }
     
@@ -793,11 +793,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                     const result = await response.json();
                     if (result.success) {
-                        alert(result.message);
+                        window.showPopup(result.message);
                         await loadBookCopies(bookId); 
                     } else { throw new Error(result.message); }
                 } catch (error) {
-                    alert(`Error updating copy: ${error.message}`);
+                    window.showPopup(`Error updating copy: ${error.message}`);
                     await loadBookCopies(bookId); 
                 }
             }
@@ -812,10 +812,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                     const result = await response.json();
                     if (result.success) {
-                        alert(result.message);
+                        window.showPopup(result.message);
                         await loadBookCopies(bookId); 
                     } else { throw new Error(result.message); }
-                } catch (error) { alert(`Error deleting copy: ${error.message}`); }
+                } catch (error) { window.showPopup(`Error deleting copy: ${error.message}`); }
             }
         });
     }
@@ -836,10 +836,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
                         if (result.success) {
-                            alert(result.message);
+                            window.showPopup(result.message);
                             loadArchive(archiveSearchInput ? archiveSearchInput.value : ""); 
-                        } else { alert("Error: " + result.message); }
-                    } catch (error) { alert("An error occurred: " + error.message); }
+                        } else { window.showPopup("Error: " + result.message); }
+                    } catch (error) { window.showPopup("An error occurred: " + error.message); }
                 }
             }
         });
@@ -869,7 +869,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     studentModal.classList.add("active");
                     loadStudentDetails(accountId);
                 } else {
-                    alert(`Error: Student modal not found. Cannot view details for #${accountId}`);
+                    window.showPopup(`Error: Student modal not found. Cannot view details for #${accountId}`);
                 }
             }
         });
@@ -904,10 +904,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
                         if (!result.success) throw new Error(result.message);
-                        alert(result.message);
+                        window.showPopup(result.message);
                         await loadStudentDetails(accountId); 
                         await loadUsers(userSearchInput ? userSearchInput.value : "");
-                    } catch (error) { alert(`Error: ${error.message}`); }
+                    } catch (error) { window.showPopup(`Error: ${error.message}`); }
                 }
             }
             if (e.target.classList.contains("return-book-btn")) {
@@ -920,9 +920,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
                         if (!result.success) throw new Error(result.message);
-                        alert(result.message);
+                        window.showPopup(result.message);
                         await loadStudentDetails(accountId);
-                    } catch (error) { alert(`Error: ${error.message}`); }
+                    } catch (error) { window.showPopup(`Error: ${error.message}`); }
                 }
             }
             if (e.target.classList.contains("waive-fine-btn")) {
@@ -935,9 +935,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                         const result = await response.json();
                         if (!result.success) throw new Error(result.message);
-                        alert(result.message);
+                        window.showPopup(result.message);
                         await loadStudentDetails(accountId);
-                    } catch (error) { alert(`Error: ${error.message}`); }
+                    } catch (error) { window.showPopup(`Error: ${error.message}`); }
                 }
             }
             if (e.target.classList.contains("issue-fine-btn")) {
@@ -959,10 +959,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                     const result = await response.json();
                     if (!result.success) throw new Error(result.message);
-                    alert(result.message);
+                    window.showPopup(result.message);
                     issueFineForm.reset();
                     await loadStudentDetails(accountId);
-                } catch (error) { alert(`Error: ${error.message}`); }
+                } catch (error) { window.showPopup(`Error: ${error.message}`); }
             });
         }
     }
@@ -1021,7 +1021,7 @@ document.addEventListener("DOMContentLoaded", () => {
         borrowForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!currentBorrowUser || !currentBorrowCopy) {
-                alert("Please select a valid user AND a valid book copy.");
+                window.showPopup("Please select a valid user AND a valid book copy.");
                 return;
             }
             const formData = new FormData();
@@ -1031,7 +1031,7 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                 const result = await response.json();
-                alert(result.message);
+                window.showPopup(result.message);
                 if (result.success) {
                     borrowForm.reset();
                     userNameDiv.textContent = "...";
@@ -1039,7 +1039,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     currentBorrowUser = null;
                     currentBorrowCopy = null;
                 }
-            } catch (e) { alert(e.message); }
+            } catch (e) { window.showPopup(e.message); }
         });
     }
     if (returnForm) {
@@ -1057,16 +1057,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     currentReturnTransaction = t.transaction_id;
                     returnDetailsDiv.style.display = "block";
                 } else {
-                    alert(result.message);
+                    window.showPopup(result.message);
                     returnDetailsDiv.style.display = "none";
                     currentReturnTransaction = null;
                 }
-            } catch (e) { alert(e.message); currentReturnTransaction = null; returnDetailsDiv.style.display = "none";}
+            } catch (e) { window.showPopup(e.message); currentReturnTransaction = null; returnDetailsDiv.style.display = "none";}
         });
         returnForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!currentReturnTransaction) {
-                alert("Please find a valid transaction first.");
+                window.showPopup("Please find a valid transaction first.");
                 return;
             }
             const formData = new FormData();
@@ -1075,13 +1075,13 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const response = await fetch("../php/api/librarian.php", { method: "POST", body: formData });
                 const result = await response.json();
-                alert(result.message);
+                window.showPopup(result.message);
                 if (result.success) {
                     returnForm.reset();
                     returnDetailsDiv.style.display = "none";
                     currentReturnTransaction = null;
                 }
-            } catch (e) { alert(e.message); }
+            } catch (e) { window.showPopup(e.message); }
         });
     }
 
