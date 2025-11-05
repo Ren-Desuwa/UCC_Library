@@ -7,17 +7,101 @@
     box-sizing: border-box;
 }
 
+/* --- THEME VARIABLES (Light Mode Default) --- */
+:root {
+    --primary: #A03A3A; /* Your Red Branding */
+    --primary-hover: #883535;
+    --background: #F4F7FC; /* Light background for the main area */
+    --content-bg: #FFFFFF; /* White card/table background */
+    --text-color: #2D3748; /* Dark text */
+    --secondary-text: #6B7280;
+    --border-color: #E5E7EB;
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --shadow-strong: rgba(0, 0, 0, 0.1);
+}
+
+/* --- DARK MODE OVERRIDES --- */
+.theme-dark {
+    --primary: #FF7070; /* Slightly brighter red for dark contrast */
+    --primary-hover: #E06060;
+    --background: #121212; /* Dark background */
+    --content-bg: #1E1E1E; /* Dark card/table background */
+    --text-color: #E0E0E0; /* Light text */
+    --secondary-text: #A0A0A0;
+    --border-color: #333333;
+    --shadow-light: rgba(255, 255, 255, 0.05);
+    --shadow-strong: rgba(0, 0, 0, 0.4);
+}
+
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #F4F7FC; /* Light background for the main area */
+    background-color: var(--background);
     min-height: 100vh;
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .dashboard-container {
     display: flex;
+    flex-direction: column; /* Changed to column for modern web layout */
     min-height: 100vh;
-    background-color: #1A202C; /* Dark background for the border around the sidebar */
 }
+
+/* Buttons and Links */
+.action-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-btn {
+    background-color: var(--primary);
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--secondary-text);
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--text-color);
+}
+.theme-dark .icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Status Tags - Adjusted to use variables for better dark mode appearance */
+.status-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.tag-available { background-color: #D1FAE5; color: #059669; }
+.tag-checkedout, .tag-overdue { background-color: #FEE2E2; color: #DC2626; } 
+/* Dark Mode overrides for status tags */
+.theme-dark .tag-available { background-color: #044F34; color: #34D399; }
+.theme-dark .tag-checkedout, .theme-dark .tag-overdue { background-color: #4D1212; color: #F87171; } 
 
 /* ================== DYNAMIC CONTENT SWITCHING STYLES (SPA) ================== */
 .content-panel {

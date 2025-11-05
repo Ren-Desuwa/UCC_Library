@@ -5,13 +5,14 @@ class AccountDAO {
     public function __construct($conn) {
         $this->conn = $conn;
     }
-    
+
     public function getAccountByUsername($username) {
         $sql = "SELECT * FROM accounts WHERE username = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $username);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
 
     public function getAccountByEmail($email) {
@@ -19,52 +20,37 @@ class AccountDAO {
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
 
-    public function verifyPassword($plainTextPassword, $passwordHash) {
-        $hashed_password_to_check = hash('sha256', $plainTextPassword);
-        return hash_equals($passwordHash, $hashed_password_to_check);
+    public function verifyPassword($password, $passwordHash) {
+        // Your database stores a raw SHA-256 hash
+        return hash('sha256', $password) === $passwordHash;
     }
 
     public function createAccount($username, $passwordHash, $role, $name, $email) {
-        $sql = "INSERT INTO accounts (username, password_hash, role, name, email, is_active) 
-                VALUES (?, ?, ?, ?, ?, 1)";
+        $sql = "INSERT INTO accounts (username, password_hash, role, name, email) 
+                VALUES (?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("sssss", $username, $passwordHash, $role, $name, $email);
         if (!$stmt->execute()) {
-             throw new Exception("DAO Error: Failed to create account: " . $stmt->error);
+            throw new Exception("DAO Error: Failed to create account: " . $stmt->error);
         }
         return $this->conn->insert_id;
     }
-    
-    /**
-     * NEW: This method was missing for the AccountManagementService.
-     * Toggles an account's active status.
-     */
-    public function updateAccountStatus($accountId, $isActive) {
-        $sql = "UPDATE accounts SET is_active = ? WHERE account_id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $isActiveInt = $isActive ? 1 : 0;
-        $stmt->bind_param("ii", $isActiveInt, $accountId);
-        if (!$stmt->execute()) {
-             throw new Exception("DAO Error: Failed to update account status: " . $stmt->error);
-        }
-        return $stmt->affected_rows > 0;
-    }
 
     /**
-     * NEW: This method was missing for StudentProfileService.
-     * Lets a user update their own non-critical details.
+     * NEW: This function is required for the reset password feature
      */
-    public function updateProfileDetails($accountId, $name, $contactNumber, $birthday) {
-        // Assumes birthday is a string like 'YYYY-MM-DD' or null
-        $sql = "UPDATE accounts SET name = ?, contact_number = ?, birthday = ? WHERE account_id = ?";
+    public function updatePassword($accountId, $newPasswordHash) {
+        $sql = "UPDATE accounts SET password_hash = ? WHERE account_id = ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssi", $name, $contactNumber, $birthday, $accountId);
+        $stmt->bind_param("si", $newPasswordHash, $accountId);
         if (!$stmt->execute()) {
-             throw new Exception("DAO Error: Failed to update profile details: " . $stmt->error);
+            throw new Exception("DAO Error: Failed to update password: " . $stmt->error);
         }
         return $stmt->affected_rows > 0;
     }
 }
+?>

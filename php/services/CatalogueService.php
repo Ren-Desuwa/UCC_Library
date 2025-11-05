@@ -86,3 +86,4 @@ class CatalogueService {
         return $this->genreDAO->getAllGenres();
     }
 }
+// <-- The extra '}' that was here is now removed.

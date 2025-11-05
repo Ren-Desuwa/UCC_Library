@@ -1,113 +1,104 @@
 <?php
-/**
- * API Endpoint: auth.php
- * * This file acts as the bridge between the frontend JavaScript (auth.js)
- * and the backend PHP logic (AuthService.php).
- * * It handles 'action' parameters from the URL to route requests.
- */
-
-// Set the content type header to JSON so the JavaScript fetch() knows how to read it.
 header('Content-Type: application/json');
+session_start(); 
 
-// Include the necessary backend files
-require_once __DIR__ . '/../db_connect.php'; // Database connection
-require_once __DIR__ . '/../services/AuthService.php'; // The logic file
+// --- Global Includes ---
+require_once __DIR__ . '/../db_connect.php';
+require_once __DIR__ . '/../services/AuthService.php';
+require_once __DIR__ . '/../models/AccountDAO.php'; // Needed by AuthService
 
-// Get the requested action from the URL (e.g., ?action=login)
-$action = $_GET['action'] ?? null;
-
-// Initialize the AuthService with the database connection
+// --- Instantiate Services ---
 $authService = new AuthService($conn);
+$accountDAO = new AccountDAO($conn); // For username lookup
 
-// Create an array to hold the JSON response
-$response = [
-    'success' => false,
-    'message' => 'Invalid action.'
-];
+// --- Base Response ---
+$response = ['success' => false, 'message' => 'Invalid action.'];
+
+$action = $_GET['action'] ?? '';
 
 try {
     switch ($action) {
-        /**
-         * --- LOGIN ---
-         * Handles the login request from auth.js
-         * Expects: $_POST['username'], $_POST['password']
-         */
+        
+        // --- LOGIN CASE ---
         case 'login':
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
-
-            if (empty($username) || empty($password)) {
-                throw new Exception("Username and password are required.");
-            }
-
-            // The login method starts the session and sets cookies on success
-            $account = $authService->login($username, $password);
-            
+            $authService->login($username, $password);
             $response['success'] = true;
-            $response['message'] = "Login successful. Redirecting...";
-            $response['role'] = $account['role']; // Send role back to JS
+            $response['message'] = 'Login successful.';
             break;
 
-        /**
-         * --- REGISTER ---
-         * Handles the registration request from auth.js
-         * Expects: $_POST['username'], $_POST['email'], $_POST['firstName'], etc.
-         */
+        // --- REGISTER CASE ---
         case 'register':
-            // Get all required fields from the registration form
             $username = $_POST['username'] ?? '';
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
-            $confirmPassword = $_POST['confirmPassword'] ?? '';
-            
-            // Combine names. The 'name' field in the DB is just one field.
             $firstName = $_POST['firstName'] ?? '';
+            $middleName = $_POST['middleName'] ?? '';
             $lastName = $_POST['lastName'] ?? '';
-            $name = trim($firstName . ' ' . $lastName);
-
-            // --- Server-Side Validation ---
-            if (empty($username) || empty($email) || empty($name) || empty($password)) {
-                throw new Exception("Please fill out all required fields.");
-            }
-            if ($password !== $confirmPassword) {
-                throw new Exception("Passwords do not match.");
-            }
-            if (strlen($password) < 8) {
-                throw new Exception("Password must be at least 8 characters long.");
-            }
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                throw new Exception("Invalid email format.");
-            }
-
-            // Call the registerStudent method
-            $accountId = $authService->registerStudent($username, $email, $name, $password);
-
+            $name = trim($firstName . ' ' . $middleName . ' ' . $lastName);
+            
+            $authService->registerStudent($username, $email, $name, $password);
+            
             $response['success'] = true;
-            $response['message'] = "Registration successful! You can now log in.";
+            $response['message'] = 'Registration successful.';
             break;
 
-        /**
-         * --- LOGOUT ---
-         * Handles a logout request.
-         */
+        // --- FORGOT PASSWORD CASE (UPDATED) ---
+        case 'forgotPassword':
+            $identifier = $_POST['recovery_identifier'] ?? '';
+            $email = '';
+            
+            if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+                $email = $identifier;
+            } else {
+                $account = $accountDAO->getAccountByUsername($identifier);
+                if ($account) {
+                    $email = $account['email'];
+                }
+            }
+            
+            if (!empty($email)) {
+                // This now sends a real email
+                $authService->requestPasswordReset($email);
+            }
+            
+            // SECURITY: Always send a generic success message
+            // This prevents attackers from guessing which emails are registered.
+            $response['success'] = true;
+            $response['message'] = 'If an account with that email or username exists, a password reset code has been sent.';
+            break;
+
+        // --- RESET PASSWORD CASE ---
+        case 'resetPassword':
+            $email = $_POST['email'] ?? '';
+            $otp = $_POST['otp'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+            
+            $authService->resetPassword($email, $otp, $newPassword, $confirmPassword);
+            
+            $response['success'] = true;
+            $response['message'] = 'Password has been reset successfully! You can now log in.';
+            break;
+
+        // --- LOGOUT CASE ---
         case 'logout':
-            // The token is stored in an HttpOnly cookie
             $token = $_COOKIE['auth_token'] ?? '';
-            $authService->logout($token); // This clears cookies and session
-            
+            $authService->logout($token);
             $response['success'] = true;
-            $response['message'] = 'Logged out successfully.';
-            break;
-            
-        default:
-            // This will use the default $response message
+            $response['message'] = 'Logout successful.';
             break;
     }
+
 } catch (Exception $e) {
-    // If anything in the 'try' block throws an Exception, catch it here.
-    $response['success'] = false;
+    // For security, only show detailed errors for non-production
+    // In a real production environment, you would log $e->getMessage()
+    // and just show a generic error to the user.
+    
+    // For our testing, we will show the real error.
     $response['message'] = $e->getMessage();
 }
 
-// Finally, encode the $response array as JSON and send it back to auth.js
 echo json_encode($response);
+?>

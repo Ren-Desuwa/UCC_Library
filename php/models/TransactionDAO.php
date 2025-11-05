@@ -3,7 +3,7 @@ class TransactionDAO {
     private $conn;
 
     public function __construct($conn) {
-        $this->conn = $conn;
+        $this.conn = $conn;
     }
 
     public function createTransaction($accountId, $copyId, $type, $dateDue, $status) {
@@ -13,6 +13,21 @@ class TransactionDAO {
         $stmt->bind_param("iissi", $accountId, $copyId, $type, $dateDue, $status);
         if (!$stmt->execute()) {
             throw new Exception("DAO Error: Failed to create transaction: "." - ".$stmt->error);
+        }
+        return $this->conn->insert_id;
+    }
+
+    /**
+     * === NEW: Creates a hold request (a transaction with no copy_id) ===
+     */
+    public function createHoldRequest($accountId, $bookId, $type, $status) {
+        // Note: copy_id is NULL because the hold is for the *book*, not a specific copy.
+        $sql = "INSERT INTO transactions (account_id, book_id, transaction_type, date_borrowed, status)
+                VALUES (?, ?, ?, NOW(), ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("iiss", $accountId, $bookId, $type, $status);
+        if (!$stmt->execute()) {
+            throw new Exception("DAO Error: Failed to create hold request: " . $stmt->error);
         }
         return $this->conn->insert_id;
     }
@@ -48,6 +63,19 @@ class TransactionDAO {
         return $result->fetch_assoc()['count'];
     }
 
+    /**
+     * === NEW: Checks if a user has an active loan OR hold for a specific BOOK ===
+     */
+    public function hasActiveHoldOrLoanForBook($accountId, $bookId) {
+        $sql = "SELECT COUNT(*) as count FROM transactions 
+                WHERE account_id = ? AND book_id = ? AND status IN ('Active', 'Overdue', 'Pending', 'Reserved')";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $accountId, $bookId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc()['count'] > 0;
+    }
+
     public function getTransactionById($transactionId) {
         $sql = "SELECT * FROM transactions WHERE transaction_id = ?";
         $stmt = $this->conn->prepare($sql);
@@ -79,10 +107,6 @@ class TransactionDAO {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
     
-    /**
-     * NEW: Fetches full details for a single transaction.
-     * This is for the student history modal.
-     */
     public function getTransactionDetailsById($transactionId, $accountId) {
         $sql = "SELECT 
                     t.*, 
@@ -103,3 +127,4 @@ class TransactionDAO {
         return $stmt->get_result()->fetch_assoc();
     }
 }
+?>

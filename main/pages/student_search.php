@@ -5,36 +5,8 @@
     
     $catalogueService = new CatalogueService($conn);
     
-    // FIXED: Updated all calls to match the new function signature
-    $recommendedBooks = $catalogueService->searchBooks("", "", "", 10, 0); 
-    $thrillerBooks = $catalogueService->searchBooks("", "", "Thriller", 10, 0);
-    $fantasyBooks = $catalogueService->searchBooks("", "", "Fantasy", 10, 0);
-
-    /**
-     * Helper function to render a single "book shelf" carousel.
-     */
-    function renderBookShelf($title, $books) {
-        if (empty($books)) return; // Don't show empty shelves
-
-        echo '<section class="book-shelf-student">';
-        echo '<div class="shelf-header-student">';
-        echo "<h2>{$title}</h2>";
-        echo '<a href="#" class="see-all-link-student">See All <span class="material-icons-round">arrow_forward_ios</span></a>';
-        echo '</div>';
-        echo '<div class="shelf-carousel-student">';
-        
-        foreach ($books as $book) {
-            // Use 'open-book-modal-btn' class for JS hook
-            echo '<a href="#" class="book-card-student open-book-modal-btn" data-book-id="' . htmlspecialchars($book['book_id']) . '">';
-            echo '<img src="../assets/covers/' . htmlspecialchars($book['cover_url']) . '" alt="' . htmlspecialchars($book['title']) . '">';
-            echo '<h3>' . htmlspecialchars($book['title']) . '</h3>';
-            echo '<p class="book-card-author-student">' . htmlspecialchars($book['author_names'] ?? 'N/A') . '</p>';
-            echo '</a>';
-        }
-        
-        echo '</div>'; // end shelf-carousel
-        echo '</section>'; // end book-shelf
-    }
+    // Get all books for the initial page load
+    $books = $catalogueService->searchBooks("", "", "", 50, 0); 
 ?>
 
 <div id="search-books-content" class="content-panel">
@@ -43,34 +15,56 @@
         <p>Browse our collection or search for something specific.</p>
     </header>
 
-    <section class="search-panel">
-        
-        <div class="search-controls-advanced">
-            <div class="search-bar-advanced" id="search-bar-advanced">
+    <section class="catalogue-section">
+        <header class="catalogue-header">
+            <div class="search-input-group hero-search">
                 <span class="material-icons-round search-icon">search</span>
                 <input type="text" id="student-search-input" placeholder="Search by Title, Author, or Genre...">
             </div>
-            <div class="filter-container">
-                <button class="filter-btn" id="filter-btn">
-                    <span class="material-icons-round">filter_list</span>
-                    Filter
-                </button>
-                <div class="filter-dropdown" id="filter-dropdown">
-                    <a href="#" data-filter-type="author">Author</a>
-                    <a href="#" data-filter-type="genre">Genre</a>
+            
+            <div class="catalogue-controls">
+                <select id="student-sort-dropdown" class="sort-dropdown">
+                    <option value="title_asc">Sort by Title (A-Z)</option>
+                    <option value="author_asc">Sort by Author (A-Z)</option>
+                </select>
+                <div class="view-switcher">
+                    <button id="student-grid-view-btn" class="icon-btn active" aria-label="Grid View">
+                        <span class="material-icons-round">grid_view</span>
+                    </button>
+                    <button id="student-list-view-btn" class="icon-btn" aria-label="List View">
+                        <span class="material-icons-round">view_list</span>
+                    </button>
                 </div>
+            </div>
+        </header>
+
+        <div id="student-catalogue-grid-view" class="catalogue-view active">
+            <div id="student-grid-body" class="catalogue-grid-container">
+                <?php if (empty($books)): ?>
+                    <p class="no-books-message">No books found in the catalogue.</p>
+                <?php else: ?>
+                    <?php foreach ($books as $book): ?>
+                        <?php
+                            $isAvailable = $book['available_copies'] > 0;
+                            $statusTag = $isAvailable ? 'tag-available' : 'tag-checkedout';
+                            $statusText = $isAvailable ? 'Available' : 'Checked Out';
+                        ?>
+                        <div class="book-card open-book-modal-btn" data-book-id="<?php echo $book['book_id']; ?>">
+                            <div class="card-cover-wrapper">
+                                <img src="../assets/covers/<?php echo htmlspecialchars($book['cover_url']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover-card">
+                            </div>
+                            <div class="card-details">
+                                <h3 class="card-title"><?php echo htmlspecialchars($book['title']); ?></h3>
+                                <p class="card-author"><?php echo htmlspecialchars($book['author_names'] ?? 'N/A'); ?></p>
+                                <span class="status-tag <?php echo $statusTag; ?>"><?php echo $statusText; ?></span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
 
-        <div id="catalogue-grid-view">
-            <?php
-                renderBookShelf("Recommended", $recommendedBooks);
-                renderBookShelf("Thrillers & Mystery", $thrillerBooks);
-                renderBookShelf("Fantasy & Adventure", $fantasyBooks);
-            ?>
-        </div>
-
-        <div id="catalogue-table-view" style="display: none;">
+        <div id="student-catalogue-list-view" class="catalogue-view">
             <div class="results-table-container">
                 <table class="results-table">
                     <thead>
@@ -83,14 +77,33 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody id="student-search-table-body">
-                        </tbody>
+                    <tbody id="student-list-body">
+                        <?php if (empty($books)): ?>
+                            <tr><td colspan="6" style="text-align: center;">No books found.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($books as $book): ?>
+                                <?php
+                                    $isAvailable = $book['available_copies'] > 0;
+                                    $statusTag = $isAvailable ? 'tag-available' : 'tag-checkedout';
+                                    $statusText = $isAvailable ? 'Available' : 'Checked Out';
+                                ?>
+                                <tr>
+                                    <td class="cover-cell"><img src="../assets/covers/<?php echo htmlspecialchars($book['cover_url']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover"></td>
+                                    <td><?php echo htmlspecialchars($book['title']); ?></td>
+                                    <td><?php echo htmlspecialchars($book['author_names'] ?? 'N/A'); ?></td> 
+                                    <td><?php echo htmlspecialchars($book['genre_names'] ?? 'N/A'); ?></td> 
+                                    <td><span class="status-tag <?php echo $statusTag; ?>"><?php echo $statusText; ?></span></td>
+                                    <td><button class="action-btn open-book-modal-btn" data-book-id="<?php echo $book['book_id']; ?>">View</button></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
                 </table>
-            </div>
-            <div class="pagination">
-                <p>Page 1 of 10</p>
             </div>
         </div>
         
+        <div class="pagination">
+            <p>Page 1 of 1</p> 
+        </div>
     </section>
 </div>

@@ -1,43 +1,68 @@
-/* ================== 3. SHARED TABLE STYLES ================== */
+/* ================== 3. SHARED TABLE STYLES & NEW CARD VIEW ================== */
+
+/* --- TABLE VIEW STYLES --- */
+.catalogue-view {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+    .catalogue-view.active {
+        display: block;
+        opacity: 1;
+    }
+
 
 .results-table-container {
-    background-color: white;
+    background-color: var(--content-bg);
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px var(--shadow-light);
     padding: 20px 30px;
     margin-bottom: 20px;
-    overflow-x: auto; 
+    overflow-x: auto;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .results-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: auto; 
+    table-layout: auto;
     min-width: 750px;
 }
 
-.results-table thead th {
-    text-align: left;
-    color: #6B7280;
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 15px 0;
-    border-bottom: 2px solid #E5E7EB;
+    .results-table thead th {
+        text-align: left;
+        color: var(--secondary-text);
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 15px 0;
+        border-bottom: 2px solid var(--border-color);
+        transition: color 0.3s, border-color 0.3s;
+    }
+
+    .results-table tbody td {
+        padding: 15px 0;
+        color: var(--text-color);
+        font-weight: 500;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        line-height: 1.4;
+        transition: color 0.3s, border-color 0.3s;
+    }
+
+    .results-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .results-table tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+.theme-dark .results-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
-.results-table tbody td {
-    padding: 10px 0; /* Reduced padding */
-    color: #2D3748;
-    font-weight: 500;
-    font-size: 1rem;
-    border-bottom: 1px solid #F3F4F6;
-    vertical-align: middle;
-    line-height: 1.4;
-}
-
-.results-table tbody tr:last-child td {
-    border-bottom: none;
-}
 
 /* Cover image in tables */
 .cover-cell {
@@ -52,31 +77,14 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Small cover in librarian catalog table */
+/* Small cover in librarian catalog table (adjusted to use book-cover) */
 .cover-cell img {
-    width: 40px;
-    height: 60px;
+    width: 60px;
+    height: 90px;
     object-fit: cover;
-    border-radius: 2px;
-    display: block; 
+    border-radius: 4px;
+    display: block;
 }
-
-
-/* Status Tags */
-.status-tag {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.tag-available { background-color: #D1FAE5; color: #059669; }
-.tag-checkedout { background-color: #FEE2E2; color: #DC2626; } 
-.tag-overdue { background-color: #FEE2E2; color: #DC2626; }
-.tag-returned { background-color: #E0E7FF; color: #4338CA; } 
-.tag-current { background-color: #FFEDD5; color: #F59E0B; } 
-.tag-late { background-color: #FFEDD5; color: #F59E0B; }
 
 
 /* Pagination */
@@ -84,6 +92,102 @@
     display: flex;
     justify-content: flex-end;
     font-size: 0.9rem;
-    color: #6B7280;
-    padding-right: 30px;
+    color: var(--secondary-text);
+    padding-right: 0;
+    margin-top: 20px;
 }
+
+
+/* --- NEW: CARD / GRID VIEW STYLES (Netflix Style) --- */
+.catalogue-grid-container {
+    display: grid;
+    /* === THIS IS THE FIX === */
+    /* Changed auto-fit to auto-fill */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 30px;
+    padding: 10px;
+}
+
+.book-card {
+    background-color: var(--content-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow-strong);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+    cursor: pointer;
+}
+
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+
+.card-cover-wrapper {
+    width: 100%;
+    /* Enforce a consistent aspect ratio for all covers (e.g., 2:3 book ratio) */
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+}
+
+.book-cover-card {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    display: block;
+    transition: transform 0.3s;
+}
+
+.book-card:hover .book-cover-card {
+    transform: scale(1.05);
+}
+
+.card-details {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 5px;
+    /* Truncate long titles */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-author, .card-genres {
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+    margin-bottom: 5px;
+}
+
+.card-author {
+    font-weight: 500;
+}
+
+.card-genres {
+    font-style: italic;
+}
+
+.card-details .status-tag {
+    margin-top: 8px;
+    margin-bottom: 12px;
+    align-self: flex-start;
+}
+
+.card-details .action-btn {
+    margin-top: auto; /* Pushes the button to the bottom */
+    width: 100%;
+    background-color: var(--primary);
+    color: white;
+}
+
+    .card-details .action-btn:hover {
+        background-color: var(--primary-hover);
+    }

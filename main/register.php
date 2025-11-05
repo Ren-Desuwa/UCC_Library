@@ -4,104 +4,167 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Management System - Register</title>
-    <!-- Updated to use the modular auth CSS -->
+    
+    <link rel="stylesheet" href="../css/shared/base.css">
+    <link rel="stylesheet" href="../css/shared/main.css">
+    <link rel="stylesheet" href="../css/shared/tables.css">
+    <link rel="stylesheet" href="../css/shared/modals.css">
+    <link rel="stylesheet" href="../css/shared/forms.css">
+    <link rel="stylesheet" href="../css/shared/responsive.css">
+    <link rel="stylesheet" href="../css/pages/visitor.css">
+    <link rel="stylesheet" href="../css/pages/visitor-redesign.css">
+
     <link rel="stylesheet" href="../css/pages/auth.css">
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 </head>
-<body>
-
-    <!-- <?php include 'includes/_navbar_visitor.php'; ?> - REMOVED as requested -->
-
-    <div class="register-container">
-        <div class="register-card">
-            <div class="left-panel">
-                <div class="content-wrapper">
-                    <h1 class="main-title">Welcome to Library Management System</h1>
-                    <p class="description">Access library resources, check book availability, and manage your borrowed items through our comprehensive student library management system.</p>
-                    
-                    </div>
+<body class="theme-dark"> <header class="site-header">
+        <div class="header-content">
+            <div class="header-logo">
+                <img src="../assets/icons/Logo.png" alt="Library MS Logo" class="library-logo">
+                <span class="app-name">Library MS</span>
             </div>
+            <nav class="header-nav">
+                <a href="index.php" class="nav-link">Search Catalogue</a>
+                <a href="about.php" class="nav-link">About Us</a>
+            </nav>
+            <div class="header-actions">
+                <button id="theme-toggle-btn" class="icon-btn" aria-label="Toggle light/dark theme">
+                    <span class="material-icons-round">light_mode</span>
+                </button>
+                <a href="login.php" class="action-btn primary-btn">
+                    Sign In
+                    <span class="material-icons-round">login</span>
+                </a>
+            </div>
+            <button class="mobile-nav-toggle icon-btn" aria-label="Toggle navigation">
+                <span class="material-icons-round">menu</span>
+            </button>
+        </div>
+    </header>
+
+    <nav class="mobile-nav">
+        <a href="index.php" class="nav-link">Search Catalogue</a>
+        <a href="about.php" class="nav-link">About Us</a>
+        <a href="login.php" class="nav-link">Sign In / Log In</a>
+    </nav>
+
+    <main class="main-content auth-main">
+        <div class="auth-card register-card">
             
-            <div class="right-panel">
-                <!-- UPDATED LOGO CONTAINER -->
-                <div class="logo-container">
-                    <!-- This is now a simple link with button behavior -->
-                    <a href="index.php" class="logo-link" aria-label="Go to Visitor Home">
-                        <img src="../assets/icons/LibraryMS_Logo.png" alt="Library Logo">
-                    </a>
+            <h2 class="form-title">Student Registration</h2>
+            <p class="form-subtitle">Enter your details to create an account</p>
+            
+            <form class="registration-form" id="register-form">
+                        
+                <div class="form-section-title">Personal Details</div>
+                <div class="form-group-triple">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="middleName">Middle Name</label>
+                        <input type="text" id="middleName" name="middleName">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
                 </div>
-                <!-- END UPDATED LOGO CONTAINER -->
+
+                <div class="form-group">
+                    <label for="username">Student ID (Username)</label>
+                    <input type="text" id="username" name="username" placeholder="e.g., 20240131-C" required>
+                </div>
                 
-                <div class="form-wrapper">
-                    <h2 class="form-title">Student Registration</h2>
-                    <p class="form-subtitle">Enter your details to create an account</p>
-                    
-                    <!-- Updated form with ID and name attributes for JS -->
-                    <form class="registration-form" id="register-form">
-                        
-                        <div class="form-section-title">Personal Details</div>
-                        <!-- NOTE: Added 'name' attributes to all inputs -->
-                        <div class="form-group-triple">
-                            <div class="form-group">
-                                <label for="firstName">First Name</label>
-                                <input type="text" id="firstName" name="firstName">
-                            </div>
-                            <div class="form-group">
-                                <label for="middleName">Middle Name</label>
-                                <input type="text" id="middleName" name="middleName">
-                            </div>
-                            <div class="form-group">
-                                <label for="lastName">Last Name (Suffix)</label>
-                                <input type="text" id="lastName" name="lastName">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <!-- NOTE: id/name is 'username' to match auth logic -->
-                            <label for="username">Student ID (Username)</label>
-                            <input type="text" id="username" name="username" placeholder="e.g., 20240131-C">
-                        </div>
-                        
-                        <div class="form-section-title">Contact Details</div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="contactNumber">Contact Number</label>
-                            <input type="tel" id="contactNumber" name="contactNumber">
-                        </div>
-
-                        <div class="form-section-title">Account Security</div>
-                        <div class="form-group-double">
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" id="password" name="password">
-                            </div>
-                            <div class="form-group">
-                                <label for="confirmPassword">Confirm Password</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword">
-                            </div>
-                        </div>
-
-                        <div class="form-options">
-                            <div class="checkbox-wrapper">
-                                <input type="checkbox" id="showPassword">
-                                <label for="showPassword">Show Passwords</label>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="register-button">Register Account</button>
-                        
-                        <!-- Updated link to login.php -->
-                        <a href="login.php" class="signin-link">Already have an account? Sign In</a>
-                    </form>
+                <div class="form-section-title">Contact Details</div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
                 </div>
+                
+                <div class="form-group">
+                    <label for="contactNumber">Contact Number</label>
+                    <input type="tel" id="contactNumber" name="contactNumber">
+                </div>
+
+                <div class="form-section-title">Account Security</div>
+                <div class="form-group-double">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="showPassword">
+                        <label for="showPassword">Show Passwords</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="register-button">Register Account</button>
+                
+                <a href="login.php" class="signin-link">Already have an account? Sign In</a>
+            </form>
+
+        </div>
+    </main>
+    <footer class="site-footer-main">
+        <p>Library Management System - For Educational Purposes</p>
+        <div class="footer-links">
+            <a href="#" class="modal-trigger-link" data-modal-target="privacy-modal">Privacy Policy</a>
+            <a href="#" class="modal-trigger-link" data-modal-target="terms-modal">Terms of Use</a>
+        </div>
+    </footer>
+
+    <div id="privacy-modal" class="modal-overlay">
+        <div class="modal-content text-modal-content">
+            <div class="modal-header">
+                <h2>Privacy Policy</h2>
+                <button class="modal-close-btn-icon"><span class="material-icons-round">close</span></button>
+            </div>
+            <div class="modal-body">
+                <h3>Our Commitment to Your Privacy</h3>
+                <p>This system is for educational purposes. All personal data, including Student ID, name, and borrowing history, is stored securely within our local database. This information is used solely for the function of the library management system, such as tracking checkouts and managing reservations.</p>
+                
+                <h3>Data Usage</h3>
+                <p>Your data will not be shared with any third parties. It is protected and will only be used to:</p>
+                <ul>
+                    <li>Manage your library account and borrowed items.</li>
+                    <li>Notify you of due dates or available reservations.</li>
+                    <li>Ensure accountability for library resources.</li>
+                </ul>
             </div>
         </div>
     </div>
+    <div id="terms-modal" class="modal-overlay">
+        <div class="modal-content text-modal-content">
+            <div class="modal-header">
+                <h2>Terms of Use</h2>
+                <button class="modal-close-btn-icon"><span class="material-icons-round">close</span></button>
+            </div>
+            <div class="modal-body">
+                <h3>Library Rules & Regulations</h3>
+                <p>By using this system and borrowing books, you agree to the following terms:</p>
+                <ul>
+                    <li>All borrowed items must be returned on or before the specified due date.</li>
+                    <li>Failure to return a book on time will result in a temporary suspension of borrowing privileges and/or a fine, as per university policy.</li>
+                    <li>You are responsible for the condition of the books you borrow. Any damage (e.g., writing, torn pages, water damage) must be reported and may incur a replacement fee.</li>
+                    <li>Do not share your Student ID or account with others. You are solely responsible for all items checked out to your account.</li>
+                    <li>Violations of these terms may lead to disciplinary action.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
     <script type="module" src="../js/pages/auth.js"></script>
+    
+    <script type="module" src="../js/pages/visitor.js"></script> 
 </body>
 </html>
-

@@ -1,65 +1,218 @@
 /* ================== 6. SHARED RESPONSIVE DESIGN ================== */
 
+/* --- TOP NAVBAR STYLES (New Layout) --- */
+.top-navbar {
+    background-color: var(--primary);
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-left {
+    display: flex; 
+    align-items: center;
+}
+.top-navbar .library-logo {
+    width: 40px; 
+    height: 40px; 
+    margin-right: 15px;
+}
+.top-navbar .logo-text {
+    display: flex; 
+    flex-direction: column;
+}
+.top-navbar .app-name { 
+    font-size: 1.1rem; 
+    font-weight: 700;
+}
+.top-navbar .portal-name { 
+    font-size: 0.75rem; 
+    opacity: 0.8;
+}
+
+.navbar-nav {
+    display: flex;
+    flex-grow: 1;
+    margin: 0 30px;
+}
+.navbar-nav .nav-item {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+    opacity: 0.9;
+}
+.navbar-nav .nav-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    opacity: 1;
+    font-weight: 600;
+}
+.navbar-nav .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+}
+.navbar-nav .material-icons-round {
+    font-size: 1.2rem;
+    margin-right: 8px;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.top-navbar .user-info {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+.top-navbar .user-icon {
+    font-size: 2rem;
+    margin-right: 10px;
+}
+.top-navbar .user-details {
+    line-height: 1.2;
+}
+.top-navbar .user-role { 
+    font-size: 0.9rem; 
+    font-weight: 600; 
+}
+.top-navbar .user-id { 
+    font-size: 0.75rem; 
+    opacity: 0.8; 
+}
+
+.mobile-menu-toggle {
+    display: none; /* Hidden on desktop */
+    color: white;
+}
+.top-navbar .theme-toggle-btn {
+    color: white;
+}
+.top-navbar .theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-sidebar {
+    display: none; /* Hidden by default */
+}
+
+
+/* --- MEDIUM SCREENS (1024px) --- */
 @media (max-width: 1024px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    .top-navbar {
+        padding: 15px 20px;
+    }
+    .navbar-right .user-details {
+        display: none; /* Hide text for user info */
+    }
+    .search-controls {
+        flex-wrap: wrap;
+    }
 }
 
+
+/* --- SMALL SCREENS (768px and below) --- */
 @media (max-width: 768px) {
-    .dashboard-container {
-        flex-direction: column;
-    }
-
-    /* Standard responsive sidebar adjustments */
-    .sidebar {
-        width: 100%;
-        height: auto;
-        padding: 0;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .sidebar-header {
-        padding: 15px 20px;
-        border-bottom: none;
-        margin-bottom: 0;
-    }
-    .sidebar-nav { display: none; }
-    .sidebar-footer { display: none; }
-    /* --- End responsive sidebar --- */
-
-    
     .main-content {
         padding: 20px;
+    }
+
+    /* Navbar Collapse for Mobile */
+    .top-navbar {
+        padding: 10px 15px;
+    }
+    .navbar-nav, .navbar-right {
+        display: none; /* Hide desktop nav items */
+    }
+    .mobile-menu-toggle {
+        display: block; /* Show mobile menu button */
+    }
+
+    /* Mobile Sidebar Menu (Appears when toggled) */
+    .mobile-sidebar {
+        display: none;
+        position: absolute;
+        top: 60px; /* Below the navbar */
+        left: 0;
+        width: 100%;
+        background-color: var(--content-bg);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 999;
+        padding: 15px 0;
+    }
+    .mobile-sidebar.active {
+        display: block;
+    }
+    .mobile-sidebar .sidebar-nav {
+        padding: 0 15px;
+    }
+    .mobile-sidebar .nav-item {
+        display: block;
+        padding: 10px 15px;
+        color: var(--text-color);
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 6px;
+        margin-bottom: 5px;
+    }
+    .mobile-sidebar .nav-item:hover {
+        background-color: var(--background);
+    }
+    .mobile-sidebar .sidebar-footer {
+        padding: 10px 15px 0;
+        border-top: 1px solid var(--border-color);
+        margin-top: 10px;
+    }
+    .mobile-sidebar .login-link {
+        color: var(--primary);
+        padding: 10px 0;
+    }
+    
+    /* Content Adjustments */
+    .search-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        padding: 15px;
+    }
+    .search-input-group {
+        max-width: 100%;
+    }
+    .sort-dropdown, .view-switcher {
+        width: 100%;
+    }
+    .view-switcher {
+        justify-content: center;
+        width: 50%; /* Only for the view switcher itself */
+        align-self: center;
     }
     
     .stats-grid {
         grid-template-columns: 1fr;
     }
     
-    .search-controls {
-        flex-direction: column;
-        gap: 15px;
-    }
-    .sort-dropdown {
-        min-width: 100%;
+    .results-table {
+        min-width: 600px; /* Ensure table is still scrollable */
     }
 
-    .modal-content {
-        max-width: 95%; 
-    }
-
-    /* Settings Page Mobile Fixes */
-    .settings-card {
-        padding: 20px;
-    }
-    .info-group {
-        grid-template-columns: 1fr; /* Stack label and input vertically */
-        max-width: 100%;
-        gap: 5px 0;
-    }
-    .info-label {
-        margin-bottom: 5px;
+    /* Card View Mobile Adjustment */
+    .catalogue-grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Smaller cards on mobile */
+        gap: 20px;
     }
 }

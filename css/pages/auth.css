@@ -1,229 +1,102 @@
-/* ================== AUTH PAGES (LOGIN/REGISTER) STYLES ================== */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* ================== NEW AUTH PAGES (LOGIN/REGISTER) STYLES ================== */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #f5e6e8 0%, #d8bfd8 100%);
-    min-height: 100vh;
+/* 1. Main Container */
+main.auth-main {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding-top: 70px; /* Re-apply the top padding for the header */
+    padding-bottom: 3rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    min-height: 100vh; /* Full viewport height */
+    box-sizing: border-box; /* Include padding in the height calculation */
+    flex-grow: 1;
 }
 
-.signin-container, .register-container {
+/* 2. The Auth Card */
+.auth-card {
     width: 100%;
-    max-width: 1100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.register-container {
-    max-width: 1200px;
-}
-
-.signin-card, .register-card {
-    display: flex;
-    width: 100%;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    min-height: 700px;
-}
-.register-card {
-    min-height: 750px;
-}
-
-/* Left Panel */
-.left-panel {
-    flex: 0 0 47%;
-    background: linear-gradient(135deg, #8B3A3A 0%, #A04747 50%, #8B3A3A 100%);
-    padding: 60px 50px 50px 50px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center; 
-    justify-content: flex-start;
-}
-.register-card .left-panel {
-    flex: 0 0 40%;
-}
-
-.left-panel::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url(../../assets/icons/Left_Panel_Background.png);
-    background-repeat: repeat;
-    background-size: 500px 500px;
-    pointer-events: none;
-}
-
-.content-wrapper {
-    position: relative;
-    z-index: 1;
-    color: white;
-    text-align: left;
-    width: 100%;
-}
-
-.main-title {
-    font-size: 2.6rem; 
-    font-weight: 700;
-    line-height: 1.15;
-    margin-bottom: 35px; 
-    color: white;
-}
-
-.description {
-    font-size: 1rem;
-    line-height: 1.65;
-    margin-bottom: 60px; 
-    opacity: 0.95;
-    font-weight: 300;
-}
-.register-card .description {
-    margin-bottom: 0;
-}
-
-/* Announcement Box (Sign-in Only) */
-.announcement-box {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 20px 25px;
+    max-width: 450px; /* Default width for LOGIN card */
+    background-color: var(--content-bg);
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    color: #333;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
 }
-.announcement-box h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #8B3A3A;
-}
-.announcement-box p {
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: #555;
-    font-weight: 400;
-}
+    /* Make Registration card wider */
+    .auth-card.register-card {
+        max-width: 800px;
+    }
 
-/* Right Panel */
-.right-panel {
-    flex: 0 0 55%;
-    background: white;
-    padding: 60px 70px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.register-card .right-panel {
-    flex: 0 0 60%;
-}
 
-.logo-container {
-    position: absolute;
-    top: 15px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 20px rgba(139, 58, 58, 0.4);
-}
-.logo-container img {
-    width: 150px;
-    height: 150px;
-    object-fit: contain;
-}
-
-.form-wrapper {
-    max-width: 420px;
-    margin: 0 auto;
-    width: 100%;
-}
-.register-card .form-wrapper {
-    max-width: 550px;
-}
-
+/* 3. Form Typography */
 .form-title {
-    font-size: 2.2rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: #8B3A3A;
+    color: var(--text-color); /* Use theme text color */
     margin-bottom: 10px;
     text-align: center;
 }
+
 .form-subtitle {
     font-size: 0.95rem;
-    color: #666;
-    margin-bottom: 40px;
+    color: var(--secondary-text); /* Use theme subtext color */
+    margin-bottom: 2.5rem;
     font-weight: 400;
     text-align: center;
 }
-.register-card .form-subtitle {
-    margin-bottom: 30px;
-}
 
+/* 4. Form Elements */
 .signin-form, .registration-form {
     display: flex;
     flex-direction: column;
 }
 
 .form-group {
-    margin-bottom: 25px;
-    flex: 1;
-}
-.register-card .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
+    flex: 1; /* For multi-column layout */
 }
 
-.form-group label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 8px;
-}
-.form-group input {
-    width: 100%;
-    padding: 14px 18px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.3s ease;
-    background: #fafafa;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-.form-group input:focus {
-    outline: none;
-    border-color: #A04747;
-    background: white;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(160, 71, 71, 0.1);
-}
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
 
-/* Form Options (Checkboxes, links) */
-.form-options, .form-options-reset {
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: 'Poppins', sans-serif;
+        transition: all 0.3s ease;
+        background: var(--background); /* Use theme's main bg for input */
+        color: var(--text-color);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary); /* Use theme's red/pink */
+            background: var(--content-bg);
+            box-shadow: 0 0 0 3px rgba(160, 71, 71, 0.2); /* Use red's RGB */
+        }
+
+        .form-group input::placeholder {
+            color: var(--secondary-text);
+        }
+
+/* 5. Form Options */
+.form-options {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-}
-.form-options-reset {
-    justify-content: flex-start;
-}
-.register-card .form-options {
-    justify-content: flex-start;
+    margin-bottom: 2rem;
 }
 
 .checkbox-wrapper {
@@ -231,47 +104,63 @@ body {
     align-items: center;
     gap: 8px;
 }
-.checkbox-wrapper input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-}
-.checkbox-wrapper label {
-    font-size: 0.85rem;
-    color: #666;
-    cursor: pointer;
-    user-select: none;
-}
+
+    .checkbox-wrapper input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .checkbox-wrapper label {
+        font-size: 0.85rem;
+        color: var(--secondary-text);
+        cursor: pointer;
+        user-select: none;
+    }
+
 .forgot-password {
     font-size: 0.85rem;
-    color: #A04747;
+    color: var(--primary);
     text-decoration: none;
     font-weight: 500;
 }
 
-/* Register Page Specific */
-.form-section-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #8B3A3A;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 5px;
-}
-.form-group-triple, .form-group-double {
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+/* 6. Buttons & Links */
+
+/* "Go Back" Link (on login page) */
+.go-back-link {
     display: flex;
-    gap: 15px;
-    margin-bottom: 10px; 
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--secondary-text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
 }
-.form-group-double { margin-bottom: 10px; }
+
+    .go-back-link:hover {
+        background-color: var(--background); /* Use light bg on hover */
+        color: var(--text-color);
+    }
+
+    .go-back-link .material-icons-round {
+        font-size: 1.1rem;
+    }
 
 
-/* Buttons and Links */
 .signin-button, .register-button {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #A04747 0%, #8B3A3A 100%);
+    background-color: #A03A3A; /* Hardcoded brand red */
     color: white;
     border: none;
     border-radius: 8px;
@@ -279,33 +168,88 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(139, 58, 58, 0.3);
     font-family: 'Poppins', sans-serif;
 }
-.signin-button:hover, .register-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 58, 58, 0.4);
-}
+
+    .signin-button:hover, .register-button:hover {
+        background-color: #883535;
+        transform: translateY(-2px);
+    }
+
+    .signin-button:disabled, .register-button:disabled {
+        background-color: var(--secondary-text);
+        cursor: not-allowed;
+        transform: none;
+    }
 
 .register-link, .signin-link {
-    display: block;
+    display: flex; /* <-- THIS IS THE TWEAK */
+    align-items: center; /* <-- THIS IS THE TWEAK */
+    justify-content: center; /* <-- THIS IS THE TWEAK */
+    gap: 0.25rem; /* <-- THIS IS THE TWEAK */
     text-align: center;
-    margin-top: 20px;
-    color: #A04747;
+    margin-top: 1.5rem;
+    color: var(--primary);
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
 }
 
-/* Responsive */
-@media (max-width: 968px) {
-    .signin-card, .register-card {
-        flex-direction: column;
-        min-height: auto;
+    .register-link:hover, .signin-link:hover {
+        text-decoration: underline;
     }
-    .left-panel { padding: 40px 30px; }
-    .main-title { font-size: 2rem; }
-    .right-panel { padding: 40px 30px; }
-    .logo-container { position: relative; top: 0; right: 0; margin: 0 auto 30px; }
-    .form-group-triple, .form-group-double { flex-direction: column; gap: 0; }
+
+/* 7. REGISTRATION-SPECIFIC STYLES */
+.form-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-group-triple, .form-group-double {
+    display: flex;
+    gap: 1.5rem;
+}
+    /* Reduce bottom margin for grouped inputs */
+    .form-group-triple .form-group,
+    .form-group-double .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .auth-card {
+        padding: 2rem 1.5rem;
+        max-width: 450px; /* Stack on mobile, all cards same width */
+    }
+
+        .auth-card.register-card {
+            max-width: 450px; /* Ensure it stacks */
+        }
+
+    .form-group-triple, .form-group-double {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    main.auth-main {
+        padding: 1.5rem 1rem;
+        padding-top: 60px;
+        min-height: 100vh;
+    }
+
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 }

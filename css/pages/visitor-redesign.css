@@ -1,0 +1,653 @@
+/* =================================
+   1. LAYOUT & HEADER
+================================= */
+body {
+    background-color: var(--background);
+    color: var(--text-color);
+}
+
+.main-content {
+    padding: 0;
+    margin-left: 0;
+    padding-top: 70px;
+}
+
+.site-header {
+    background-color: #A03A3A;
+    color: white;
+    padding: 0 2rem;
+    height: 70px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* === HEADER CENTERING FIX === */
+.header-content {
+    display: grid; /* Changed to grid */
+    grid-template-columns: 1fr auto 1fr; /* 3 columns: Left, Center, Right */
+    align-items: center;
+    height: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: white;
+    justify-self: start; /* Align to the start of the grid cell */
+}
+
+    .header-logo .library-logo {
+        height: 36px;
+        width: 36px;
+    }
+
+    .header-logo .app-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+.header-nav {
+    display: none; /* Hidden on mobile */
+    gap: 2rem; /* Increased gap */
+    justify-self: center; /* Perfectly center in the grid cell */
+}
+
+    /* === NEW ACTIVE INDICATOR === */
+    .header-nav .nav-link {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: white;
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+        position: relative;
+        padding-bottom: 5px; /* Space for the underline */
+    }
+
+        /* Underline style */
+        .header-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: white;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .header-nav .nav-link.active,
+        .header-nav .nav-link:hover {
+            opacity: 1;
+            font-weight: 600;
+        }
+
+            .header-nav .nav-link.active::after,
+            .header-nav .nav-link:hover::after {
+                width: 100%; /* Show underline on active/hover */
+            }
+/* === END OF NEW INDICATOR === */
+
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-self: end; /* Align to the end of the grid cell */
+}
+
+    .header-actions .icon-btn,
+    .header-actions .action-btn {
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .header-actions .icon-btn {
+        width: 40px;
+        padding: 0;
+    }
+
+    .header-actions .action-btn {
+        padding: 0 15px;
+        gap: 0.5rem;
+    }
+
+#theme-toggle-btn {
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+    #theme-toggle-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+.header-actions .primary-btn {
+    background-color: white;
+    color: #A03A3A;
+}
+
+    .header-actions .primary-btn:hover {
+        background-color: #f0f0f0;
+    }
+
+.mobile-nav-toggle {
+    display: block;
+    color: white;
+    justify-self: end; /* Ensure it's on the right on mobile */
+}
+
+    .mobile-nav-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+.mobile-nav {
+    display: none;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background-color: var(--content-bg);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 999;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+    .mobile-nav.active {
+        display: block;
+    }
+
+    .mobile-nav .nav-link {
+        display: block;
+        padding: 0.75rem 0;
+        color: var(--text-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+/* =================================
+   2. HERO SECTION
+================================= */
+.hero-section {
+    position: relative;
+    padding: 5rem 2rem;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    color: white;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(23, 26, 33, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+    .hero-overlay::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        background-image: radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 3%), radial-gradient(circle at 60% 80%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 4%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 2%), radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 3%);
+        background-size: 300px 300px;
+        animation: moveMotes 20s linear infinite;
+    }
+
+@keyframes moveMotes {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 -300px; /* Moves up */
+    }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .hero-content p {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+    }
+
+.hero-search {
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: var(--content-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+    .hero-search input {
+        color: var(--text-color);
+    }
+
+        .hero-search input::placeholder {
+            color: var(--secondary-text);
+            opacity: 1;
+        }
+
+
+/* =================================
+   3. CATALOGUE SECTION
+================================= */
+.catalogue-section {
+    max-width: 1400px;
+    margin: 2.5rem auto;
+    padding: 0 2rem;
+}
+
+.catalogue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+    .catalogue-header h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+.catalogue-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+    .catalogue-controls .sort-dropdown {
+        color: var(--text-color);
+        background-color: var(--content-bg);
+        border-color: var(--border-color);
+    }
+
+    .catalogue-controls .view-switcher .icon-btn.active {
+        background-color: #A03A3A; /* Hardcode dark red */
+        color: white;
+    }
+
+.no-books-message {
+    color: var(--secondary-text);
+    padding: 2rem;
+    text-align: center;
+    width: 100%;
+}
+
+.catalogue-grid-container {
+    display: grid;
+}
+
+/* =================================
+   4. FOOTER & MODAL FIX
+================================= */
+.site-footer-main {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 3rem;
+    background-color: var(--content-bg);
+    border-top: 1px solid var(--border-color);
+    color: var(--secondary-text);
+    font-size: 0.9rem;
+}
+
+.footer-links {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+    .footer-links a {
+        color: var(--secondary-text);
+        text-decoration: none;
+    }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+.modal-footer .action-btn,
+.modal-footer .modal-close-btn {
+    min-width: 110px;
+    justify-content: center;
+}
+
+/* =================================
+   5. RESPONSIVENESS
+================================= */
+@media (min-width: 769px) {
+    .header-nav {
+        display: flex; /* Show nav links on desktop */
+    }
+
+    .mobile-nav-toggle {
+        display: none; /* Hide hamburger menu */
+    }
+}
+
+/* On mobile, use the default header layout */
+@media (max-width: 768px) {
+    .site-header {
+        padding: 0 1rem;
+    }
+
+    .header-content {
+        display: flex; /* Revert to flex */
+        justify-content: space-between;
+    }
+
+    .header-logo {
+        justify-self: start;
+    }
+
+    .main-content {
+        padding-top: 60px;
+    }
+
+    .site-header {
+        height: 60px;
+    }
+
+    .header-logo .app-name {
+        display: none;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .catalogue-section {
+        padding: 0 1rem;
+    }
+
+    .catalogue-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* =================================
+   6. ABOUT US PAGE STYLES
+================================= */
+
+.about-hero {
+    text-align: center;
+    max-width: 800px;
+    margin: 3rem auto 3rem auto;
+    padding: 0 2rem;
+    color: var(--text-color);
+}
+
+    .about-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+.about-subtitle {
+    font-size: 1.1rem;
+    color: var(--secondary-text);
+    line-height: 1.7;
+}
+
+.features-section {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.feature-card {
+    background-color: var(--content-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 10px var(--shadow-light);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px var(--shadow-strong);
+    }
+
+    .feature-card .material-icons-round {
+        font-size: 2rem;
+        color: var(--primary); /* Uses your theme's red/pink */
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+        font-size: 0.95rem;
+        color: var(--secondary-text);
+        line-height: 1.6;
+    }
+
+@media (max-width: 768px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =================================
+   7. BOOK DETAIL MODAL STYLES
+================================= */
+
+.modal-body.book-detail-modal {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.book-detail-cover {
+    width: 30%;
+    max-width: 180px;
+    height: auto;
+    border-radius: 8px;
+    object-fit: contain;
+    align-self: flex-start;
+}
+
+.book-detail-info {
+    flex: 1; /* Takes remaining space */
+    display: flex;
+    flex-direction: column;
+}
+
+    .book-detail-info h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .book-detail-info p {
+        color: var(--secondary-text);
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+    }
+
+        .book-detail-info p strong {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+.book-detail-status {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .book-detail-status strong {
+        color: var(--text-color);
+        font-size: 0.9rem;
+    }
+
+    .book-detail-status .status-tag {
+        margin: 0;
+    }
+
+    .book-detail-status span {
+        color: var(--secondary-text);
+        font-size: 0.9rem;
+    }
+
+/* Responsive for modal */
+@media (max-width: 600px) {
+    .modal-body.book-detail-modal {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .book-detail-cover {
+        width: 50%;
+        max-width: 150px;
+        margin-bottom: 1rem;
+    }
+
+    .book-detail-status {
+        justify-content: center;
+    }
+}
+
+/* =================================
+   8. MODAL FIXES (NEW)
+================================= */
+
+/* Fix 1: Make modal title readable in dark mode */
+.modal-header h2 {
+    color: var(--text-color);
+}
+
+/* Fix 2: Make modal primary button red */
+.modal-footer .primary-btn {
+    background-color: #A03A3A; /* Hardcoded brand red */
+    color: white;
+}
+
+    .modal-footer .primary-btn:hover {
+        background-color: #883535; /* Darker red on hover */
+    }
+
+/* =================================
+   9. TEXT MODAL STYLES (Privacy/Terms)
+================================= */
+
+/* Style for the new modals */
+.text-modal-content {
+    max-width: 600px;
+    background-color: var(--content-bg);
+    color: var(--text-color);
+}
+
+    .text-modal-content .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom-color: var(--border-color); /* Use theme border */
+    }
+
+
+        /* Make header title readable */
+        .text-modal-content .modal-header h2 {
+            color: var(--text-color); /* Uses theme variable */
+        }
+
+/* New icon-style close button */
+.modal-close-btn-icon {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+    .modal-close-btn-icon:hover {
+        background-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .modal-close-btn-icon .material-icons-round {
+        font-size: 1.25rem;
+    }
+
+/* Style the body text */
+.text-modal-content .modal-body {
+    padding-top: 10px;
+}
+
+    .text-modal-content .modal-body h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.75rem;
+    }
+
+    .text-modal-content .modal-body p {
+        color: var(--secondary-text);
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+    }
+
+    .text-modal-content .modal-body ul {
+        list-style-position: inside;
+        color: var(--secondary-text);
+        margin-left: 0.5rem;
+    }
+
+    .text-modal-content .modal-body li {
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+    }

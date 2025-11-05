@@ -30,7 +30,6 @@ class BookCopyDAO {
     }
 
     /**
-     * NEW: This method was missing for the CatalogueService.
      * Fetches all copies for a specific book.
      */
     public function getCopiesForBook($bookId) {
@@ -41,4 +40,19 @@ class BookCopyDAO {
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+    
+    /**
+     * === NEW: Finds a single available copy of a book ===
+     */
+    public function findAvailableCopy($bookId) {
+        $sql = "SELECT * FROM book_copies 
+                WHERE book_id = ? AND status = 'Available' 
+                LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $bookId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc(); // Returns a copy, or null if none
+    }
 }
+?>

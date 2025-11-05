@@ -3,9 +3,10 @@
 .main-content {
     flex-grow: 1;
     padding: 40px;
-    background-color: #F4F7FC;
+    background-color: var(--background);
     min-width: 0;
-    margin-left: 250px; /* <-- ADD THIS LINE */
+    margin-left: 0; /* REMOVED fixed margin */
+    transition: padding 0.3s;
 }
 
 /* Header */
@@ -14,19 +15,111 @@
 }
 
 .main-header h1 {
-    font-size: 1.8rem;
+    font-size: 2rem; /* Slightly larger */
     font-weight: 700;
-    color: #2D3748;
+    color: var(--text-color);
     margin-bottom: 5px;
+    transition: color 0.3s;
 }
 
 .main-header p {
-    font-size: 0.95rem;
-    color: #6B7280;
+    font-size: 1rem;
+    color: var(--secondary-text);
     font-weight: 400;
+    transition: color 0.3s;
 }
 
-/* Stats Cards */
+/* Search and Controls Section */
+.search-panel {
+    margin-top: 30px;
+}
+.search-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding: 15px 20px;
+    background-color: var(--content-bg);
+    border-radius: 12px;
+    box-shadow: 0 2px 5px var(--shadow-light);
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 400px;
+    background-color: var(--background); /* Light input background */
+    border-radius: 8px;
+    padding: 8px 15px;
+    border: 1px solid var(--border-color);
+}
+.theme-dark .search-input-group {
+    background-color: #2D2D2D;
+    border-color: #444444;
+}
+
+.search-icon {
+    color: var(--secondary-text);
+    margin-right: 10px;
+}
+
+#catalogue-search-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.sort-dropdown {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--content-bg);
+    color: var(--text-color);
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+.theme-dark .sort-dropdown {
+    background-color: #2D2D2D;
+    border-color: #444444;
+}
+
+/* View Switcher */
+.view-switcher {
+    display: flex;
+    gap: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--background);
+    padding: 4px;
+}
+.theme-dark .view-switcher {
+    background-color: #2D2D2D;
+    border-color: #444444;
+}
+.view-switcher .icon-btn {
+    padding: 6px;
+    color: var(--secondary-text);
+    background: transparent;
+}
+.view-switcher .icon-btn.active {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.view-switcher .icon-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.view-switcher .icon-btn.active:hover {
+    background-color: var(--primary-hover);
+}
+
+
+/* Stats Cards (Kept for other portals, adjusted colors) */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -40,8 +133,10 @@
     align-items: center;
     padding: 25px;
     border-radius: 12px;
-    color: #000000;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
+    color: var(--text-color);
+    box-shadow: 0 5px 15px var(--shadow-strong); 
+    background-color: var(--content-bg);
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .stat-content {
@@ -61,39 +156,53 @@
 .stat-number {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #2D3748; 
+    color: var(--text-color); 
     text-decoration: none; 
 }
 
 /* Student-specific underline */
 .student-portal .stat-number {
     text-decoration: underline 3px; 
-    text-decoration-color: #2D3748;
+    text-decoration-color: var(--text-color);
     text-underline-offset: 4px;
 }
 
 .stat-icon {
     font-size: 3rem;
     opacity: 1;
-    color: #2D3748; 
+    color: var(--text-color); 
 }
 
 .info-icon {
-    color: #2D3748; 
+    color: var(--text-color); 
 }
 
-/* Card Colors */
-.card-blue { background-color: #8395f8; color: #2D3748; }
-.card-orange { background-color: #e0b373; color: #2D3748; }
-.card-green { background-color: #8ddbbf; color: #2D3748; }
+/* Card Colors - Adjusted to be lighter/more neutral backgrounds to work with Dark Mode */
+.card-blue { background-color: #E6EEFF; color: #2D3748; }
+.card-orange { background-color: #FFF3E0; color: #2D3748; }
+.card-green { background-color: #E0FFF0; color: #2D3748; }
+
+.theme-dark .card-blue { background-color: #1A284D; color: #C0D0FF; }
+.theme-dark .card-orange { background-color: #3D2D1A; color: #FFE7C0; }
+.theme-dark .card-green { background-color: #1A3D2D; color: #C0FFE7; }
+
 
 /* General Card Title (for settings, reports, etc) */
 .card-title {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #2D3748;
-    border-bottom: 1px solid #E5E7EB;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 15px;
-    margin-left: 280px;
+    margin-left: 0; /* Removed fixed margin */
     margin-bottom: 25px;
+    transition: color 0.3s;
+}
+
+/* Pagination Info */
+.pagination-info {
+    text-align: right;
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    margin-bottom: 10px;
 }

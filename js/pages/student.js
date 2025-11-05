@@ -3,14 +3,14 @@
  * Handles SPA navigation and logic for the Student portal.
  */
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- 1. SPA NAVIGATION LOGIC ---
-    const sidebar = document.querySelector(".sidebar-nav");
-    const mainContent = document.querySelector(".main-content");
-    const navbar = document.querySelector(".navbar-links");
 
-    if (sidebar && mainContent) {
-        // (SPA Navigation logic remains the same)
+    // --- 1. SPA NAVIGATION LOGIC (FIXED) ---
+    const mainNav = document.querySelector(".portal-nav");
+    const mobileNav = document.querySelector(".mobile-nav");
+    const mainContent = document.querySelector(".main-content");
+
+    if (mainNav && mobileNav && mainContent) {
+
         const switchPanel = (targetId) => {
             mainContent.querySelectorAll(".content-panel").forEach(panel => {
                 panel.classList.remove("active");
@@ -22,93 +22,78 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn(`Content panel with ID "${targetId}" not found.`);
             }
         };
+
         const handleNavClick = (e) => {
-            const navItem = e.target.closest(".nav-item, .nav-link, .nav-icon-button");
+            const navItem = e.target.closest(".nav-item");
             if (!navItem) return;
+
+            e.preventDefault();
             const href = navItem.getAttribute("href");
             if (!href || href === "#") return;
-            e.preventDefault(); 
-            const sidebarLink = sidebar.querySelector(`.nav-item[href="${href}"]`);
-            if (!sidebarLink) return;
-            const targetId = sidebarLink.dataset.target;
+
+            const targetId = navItem.dataset.target;
             if (!targetId) return;
-            sidebar.querySelectorAll(".nav-item").forEach(item => {
-                item.classList.remove("active");
-            });
-            if(sidebarLink) sidebarLink.classList.add("active");
-            if (navbar) {
-                navbar.querySelectorAll(".nav-link").forEach(item => {
-                    item.classList.remove("active");
-                });
-                const navLink = navbar.querySelector(`.nav-link[href="${href}"]`);
-                if(navLink) {
-                    navLink.classList.add("active");
+
+            document.querySelectorAll(`.nav-item[href="${href}"]`).forEach(link => {
+                const parentNav = link.closest('.portal-nav, .mobile-nav');
+                if (parentNav) {
+                    parentNav.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove("active");
+                    });
                 }
-            }
-            const settingsIcon = document.querySelector('.nav-icon-button[href="#settings"]');
-            if (settingsIcon) {
-                settingsIcon.addEventListener('click', handleNavClick);
-            }
+                link.classList.add("active");
+            });
+
             switchPanel(targetId);
             window.location.hash = href;
         };
-        sidebar.addEventListener("click", handleNavClick);
-        if (navbar) {
-            navbar.addEventListener("click", handleNavClick);
-        }
-        const settingsIcon = document.querySelector('.nav-icon-button[href="#settings"]');
-        if (settingsIcon) {
-            settingsIcon.addEventListener('click', handleNavClick);
-        }
+
+        mainNav.addEventListener("click", handleNavClick);
+        mobileNav.addEventListener("click", handleNavClick);
+
         const currentHash = window.location.hash || "#dashboard";
         let targetPanelId = "dashboard-content";
-        const activeLink = sidebar.querySelector(`.nav-item[href="${currentHash}"]`);
+
+        const activeLink = mainNav.querySelector(`.nav-item[href="${currentHash}"]`);
+
         if (activeLink) {
             targetPanelId = activeLink.dataset.target;
-            sidebar.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
-            activeLink.classList.add("active");
-            if (navbar) {
-                const activeNavLink = navbar.querySelector(`.nav-link[href="${currentHash}"]`);
-                if (activeNavLink) {
-                    navbar.querySelectorAll(".nav-link").forEach(item => item.classList.remove("active"));
-                    activeNavLink.classList.add("active");
+
+            document.querySelectorAll(`.nav-item[href="${currentHash}"]`).forEach(link => {
+                const parentNav = link.closest('.portal-nav, .mobile-nav');
+                if (parentNav) {
+                    parentNav.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove("active");
+                    });
                 }
-            }
+                link.classList.add("active");
+            });
         }
+
         switchPanel(targetPanelId);
+
     } else {
-        console.error("Sidebar or Main Content area not found.");
+        console.error("Navigation or Main Content area not found.");
     }
 
-    // --- 2. MODAL LOGIC (FIXED) ---
+    // --- 2. MODAL LOGIC (UPDATED) ---
     const announcementsModal = document.getElementById('announcements-modal');
     const bookModal = document.getElementById('book-modal');
     const historyModal = document.getElementById('history-modal');
+    const receiptModal = document.getElementById('borrow-receipt-modal');
 
     // Announcements Modal
     const openAnnouncementsLink = document.getElementById('open-announcements-modal');
-    const closeAnnouncementsBtn = document.getElementById('close-announcements-btn');
-
-    if (openAnnouncementsLink && announcementsModal && closeAnnouncementsBtn) {
+    if (openAnnouncementsLink && announcementsModal) {
         openAnnouncementsLink.addEventListener('click', (e) => {
             e.preventDefault();
             announcementsModal.classList.add('active');
         });
-        closeAnnouncementsBtn.addEventListener('click', () => {
-            announcementsModal.classList.remove('active');
-        });
-        // Close on overlay click
-        announcementsModal.addEventListener('click', (e) => {
-            if (e.target === announcementsModal) {
-                announcementsModal.classList.remove('active');
-            }
-        });
     }
 
-    // Book Modal (FIXED LOGIC)
+    // Book Modal
     const searchPanel = document.getElementById('search-books-content');
     if (searchPanel && bookModal) {
-        // Listen for clicks to OPEN the modal
         searchPanel.addEventListener('click', async (e) => {
             const bookButton = e.target.closest('.open-book-modal-btn');
             if (bookButton) {
@@ -119,20 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
-        // Listen for clicks to CLOSE the modal (using delegation)
-        bookModal.addEventListener('click', (e) => {
-            // Close if clicking overlay OR button with the class .modal-close-btn
-            if (e.target === bookModal || e.target.closest('.modal-close-btn')) {
-                bookModal.classList.remove('active');
-            }
-        });
+        // Listen for "Place Hold" click
+        bookModal.addEventListener('click', handleHoldClick);
     }
 
-    // History Modal (FIXED LOGIC)
+    // History Modal
     const historyPanel = document.getElementById('history-content');
     if (historyPanel && historyModal) {
-        // Listen for clicks to OPEN the modal
         historyPanel.addEventListener('click', async (e) => {
             const historyButton = e.target.closest('.open-history-modal-btn');
             if (historyButton) {
@@ -143,19 +121,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    }
 
-        // Listen for clicks to CLOSE the modal (using delegation)
-        historyModal.addEventListener('click', (e) => {
-            // Close if clicking overlay OR button with the class .close-history-modal-btn
-            if (e.target === historyModal || e.target.closest('.close-history-modal-btn')) {
-                historyModal.classList.remove('active');
-            }
-        });
+    // Receipt Modal
+    if (receiptModal) {
+        const printBtn = document.getElementById('print-receipt-btn');
+        if (printBtn) { // Check if print button exists
+            printBtn.addEventListener('click', printReceipt);
+        }
     }
 
 
-    // --- 3. SETTINGS PANEL LOGIC ---
-    // (Settings logic remains the same)
+    // --- 3. SETTINGS PANEL LOGIC (Unchanged) ---
     const editBtn = document.getElementById('edit-account-btn');
     const saveBtn = document.getElementById('save-account-btn');
     const infoInputs = document.querySelectorAll('.account-info-card .info-input');
@@ -171,13 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
             saveBtn.style.display = enabled ? 'inline-block' : 'none';
             editBtn.style.display = enabled ? 'none' : 'inline-block';
         };
-        toggleInputs(false); 
+        toggleInputs(false);
         editBtn.addEventListener('click', () => {
             toggleInputs(true);
             infoInputs[0].focus();
         });
         saveBtn.addEventListener('click', () => {
-            alert('Account information updated!'); 
+            alert('Account information updated!');
             toggleInputs(false);
         });
     }
@@ -188,10 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmPasswordField.type = type;
         });
     }
-    
-    // --- 4. LOGOUT LOGIC ---
-    // (Logout logic remains the same)
-    const logoutButton = document.getElementById("logout-button");
+
+    // --- 4. LOGOUT LOGIC (Unchanged) ---
     const logoutLink = document.getElementById("logout-link");
     const handleLogout = async (e) => {
         e.preventDefault();
@@ -201,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: "POST"
             });
             const result = await response.json();
-            if(result.success) {
+            if (result.success) {
                 window.location.href = "login.php";
             } else {
                 alert("Logout failed: " + result.message);
@@ -210,151 +185,92 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("An error occurred during logout.");
         }
     };
-    if(logoutButton) logoutButton.addEventListener("click", handleLogout);
-    if(logoutLink) logoutLink.addEventListener("click", handleLogout);
+    if (logoutLink) logoutLink.addEventListener("click", handleLogout);
 
     // --- 5. NEW CATALOGUE PAGE LOGIC ---
-    initCataloguePage();
+    // Replaced old function with new, simpler search logic
+    initNewCataloguePage();
 });
 
 
 /**
- * Initializes all logic for the new catalogue page.
+ * === NEW: Initializes new simple catalogue page ===
  */
-function initCataloguePage() {
+function initNewCataloguePage() {
+    // Get all the new elements
     const searchInput = document.getElementById("student-search-input");
-    const searchBar = document.getElementById("search-bar-advanced");
-    const gridView = document.getElementById("catalogue-grid-view");
-    const tableView = document.getElementById("catalogue-table-view");
-    const tableBody = document.getElementById("student-search-table-body");
-    const filterBtn = document.getElementById("filter-btn");
-    const filterDropdown = document.getElementById("filter-dropdown");
+    const sortDropdown = document.getElementById("student-sort-dropdown");
+    const gridViewBtn = document.getElementById("student-grid-view-btn");
+    const listViewBtn = document.getElementById("student-list-view-btn");
+    const gridViewContainer = document.getElementById("student-catalogue-grid-view");
+    const listViewContainer = document.getElementById("student-catalogue-list-view");
+    const gridBody = document.getElementById("student-grid-body");
+    const listBody = document.getElementById("student-list-body");
 
-    if (!searchInput || !gridView || !tableView || !tableBody || !filterBtn || !filterDropdown) {
-        return; 
+    // Exit if we're not on the catalogue page
+    if (!searchInput || !sortDropdown || !gridViewBtn || !listViewBtn) {
+        return;
     }
 
-    // --- Filter Dropdown Logic ---
-    filterBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        filterDropdown.classList.toggle("active");
+    // --- View Toggle Logic ---
+    gridViewBtn.addEventListener("click", () => {
+        gridViewContainer.classList.add("active");
+        listViewContainer.classList.remove("active");
+        gridViewBtn.classList.add("active");
+        listViewBtn.classList.remove("active");
     });
-    filterDropdown.addEventListener("click", (e) => {
-        e.preventDefault();
-        const filterType = e.target.dataset.filterType;
-        if (filterType) {
-            addFilterChip(filterType);
-            filterDropdown.classList.remove("active");
-        }
-    });
-    document.addEventListener("click", () => {
-        filterDropdown.classList.remove("active");
+    listViewBtn.addEventListener("click", () => {
+        listViewContainer.classList.add("active");
+        gridViewContainer.classList.remove("active");
+        listViewBtn.classList.add("active");
+        gridViewBtn.classList.remove("active");
     });
 
-    // --- Search Bar / View Switching Logic ---
-    // --- Search Bar / View Switching Logic (UPDATED) ---
-    const debouncedSearch = debounce(async (searchQuery) => {
+    // --- Search & Sort Logic ---
+    const debouncedSearch = debounce(async (searchTerm, sortBy) => {
         try {
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Searching...</td></tr>';
-            
-            // --- UPDATED to use POST and FormData ---
-            const formData = new FormData();
-            formData.append('action', 'searchBooks');
-            formData.append('term', searchQuery.term);
-            formData.append('author', searchQuery.author);
-            formData.append('genre', searchQuery.genre);
+            listBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Searching...</td></tr>';
+            gridBody.innerHTML = '<p class="no-books-message">Searching...</p>';
 
-            const response = await fetch(`../php/api/catalogue.php`, {
-                method: 'POST',
-                body: formData
-            });
-            // --- END UPDATE ---
+            // --- FIX: Use GET request to match catalogue.php API ---
+            const baseUrl = `../php/api/catalogue.php?action=searchBooks&term=${encodeURIComponent(searchTerm)}&sort=${encodeURIComponent(sortBy)}`;
 
-            if (!response.ok) throw new Error("Search request failed");
-
-            const html = await response.text();
-            
-            if (html.trim() === "") {
-                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No books found matching your criteria.</td></tr>';
+            // 1. Fetch Grid HTML
+            const gridResponse = await fetch(`${baseUrl}&view=grid`);
+            const htmlGrid = await gridResponse.text();
+            if (htmlGrid.trim() === "") {
+                gridBody.innerHTML = '<p class="no-books-message">No books found.</p>';
             } else {
-                tableBody.innerHTML = html;
+                gridBody.innerHTML = htmlGrid;
+            }
+
+            // 2. Fetch List HTML
+            const listResponse = await fetch(`${baseUrl}&view=list`);
+            const htmlList = await listResponse.text();
+            if (htmlList.trim() === "") {
+                listBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No books found.</td></tr>';
+            } else {
+                listBody.innerHTML = htmlList;
             }
 
         } catch (error) {
             console.error("Search error:", error);
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error loading results.</td></tr>';
+            listBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error loading results.</td></tr>';
+            gridBody.innerHTML = '<p class="no-books-message" style="color: red;">Error loading results.</p>';
         }
     }, 300);
 
-    searchInput.addEventListener("keyup", (e) => {
-        const query = buildSearchQuery();
-        
-        // Check if any search field has value
-        if (query.term.trim() !== "" || query.author.trim() !== "" || query.genre.trim() !== "") {
-            gridView.style.display = "none";
-            tableView.style.display = "block";
-            debouncedSearch(query); // Pass the whole query object
-        } else {
-            gridView.style.display = "block";
-            tableView.style.display = "none";
-        }
+    // Listeners
+    searchInput.addEventListener("keyup", () => {
+        debouncedSearch(searchInput.value, sortDropdown.value);
     });
-
-    // --- Filter Chip Logic ---
-    function addFilterChip(type) {
-        searchBar.querySelector(`.filter-chip[data-type="${type}"]`)?.remove();
-        const chip = document.createElement("span");
-        chip.className = "filter-chip";
-        chip.dataset.type = type;
-        chip.innerHTML = `
-            <span class="chip-label">${type.charAt(0).toUpperCase() + type.slice(1)}:</span>
-            <span class="chip-close material-icons-round">close</span>
-        `;
-        searchBar.insertBefore(chip, searchInput);
-        searchInput.focus();
-        
-        // Add click event to remove chip
-        chip.querySelector(".chip-close").addEventListener("click", () => {
-            chip.remove();
-            searchInput.value = ''; // Clear text input when a chip is removed
-            searchInput.dispatchEvent(new Event('keyup')); // Trigger a new search
-        });
-
-        // Trigger a new search when a chip is added
-        searchInput.dispatchEvent(new Event('keyup'));
-    }
-    
-    /**
-     * UPDATED: This now builds a query *object*
-     */
-    function buildSearchQuery() {
-        const authorChip = searchBar.querySelector('.filter-chip[data-type="author"]');
-        const genreChip = searchBar.querySelector('.filter-chip[data-type="genre"]');
-        
-        let freeText = searchInput.value;
-        let authorQuery = '';
-        let genreQuery = '';
-        let termQuery = '';
-
-        // If a chip is active, the free text applies *to that chip*
-        if (authorChip) {
-            authorQuery = freeText;
-        } else if (genreChip) {
-            genreQuery = freeText;
-        } else {
-            termQuery = freeText; // No chip, so search by title
-        }
-        
-        return {
-            term: termQuery,
-            author: authorQuery,
-            genre: genreQuery
-        };
-    }
+    sortDropdown.addEventListener("change", () => {
+        debouncedSearch(searchInput.value, sortDropdown.value);
+    });
 }
 
 /**
- * Debounce function (copied from visitor.js)
+ * Debounce function
  */
 function debounce(func, delay) {
     let timeoutId;
@@ -367,11 +283,11 @@ function debounce(func, delay) {
 }
 
 /**
- * Fetches book details for the student modal
+ * --- UPDATED: Fetches book details and adds a "Place Hold Now" button ---
  */
 async function openStudentBookModal(bookId, bookModal) {
     const bookModalContent = bookModal.querySelector(".modal-content");
-    
+
     try {
         bookModalContent.innerHTML = '<p style="padding: 30px; text-align: center;">Loading...</p>';
         bookModal.classList.add("active");
@@ -381,16 +297,19 @@ async function openStudentBookModal(bookId, bookModal) {
 
         const html = await response.text();
         bookModalContent.innerHTML = html;
-        
-        const footer = bookModalContent.querySelector('.book-modal-footer');
-        const actions = footer.querySelector('.book-actions');
-        
-        const signInBtn = actions.querySelector('.sign-in-btn');
-        if (signInBtn) {
-            signInBtn.textContent = "Place Hold";
-            signInBtn.classList.remove("sign-in-btn");
-            signInBtn.classList.add("place-hold-btn");
-            signInBtn.href = `#hold-${bookId}`; 
+
+        // --- BUTTON FIX ---
+        const footer = bookModalContent.querySelector('.modal-footer');
+        const signInLink = footer.querySelector('a.primary-btn');
+
+        if (signInLink) {
+            const placeHoldButton = document.createElement('button');
+            placeHoldButton.id = 'place-hold-btn'; // Use this ID to listen for clicks
+            placeHoldButton.className = 'action-btn primary-btn';
+            placeHoldButton.textContent = 'Place Hold Now'; // Set new text
+            placeHoldButton.dataset.bookId = bookId;
+
+            signInLink.replaceWith(placeHoldButton);
         }
 
     } catch (error) {
@@ -403,22 +322,85 @@ async function openStudentBookModal(bookId, bookModal) {
 }
 
 /**
+ * --- UPDATED: Handles the "Place Hold Now" button click ---
+ */
+async function handleHoldClick(e) {
+    const holdButton = e.target.closest('#place-hold-btn');
+    if (!holdButton) return;
+
+    const bookId = holdButton.dataset.bookId;
+    if (!bookId) return;
+
+    if (!confirm("Are you sure you want to place a hold for this book?\nA librarian will review your request.")) return;
+
+    holdButton.textContent = "Placing Hold...";
+    holdButton.disabled = true;
+
+    try {
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+
+        // Call the new "requestHold" action
+        const response = await fetch('../php/api/student.php?action=requestHold', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Close the book modal
+            document.getElementById('book-modal').classList.remove('active');
+            // Show a simple success message
+            alert("Hold placed successfully! A librarian will process your request.");
+            // You might want to refresh the dashboard or catalogue here
+        } else {
+            alert(`Error: ${result.message}`);
+        }
+
+    } catch (error) {
+        console.error("Hold error:", error);
+        alert("An unexpected error occurred. Please try again.");
+    } finally {
+        holdButton.textContent = "Place Hold Now";
+        holdButton.disabled = false;
+    }
+}
+
+/**
+ * --- REMOVED Receipt Modal Functions ---
+ */
+function printReceipt() {
+    // This function is still here for the old modal, but won't be called by "Place Hold"
+    const content = document.getElementById('receipt-content-to-print').innerHTML;
+    const printWindow = window.open('', '', 'height=500,width=500');
+    printWindow.document.write('<html><head><title>Transaction Receipt</title>');
+    printWindow.document.write('<style>body{font-family: Arial, sans-serif; line-height: 1.6;} p{margin-bottom: 10px;} strong{display: inline-block; min-width: 120px;}</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(content);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+}
+
+
+/**
  * Fetches history details for the student modal
  */
 async function openHistoryModal(transactionId, historyModal) {
     const historyModalContent = historyModal.querySelector(".modal-content");
-    
+
     try {
         historyModalContent.innerHTML = '<p style="padding: 30px; text-align: center;">Loading...</p>';
         historyModal.classList.add("active");
 
-        // Call the new student API endpoint
         const response = await fetch(`../php/api/student.php?action=getHistoryDetails&id=${transactionId}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const html = await response.text();
         historyModalContent.innerHTML = html;
-        
+
     } catch (error) {
         console.error("Error fetching history details:", error);
         historyModalContent.innerHTML = `

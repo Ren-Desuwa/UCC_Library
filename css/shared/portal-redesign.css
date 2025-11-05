@@ -1,0 +1,459 @@
+/* =================================
+   1. PORTAL LAYOUT & HEADER
+================================= */
+body {
+    background-color: var(--background);
+}
+
+.main-content {
+    padding: 110px 40px 40px 40px;
+    margin-left: 0;
+    box-sizing: border-box;
+    min-height: 100vh;
+}
+
+.portal-header {
+    background-color: #A03A3A;
+    color: white;
+    padding: 0 2rem;
+    height: 70px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+    .portal-header .header-content {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr; /* 3 columns: Left, Center, Right */
+        align-items: center;
+        height: 100%;
+        margin: 0 0; /* Changed from 0 auto */
+        /* REMOVED: max-width: 1600px; to allow content to stretch to edges */
+        gap: 2rem;
+    }
+/* ... rest of the file content ... */
+/* Left: Logo */
+.portal-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: white;
+    justify-self: start; /* Align left */
+}
+
+    .portal-logo .library-logo {
+        height: 36px;
+        width: 36px;
+    }
+
+    .portal-logo .app-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+/* Removed portal-name */
+
+/* Center: Navigation */
+.portal-nav {
+    display: none; /* Hidden on mobile */
+    justify-self: center; /* Center links in the grid cell */
+    display: flex;
+    gap: 2rem;
+}
+
+    .portal-nav .nav-item {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: white;
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+        position: relative;
+        padding-bottom: 5px; /* Space for the underline */
+    }
+
+        .portal-nav .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: white;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .portal-nav .nav-item.active,
+        .portal-nav .nav-item:hover {
+            opacity: 1;
+            font-weight: 600;
+        }
+
+            .portal-nav .nav-item.active::after,
+            .portal-nav .nav-item:hover::after {
+                width: 100%; /* Show underline on active/hover */
+            }
+
+        .portal-nav .nav-item .material-icons-round {
+            display: none;
+        }
+
+
+/* === NEW: Right Side User Menu === */
+.portal-user {
+    display: none; /* Hidden on mobile */
+    justify-self: end; /* Align right */
+    position: relative;
+}
+
+.user-menu-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .user-menu-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .user-menu-toggle .user-icon {
+        font-size: 1.5rem;
+    }
+
+    .user-menu-toggle .user-name-toggle {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .user-menu-toggle .dropdown-icon {
+        font-size: 1.5rem;
+        transition: transform 0.2s;
+    }
+    /* Rotate arrow when active */
+    .user-menu-toggle.active .dropdown-icon {
+        transform: rotate(180deg);
+    }
+
+/* New Dropdown Menu */
+.user-menu-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px); /* 10px below the button */
+    right: 0;
+    width: 280px;
+    background-color: var(--content-bg);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    z-index: 1001;
+    overflow: hidden;
+}
+
+    .user-menu-dropdown.active {
+        display: block;
+    }
+
+/* Dropdown Content */
+.user-info-dropdown {
+    padding: 1rem 1.25rem 0.5rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info-label {
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+}
+
+.user-info-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 0.75rem 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+    .dropdown-item:hover {
+        background-color: var(--background);
+    }
+
+    .dropdown-item .material-icons-round {
+        font-size: 1.25rem;
+        color: var(--secondary-text);
+    }
+
+    .dropdown-item.logout-link {
+        color: var(--primary); /* Red color for logout */
+    }
+
+        .dropdown-item.logout-link .material-icons-round {
+            color: var(--primary);
+        }
+
+/* Theme Toggle inside dropdown */
+#theme-toggle-link {
+    justify-content: space-between;
+}
+/* Hide the real button, we just use its state */
+#theme-toggle-btn {
+    display: none;
+}
+/* Show the correct icon based on theme */
+#theme-toggle-link .material-icons-round {
+    display: none;
+}
+
+body:not(.theme-dark) #theme-toggle-link .material-icons-round[data-icon="light"] {
+    display: block;
+    color: var(--text-color);
+}
+
+body.theme-dark #theme-toggle-link .material-icons-round[data-icon="dark"] {
+    display: block;
+    color: var(--text-color);
+}
+
+/* =================================
+   2. MOBILE NAVIGATION
+================================= */
+.mobile-nav-toggle {
+    display: none; /* Hidden on desktop */
+    color: white;
+    justify-self: end;
+}
+
+.mobile-nav {
+    display: none;
+    position: fixed;
+    top: 70px; /* Below header */
+    left: 0;
+    right: 0;
+    background-color: var(--content-bg);
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 999;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+}
+
+    .mobile-nav.active {
+        display: block;
+    }
+
+    .mobile-nav .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        color: var(--text-color);
+        text-decoration: none;
+        font-weight: 500;
+        border-radius: 8px;
+    }
+
+        .mobile-nav .nav-item:hover, .mobile-nav .nav-item.active {
+            background-color: var(--background);
+        }
+
+        .mobile-nav .nav-item .material-icons-round {
+            font-size: 1.5rem;
+        }
+
+    /* Mobile user info & logout */
+    .mobile-nav .user-info-dropdown {
+        padding: 1rem 1rem 0.5rem 1rem;
+    }
+
+    .mobile-nav .dropdown-item {
+        padding: 1rem;
+    }
+
+    .mobile-nav .dropdown-divider {
+        margin: 0.5rem 0;
+    }
+    /* Mobile theme toggle doesn't need to be a button */
+    .mobile-nav #theme-toggle-link {
+        justify-content: flex-start;
+    }
+
+/* =================================
+   3. RESPONSIVENESS
+================================= */
+@media (min-width: 1025px) {
+    .portal-nav {
+        display: flex;
+    }
+
+    .portal-user {
+        display: block; /* Use block for position:relative */
+    }
+
+    .mobile-nav-toggle {
+        display: none;
+    }
+}
+
+@media (max-width: 1024px) {
+    .portal-header .header-content {
+        grid-template-columns: 1fr 1fr; /* Logo, Toggle */
+    }
+
+    .portal-logo .portal-name {
+        display: none;
+    }
+
+    .portal-nav {
+        display: none;
+    }
+
+    .portal-user {
+        display: none;
+    }
+
+    .mobile-nav-toggle {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .portal-header {
+        padding: 0 1rem;
+    }
+
+        .portal-header .header-content {
+            display: flex; /* Revert to flex for mobile */
+            justify-content: space-between;
+        }
+
+    .portal-logo .app-name {
+        display: none;
+    }
+
+    .main-content {
+        padding: 80px 20px 20px 20px;
+    }
+}
+
+/* =================================
+   4. FOOTER & MODAL STYLES
+================================= */
+.site-footer-main {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 3rem;
+    background-color: var(--content-bg);
+    border-top: 1px solid var(--border-color);
+    color: var(--secondary-text);
+    font-size: 0.9rem;
+}
+
+.footer-links {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+    .footer-links a {
+        color: var(--secondary-text);
+        text-decoration: none;
+    }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+/* Text Modals (Privacy/Terms) */
+.text-modal-content {
+    max-width: 600px;
+    background-color: var(--content-bg);
+    color: var(--text-color);
+}
+
+    .text-modal-content .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom-color: var(--border-color);
+    }
+
+        .text-modal-content .modal-header h2 {
+            color: var(--text-color);
+        }
+
+.modal-close-btn-icon {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+    .modal-close-btn-icon:hover {
+        background-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .modal-close-btn-icon .material-icons-round {
+        font-size: 1.25rem;
+    }
+
+.text-modal-content .modal-body {
+    padding-top: 10px;
+}
+
+    .text-modal-content .modal-body h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.75rem;
+    }
+
+    .text-modal-content .modal-body p {
+        color: var(--secondary-text);
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+    }
+
+    .text-modal-content .modal-body ul {
+        list-style-position: inside;
+        color: var(--secondary-text);
+        margin-left: 0.5rem;
+    }
+
+    .text-modal-content .modal-body li {
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+    }

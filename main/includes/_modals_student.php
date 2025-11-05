@@ -1,7 +1,7 @@
 <div id="announcements-modal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
+    <div class="modal-content text-modal-content"> <div class="modal-header">
             <h2>View All Announcements</h2>
+            <button class="modal-close-btn-icon"><span class="material-icons-round">close</span></button>
         </div>
         
         <div class="modal-body">
@@ -13,7 +13,7 @@
             </div>
         </div>
 
-        <div class="modal-footer">
+        <div class="modal-footer" style="justify-content: flex-end;">
             <button id="close-announcements-btn" class="modal-close-btn">Close</button>
         </div>
     </div>
@@ -21,66 +21,39 @@
 
 <div id="book-modal" class="modal-overlay">
     <div class="modal-content book-modal-content">
-        <div class="book-details-grid">
-            <div class="book-cover-area">
-                <img src="../assets/covers/CoverBookTemp.png" alt="Book Cover" class="book-detail-cover">
-            </div>
-            <div class="book-info-area">
-                <h2 class="book-detail-title">Loading...</h2>
-                <dl class="book-meta-list">
-                    <dt>Author</dt><dd>...</dd>
-                    <dt>Shelf Location</dt><dd>...</dd>
-                    <dt>ISBN</dt><dd>...</dd>
-                    <dt>Publisher</dt><dd>...</dd>
-                    <dt>Description</dt><dd>...</dd>
-                </dl>
-            </div>
         </div>
-        <div class="modal-footer book-modal-footer">
-            <div class="book-status-info">
-            </div>
-            <div class="book-actions">
-                <button class="action-btn place-hold-btn">Place Hold</button>
-                <button id="close-book-modal-btn" class="modal-close-btn close-book-modal-btn">Close</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div id="history-modal" class="modal-overlay">
     <div class="modal-content history-modal-content">
-        <div class="history-details-grid">
-            <div class="book-cover-area">
-                <img src="../assets/covers/CoverBookTemp.png" alt="Book Cover" class="book-detail-cover">
-            </div>
-            <div class="book-info-area">
-                <h2 class="book-detail-title">Loading...</h2>
-                <dl class="book-meta-list">
-                    <dt>Author</dt><dd>...</dd>
-                    <dt>Shelf Location</dt><dd>...</dd>
-                    <dt>ISBN</dt><dd>...</dd>
-                </dl>
-            </div>
-            <div class="receipt-area">
-                <h3 class="receipt-title">Transaction Receipt</h3>
-                <dl class="receipt-list">
-                    <dt>Borrowed Date:</dt><dd>...</dd>
-                    <dt>Expected Due:</dt><dd>...</dd>
-                    <dt>Actual Return:</dt><dd>...</dd>
-                    <dt>Status:</dt><dd class="receipt-status-text">...</dd>
-                </dl>
-            </div>
-            <div class="notes-area">
-                <h3 class="notes-title">Librarian Notes</h3>
-                <div class="notes-box">
-                    <p>...</p>
-                </div>
-            </div>
         </div>
-        <div class="modal-footer book-modal-footer history-modal-footer">
-            <div class="book-actions">
-                <button id="close-history-modal-btn" class="modal-close-btn close-history-modal-btn">Close</button>
+</div>
+
+<div id="borrow-receipt-modal" class="modal-overlay">
+    <div class="modal-content text-modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2>Borrowing Successful</h2>
+            <button class="modal-close-btn-icon"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body" id="receipt-content-to-print">
+            <h3 style="text-align: center; margin-bottom: 20px; color: var(--text-color);">Transaction Receipt</h3>
+            <div class="receipt-details">
+                <p><strong>Book Title:</strong> <span id="receipt-book-title"></span></p>
+                <p><strong>Borrowed By:</strong> <span id="receipt-user-name"></span></p>
+                <p><strong>Transaction ID:</strong> <span id="receipt-trans-id"></span></p>
+                <p><strong>Date Borrowed:</strong> <span id="receipt-date-borrowed"></span></p>
+                <p><strong>Date Due:</strong> <span id="receipt-date-due" style="font-weight: 700; color: var(--primary);"></span></p>
             </div>
+            <p style="text-align: center; margin-top: 20px; color: var(--secondary-text);">
+                Thank you! Please return the book on or before the due date.
+            </p>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between;">
+            <button id="print-receipt-btn" class="action-btn">
+                <span class="material-icons-round">print</span>
+                Print
+            </button>
+            <button class="modal-close-btn">Close</button>
         </div>
     </div>
 </div>

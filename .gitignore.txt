@@ -1,0 +1,16 @@
+# Visual Studio temporary files
+.vs/
+
+# Common IDE files to ignore
+*.code-workspace
+
+# Binaries and build files
+bin/
+obj/
+
+# Log files
+*.log
+
+# PHP and XAMPP specific files (optional but recommended)
+vendor/
+.env
